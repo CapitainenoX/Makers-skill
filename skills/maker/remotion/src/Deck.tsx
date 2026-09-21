@@ -16,10 +16,18 @@ import { Stat } from "./scenes/Stat";
 import { Code } from "./scenes/Code";
 import { Compare } from "./scenes/Compare";
 import { Outro } from "./scenes/Outro";
+import { MediaScene } from "./scenes/Media";
+import { Tiles } from "./scenes/Tiles";
+import { Annotate } from "./scenes/Annotate";
+import { Marquee } from "./scenes/Marquee";
+import { Quote } from "./scenes/Quote";
+import { Progress } from "./scenes/Progress";
 
 const RENDERERS = {
   textStack: TextStack, pill: Pill, logoList: LogoList, card: Card,
   bullets: Bullets, stat: Stat, code: Code, compare: Compare, outro: Outro,
+  media: MediaScene, tiles: Tiles, annotate: Annotate, marquee: Marquee,
+  quote: Quote, progress: Progress,
 } as const;
 
 /** Wraps one scene: owns its cross-fade in and the final fade-out of the video. */

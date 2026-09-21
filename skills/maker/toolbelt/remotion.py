@@ -13,12 +13,18 @@ from __future__ import annotations
 import argparse, json, os, shutil, sys
 from pathlib import Path
 
-from _common import (die, emit, ffmpeg, home, read_json, run, safe_path,
-                     slugify, which, write_json)
+from _common import (die, emit, ffmpeg, ffprobe_json, home, read_json, run,
+                     safe_path, slugify, which, write_json)
 
 TEMPLATE = Path(__file__).resolve().parent.parent / "remotion"
 SCENE_TYPES = {"textStack", "pill", "logoList", "card", "bullets", "stat",
-               "code", "compare", "outro"}
+               "code", "compare", "outro", "media", "tiles", "annotate",
+               "marquee", "quote", "progress"}
+# scenes that can carry footage…
+MEDIA_SCENES = {"card", "media", "tiles", "annotate"}
+# …and the subset that is pointless without it. A `card` with an empty device shell is a
+# deliberate, good-looking choice; an `annotate` with nothing to annotate is not.
+MEDIA_REQUIRED = {"media", "annotate", "tiles"}
 
 # Chromium lookup: reuse whatever the host already has before downloading 150 MB.
 BROWSER_HINTS = [
@@ -131,6 +137,81 @@ def cmd_deck(a):
 
 
 # -------------------------------------------------------------------- validate
+def scene_media(s: dict) -> list[tuple[str, dict]]:
+    """Every media reference in a scene, normalised to (label, spec)."""
+    out = []
+    def norm(m):
+        return {"src": m} if isinstance(m, str) else (m if isinstance(m, dict) else None)
+    for key in ("media", "src"):
+        m = norm(s.get(key))
+        if m and m.get("src"):
+            out.append((s.get("type", "?"), m))
+    for it in (s.get("items") or []):
+        if isinstance(it, dict):
+            m = norm(it.get("media"))
+            if m and m.get("src"):
+                out.append((s.get("type", "?"), m))
+    return out
+
+
+def probe_media(deck: dict, project: Path) -> tuple[list[str], list[str], list[dict]]:
+    """Resolve every source against public/ and measure it. Footage that silently
+    freezes or goes missing mid-render is the most expensive bug in this pipeline."""
+    errors, warns, report = [], [], []
+    public = project / "public"
+    for i, sc in enumerate(deck.get("scenes") or []):
+        for _, m in scene_media(sc):
+            src = str(m["src"])
+            if src.startswith(("http://", "https://", "data:")):
+                continue
+            path = public / src
+            if not path.exists():
+                errors.append(f"scene {i}: media not found — {src} "
+                              f"(put it in {public}/ or use a full URL)")
+                continue
+            info = {"scene": i, "src": src}
+            try:
+                meta = ffprobe_json(path)
+                dur = float(meta.get("format", {}).get("duration", 0) or 0)
+                v = next((st for st in meta.get("streams", [])
+                          if st.get("codec_type") == "video"), None)
+                info["duration_s"] = round(dur, 2)
+                info["is_video"] = bool(v) and path.suffix.lower() not in {
+                    ".png", ".jpg", ".jpeg", ".webp", ".gif"}
+                if v:
+                    info["size"] = f"{v.get('width')}x{v.get('height')}"
+            except SystemExit:
+                raise
+            except Exception as exc:
+                warns.append(f"scene {i}: could not probe {src} ({exc})")
+                report.append(info)
+                continue
+
+            if info.get("is_video"):
+                scene_len = float(sc.get("duration", 2))
+                start = float(m.get("in", 0) or 0)
+                speed = float(m.get("speed", 1) or 1)
+                end = m.get("out")
+                if end is None:
+                    avail = (dur - start) / speed
+                    if avail + 0.05 < scene_len:
+                        warns.append(
+                            f"scene {i}: {src} gives {avail:.1f}s of footage but the scene "
+                            f"runs {scene_len}s — it will freeze. Set media.out so it can loop, "
+                            f"or shorten the scene")
+                else:
+                    seg = (float(end) - start) / speed
+                    if float(end) > dur + 0.05:
+                        errors.append(f"scene {i}: {src} is {dur:.1f}s but media.out is {end}")
+                    elif seg <= 0:
+                        errors.append(f"scene {i}: {src} has media.out <= media.in")
+                    elif m.get("loop") is False and seg + 0.05 < scene_len:
+                        warns.append(f"scene {i}: {src} segment is {seg:.1f}s with loop off "
+                                     f"under a {scene_len}s scene — it will freeze")
+            report.append(info)
+    return errors, warns, report
+
+
 def lint(deck: dict) -> tuple[list[str], list[str]]:
     errors, warns = [], []
     scenes = deck.get("scenes") or []
@@ -149,6 +230,16 @@ def lint(deck: dict) -> tuple[list[str], list[str]]:
         d = float(s.get("duration", 2))
         if d > 3.5 and vertical:
             warns.append(f"scene {i} ({t}) runs {d}s — over ~3s a single card stops earning its place")
+        if t in MEDIA_REQUIRED and not (s.get("media") or s.get("src") or s.get("items")):
+            errors.append(f"scene {i} ({t}): needs a `media` source")
+        if t == "tiles":
+            n = len(s.get("items") or [])
+            if n < 2:
+                warns.append(f"scene {i}: `tiles` with {n} item is just a card — use `card`")
+            if n > 4:
+                warns.append(f"scene {i}: {n} tiles is more than the eye can take in 2s")
+        if t == "annotate" and len(s.get("marks") or []) > 3:
+            warns.append(f"scene {i}: {len(s['marks'])} marks at once — the eye follows one")
         if t == "textStack" and len(s.get("lines") or []) > 5:
             warns.append(f"scene {i}: {len(s['lines'])} lines is more than one beat — split it")
         for ln in (s.get("lines") or []):
@@ -178,8 +269,16 @@ def lint(deck: dict) -> tuple[list[str], list[str]]:
         runs.append(prev)
     for r in runs:
         warns.append(f"three or more `{r}` scenes in a row — vary the scene type or it reads as one long card")
-    if len({s.get("type") for s in scenes}) == 1:
+    kinds = {s.get("type") for s in scenes}
+    if len(kinds) == 1:
         warns.append("every scene is the same type — that is a slideshow, not an edit")
+    has_media = any(scene_media(s) for s in scenes)
+    if len(scenes) >= 5 and not has_media:
+        warns.append("no scene shows any footage or screenshot — type alone carries a 10s "
+                     "video, not a 30s one. Put a screen recording in a card/media/tiles scene")
+    if len(scenes) >= 6 and len(kinds) < 4:
+        warns.append(f"only {len(kinds)} scene types across {len(scenes)} scenes — vary the "
+                     f"shapes or the back half will feel like the front half")
     if not deck.get("audio"):
         warns.append("no audio bed — silence kills retention")
     return errors, warns
@@ -190,11 +289,17 @@ def cmd_validate(a):
     if not isinstance(deck, dict):
         die("deck must be a JSON object")
     errors, warns = lint(deck)
+    media_report: list[dict] = []
+    if which("ffprobe"):
+        merrors, mwarns, media_report = probe_media(deck, project_dir(a.dir))
+        errors += merrors
+        warns += mwarns
     fps = deck.get("fps", 30)
     total = sum(float(s.get("duration", 2)) for s in deck.get("scenes", []))
     emit({"ok": not errors, "scenes": len(deck.get("scenes", [])),
           "duration_s": round(total, 2), "frames": int(total * fps),
           "canvas": f"{deck.get('width',1080)}x{deck.get('height',1920)}@{fps}",
+          "media": media_report or None,
           "errors": errors, "warnings": warns,
           "next": "mk remotion sheet <deck> to look at it" if not errors else "fix the errors first"})
 
@@ -282,6 +387,10 @@ def cmd_render(a):
     deck_path = safe_path(a.deck, must_exist=True)
     deck = read_json(deck_path, {})
     errors, warns = lint(deck)
+    if which("ffprobe"):
+        merrors, mwarns, _ = probe_media(deck, d)
+        errors += merrors
+        warns += mwarns
     if errors:
         die("deck does not validate:\n  " + "\n  ".join(errors))
     out = safe_path(a.output, write=True)

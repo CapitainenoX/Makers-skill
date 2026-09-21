@@ -19,7 +19,10 @@ export const TypeStack: React.FC<{
   delay?: number;
   anim?: SpringName;
   staggerMs?: number;
-}> = ({ lines, theme, base, font, align = "center", delay = 0, anim = "snap", staggerMs = 70 }) => {
+  /** "word" pops each word in turn — narration lines land better that way */
+  reveal?: "line" | "word";
+}> = ({ lines, theme, base, font, align = "center", delay = 0, anim = "snap",
+        staggerMs = 70, reveal = "line" }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   return (
@@ -34,14 +37,16 @@ export const TypeStack: React.FC<{
       }}
     >
       {lines.map((l, i) => {
-        const p = enter(frame, fps, delay + stagger(i, fps, staggerMs), anim);
+        const lineDelay = delay + stagger(i, fps, staggerMs);
+        const p = enter(frame, fps, lineDelay, anim);
         const size = base * (l.s ?? 1);
         const weight = WEIGHTS[l.w ?? "black"];
+        const words = reveal === "word" ? String(l.t).split(/(\s+)/) : null;
         return (
           <div
             key={i}
             style={{
-              ...rise(p, size * 0.34),
+              ...(words ? { opacity: 1, transform: "none" } : rise(p, size * 0.34)),
               fontFamily: font,
               fontSize: size,
               fontWeight: weight,
@@ -53,7 +58,26 @@ export const TypeStack: React.FC<{
               textWrap: "balance",
             }}
           >
-            {l.t}
+            {words
+              ? words.map((w, j) =>
+                  /^\s+$/.test(w) ? (
+                    <span key={j}> </span>
+                  ) : (
+                    <span
+                      key={j}
+                      style={{
+                        display: "inline-block",
+                        ...rise(
+                          enter(frame, fps, lineDelay + stagger(j, fps, 42), anim),
+                          size * 0.3,
+                        ),
+                      }}
+                    >
+                      {w}
+                    </span>
+                  ),
+                )
+              : l.t}
           </div>
         );
       })}

@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
+import { AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { enter, rise } from "../motion";
 import { WEIGHTS } from "../theme";
 import { justify } from "../deck";
@@ -11,6 +11,33 @@ export const Stat: React.FC<SceneProps<"stat">> = ({ scene, theme, base, font })
   const { fps } = useVideoConfig();
   const p = enter(frame, fps, 0, "pop");
   const q = enter(frame, fps, 6, "smooth");
+
+  // Digits ride their own monotonic ramp, never the spring: a spring oscillates, and a
+  // counter that reads 1,240 -> 1,228 -> 1,240 looks broken rather than lively.
+  const count = interpolate(frame, [0, Math.round(fps * 0.8)], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+    easing: Easing.out(Easing.cubic),
+  });
+
+  // "40K", "38s", "1,200+" -> animate the digits, keep the suffix
+  const shown = (() => {
+    if (scene.countUp === false) return scene.value;
+    const m = /^([^\d]*)([\d.,]+)(.*)$/.exec(String(scene.value));
+    if (!m) return scene.value;
+    const [, pre, digits, post] = m;
+    const decimals = (digits.split(".")[1] ?? "").length;
+    const target = parseFloat(digits.replace(/,/g, ""));
+    if (!isFinite(target)) return scene.value;
+    const grouped = digits.includes(",");
+    const now = target * count;
+    const text = decimals
+      ? now.toFixed(decimals)
+      : grouped
+        ? Math.round(now).toLocaleString("en-US")
+        : String(Math.round(now));
+    return `${pre}${text}${post}`;
+  })();
   return (
     <AbsoluteFill
       style={{
@@ -32,7 +59,7 @@ export const Stat: React.FC<SceneProps<"stat">> = ({ scene, theme, base, font })
           color: theme.accent,
         }}
       >
-        {scene.value}
+        {shown}
       </div>
       {scene.label ? (
         <div

@@ -61,7 +61,7 @@ Un skill routeur qui appelle dix sous-skills, chacun chargé **au moment où il 
 | `maker-voice` | TTS (ElevenLabs / Kokoro / Piper / edge-tts), transcription, sous-titres |
 | `maker-motion` | rythme, easing, typo cinétique, transitions, couleur — la doctrine |
 | `maker-edit` | l'EDL ffmpeg, ou piloter CapCut / Premiere / Resolve / Kdenlive… en MCP |
-| `maker-remotion` | motion design sans rushs : typo cinétique, cards, mockups, rendu par code |
+| `maker-remotion` | motion design par code : typo cinétique **+ tes rushs encadrés** dans des mockups |
 | `maker-vfx` | détourage, fond vert, looks, glitch, cinématiques Blender |
 | `maker-screen` | briefer un enregistrement d'écran puis le rendre dynamique |
 | `maker-render` | rendu, QC mesuré, auto-critique, livraison |
@@ -69,14 +69,18 @@ Un skill routeur qui appelle dix sous-skills, chacun chargé **au moment où il 
 
 ### Deux moteurs
 
-**`mk assemble`** monte des rushs avec ffmpeg. **`mk remotion`** rend des vidéos qui ne
-contiennent aucun rush : typographie animée, cards en relief, mockups de téléphone,
-listes, terminaux, gros chiffres — le style « studio » fond clair. Les deux se composent :
-on rend l'habillage en Remotion (avec alpha), on le pose sur la timeline de l'EDL.
+**`mk assemble`** monte des rushs avec ffmpeg, comme un monteur. **`mk remotion`** les
+*présente* : la même capture d'écran, mise dans un mockup de téléphone sur un dégradé,
+avec une vraie ombre et une dérive de quelques pixels, ne se lit plus comme un rush mais
+comme du design produit. C'est le style « studio » fond clair.
+
+15 types de scène, dont cinq portent de la vidéo : `card`, `media`, `tiles`, `annotate`
+et le plein cadre. Les deux moteurs se composent : on rend l'habillage en Remotion (avec
+alpha), on le pose sur la timeline de l'EDL.
 
 ```bash
 mk remotion init                                 # une fois
-mk remotion deck deck.json --template tool-short
+mk remotion deck deck.json --template footage-short   # celui à prendre si tu as des rushs
 mk remotion validate deck.json                   # gratuit, toujours avant de rendre
 mk remotion sheet deck.json -o out/sheet.png     # une image par scène — et on la REGARDE
 mk remotion render deck.json -o out/final.mp4

@@ -1,25 +1,48 @@
 import React from "react";
-import { Img, staticFile } from "remotion";
+import { interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { Media } from "./Media";
+import type { Frame, MediaRef } from "../deck";
 import type { Theme } from "../theme";
 
-/** A phone or browser shell around a screenshot. Without a real bezel a
- *  screenshot on a gradient just reads as a white rectangle. */
+/** Slow sine drift + a fixed perspective tilt. A card that breathes reads as an object
+ *  in a space; a card nailed to the page reads as a slide. */
+export const useFloat = (amplitude = 0, tilt = 0) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  if (!amplitude && !tilt) return {};
+  const t = frame / fps;
+  const dy = amplitude ? Math.sin(t * 1.1) * amplitude : 0;
+  const dx = amplitude ? Math.cos(t * 0.73) * amplitude * 0.35 : 0;
+  return {
+    transform:
+      `perspective(1600px) translate3d(${dx.toFixed(2)}px, ${dy.toFixed(2)}px, 0)` +
+      (tilt ? ` rotateY(${tilt}deg) rotateX(${(tilt * -0.35).toFixed(2)}deg)` : ""),
+    transformStyle: "preserve-3d" as const,
+  };
+};
+
+/** A phone, browser or bare shell around a source. Without a bezel a screen recording
+ *  on a gradient just reads as a rectangle of someone else's footage. */
 export const Device: React.FC<{
-  kind: "phone" | "browser" | "none";
-  src?: string;
+  kind: Frame;
+  media?: MediaRef;
   width: number;
   theme: Theme;
   radius: number;
-}> = ({ kind, src, width, theme, radius }) => {
-  const img = src ? (src.startsWith("http") ? src : staticFile(src)) : null;
+}> = ({ kind, media, width, theme, radius }) => {
+  const empty = (aspect: string, r: number) => (
+    <div style={{ width: "100%", aspectRatio: aspect, borderRadius: r,
+      background: "linear-gradient(160deg,#EDEFF6,#DCE4F2)" }} />
+  );
 
-  if (kind === "none") {
-    return img ? (
-      <Img src={img} style={{ width, borderRadius: radius * 0.5, display: "block",
-        objectFit: "cover", boxShadow: theme.shadowStrong }} />
-    ) : (
-      <div style={{ width, aspectRatio: "16 / 10", borderRadius: radius * 0.5,
-        background: theme.surface, boxShadow: theme.shadowStrong }} />
+  if (kind === "none" || kind === "card" || kind === "full") {
+    const r = radius * (kind === "card" ? 0.5 : 0.25);
+    return (
+      <div style={{ width, borderRadius: r, overflow: "hidden",
+        boxShadow: kind === "full" ? "none" : theme.shadowStrong,
+        aspectRatio: media ? undefined : "16 / 10" }}>
+        {media ? <Media media={media} /> : empty("16 / 10", r)}
+      </div>
     );
   }
 
@@ -36,16 +59,13 @@ export const Device: React.FC<{
           <span style={{ flex: 1, height: width * 0.03, marginLeft: width * 0.02,
             borderRadius: 999, background: "#FFFFFF" }} />
         </div>
-        {img ? (
-          <Img src={img} style={{ width: "100%", display: "block", objectFit: "cover" }} />
-        ) : (
-          <div style={{ width: "100%", aspectRatio: "16 / 9", background: "#F7F7F5" }} />
-        )}
+        <div style={{ width: "100%", aspectRatio: "16 / 10", overflow: "hidden" }}>
+          {media ? <Media media={media} /> : empty("16 / 10", 0)}
+        </div>
       </div>
     );
   }
 
-  // phone
   const bezel = Math.max(4, width * 0.028);
   return (
     <div
@@ -59,32 +79,12 @@ export const Device: React.FC<{
         position: "relative",
       }}
     >
-      <div
-        style={{
-          position: "absolute",
-          top: bezel * 1.1,
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: width * 0.3,
-          height: width * 0.075,
-          borderRadius: 999,
-          background: "#0E0E12",
-          zIndex: 2,
-        }}
-      />
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          borderRadius: width * 0.13,
-          overflow: "hidden",
-          background: "linear-gradient(160deg,#EDEFF6,#DCE4F2)",
-        }}
-      >
-        {img ? (
-          <Img src={img} style={{ width: "100%", height: "100%", objectFit: "cover",
-            display: "block" }} />
-        ) : null}
+      <div style={{ position: "absolute", top: bezel * 1.1, left: "50%",
+        transform: "translateX(-50%)", width: width * 0.3, height: width * 0.075,
+        borderRadius: 999, background: "#0E0E12", zIndex: 2 }} />
+      <div style={{ width: "100%", height: "100%", borderRadius: width * 0.13,
+        overflow: "hidden", background: "linear-gradient(160deg,#EDEFF6,#DCE4F2)" }}>
+        {media ? <Media media={media} /> : null}
       </div>
     </div>
   );

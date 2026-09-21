@@ -1,19 +1,25 @@
 ---
 name: maker-remotion
 description: >-
-  Build videos that contain no footage — pure motion graphics rendered from code with
-  Remotion: kinetic typography, product cards, device mockups, logo lists, terminals, big
-  stats, comparisons. This is the engine for the clean light-background "studio short" look
-  (bold mixed-weight type on off-white, soft raised cards, one accent colour). Use for
-  "fais une vidéo en motion design", explainer shorts with no camera, product/tool promos,
-  animated intros and lower thirds, or when the creator names Remotion.
+  Render motion-designed video from code with Remotion — kinetic typography plus the
+  creator's own screen recordings framed inside phone and browser mockups, floating tiles,
+  annotated captures, logo lists, terminals, counters and comparisons. This is the engine
+  for the clean light-background "studio short" look (bold mixed-weight type on off-white,
+  soft raised cards, one accent colour). Use for "fais une vidéo en motion design",
+  explainer shorts, product/tool promos, presenting rushes so well they stop looking like
+  rushes, animated intros and lower thirds, or when the creator names Remotion.
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep, WebSearch, WebFetch
 ---
 
 # Remotion — video as code
 
-Use this when the video's content *is* the design: no rushes, no camera, just type,
-shapes and screenshots moving with intent. Footage-based edits stay in `maker-edit`.
+Use this when the video's content *is* the design: type, shapes, and — this is the part
+people miss — **the creator's own footage, framed so well it stops reading as footage**.
+A screen recording inside a phone shell on a gradient, drifting a few pixels, is not "a
+clip in a video"; it is product design. A deck of nothing but type carries about ten
+seconds, not thirty.
+
+Cutting footage *as footage* — camera, rushes, montage, b-roll — stays in `maker-edit`.
 
 You never hand-write a whole composition. You write a **deck** — JSON scenes — and the
 components own every pixel. Same bargain as the EDL: judgement in the JSON, craft in the
@@ -40,19 +46,29 @@ with "Failed to launch the browser process". Point `REMOTION_BROWSER_EXECUTABLE`
 Then rewrite it from the beat sheet. Full schema, every scene type and every field:
 `references/deck-schema.md`. The house look and its rules: `references/studio-style.md`.
 
-Nine scene types, each one beat:
+Fifteen scene types, each one beat. The ones in bold carry footage:
 
 | Type | Beat it serves |
 |---|---|
 | `textStack` | the spine — mixed-weight lines, the hook, every statement |
+| **`card`** | a clip inside a phone or browser shell, on a gradient, drifting |
+| **`media`** | footage framed, or full-bleed under a scrim and one line |
+| **`tiles`** | two to four sources floating at different scales and angles |
+| **`annotate`** | a capture with a ring, box or arrow popping onto the detail |
 | `pill` | a name on a raised capsule: the product, the tool, the brand |
 | `logoList` | options, integrations, "works with" — rows that cascade |
-| `card` | a screenshot inside a phone or browser shell on a gradient |
+| `marquee` | a scrolling row of chips — breadth, without a list |
 | `bullets` | what you get, as raised chips |
-| `stat` | one enormous number |
+| `stat` | one enormous number, counting up |
+| `progress` | bars that fill — a value you watch arrive |
 | `code` | a terminal that types itself — proof beats claims |
 | `compare` | before/after, them/us |
+| `quote` | someone else's words, given room |
 | `outro` | the last frame that sends them somewhere |
+
+Put the clips in `.maker/remotion/public/shots/` and reference them by that relative path.
+**Always set `media.out`** — it is how a 3 s clip loops under a 4 s scene instead of
+freezing on its last frame. `validate` probes every source and tells you before you render.
 
 ## 3. Look at it before you judge it
 
@@ -65,9 +81,10 @@ Nine scene types, each one beat:
 **Open `sheet.png` with your image reader.** A still takes ~4 s, a full render takes
 minutes; iterate on stills. Never describe a design you have not seen.
 
-The lint flags what actually breaks this format: a slow first scene, scenes over ~3 s,
-three of the same scene type in a row, display lines too long to fit, a deck that is all
-`textStack` (a slideshow), a missing audio bed.
+The lint flags what actually breaks this format: a missing or too-short clip, a slow
+first scene, scenes over ~3 s, three of the same scene type in a row, display lines too
+long to fit, a deck with no footage in it at all, fewer than four scene shapes across a
+long deck, a missing audio bed.
 
 ## 4. Render
 
@@ -93,12 +110,21 @@ or as clips, then put them on the EDL timeline as ordinary sources:
 Rule of thumb: screen recordings, camera and downloaded clips → `maker-edit`. Titles,
 lists, stats, diagrams, anything data-driven or repeated → here.
 
-## 6. Timing
+## 6. Timing and motion
 
 Remotion counts in frames; the deck counts in seconds. Keep `maker-motion`'s limits:
 scenes 1.2–2.2 s on vertical, first scene ≤ 1.5 s, entrances 0.18–0.25 s. The spring
 presets (`pop`, `snap`, `smooth`, `heavy`) already encode the easing doctrine — `pop`
 overshoots, and that overshoot is what makes a card feel snappy rather than placed.
+
+Three moves carry most of the life in this look:
+
+- `"reveal": "word"` on a `textStack` — each word pops in turn, so a written line lands
+  like a spoken one. Use it on the hook, not on every card.
+- `"float": 8, "tilt": 4` on a `card` or `media` — a slow sine drift with perspective.
+  Enough to feel alive, not enough to notice.
+- `stat` counts its digits up on a monotonic ramp, never on the spring: a value that
+  overshoots and comes back reads as a bug, not as energy.
 
 Scenes cut by default. A `fade` transition overlaps the two scenes into a real
 cross-dissolve; use it at chapter breaks, not between every card.

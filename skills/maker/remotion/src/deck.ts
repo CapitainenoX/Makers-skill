@@ -18,6 +18,39 @@ export type Line = {
   i?: boolean;
 };
 
+/** Every visual source in the deck. Footage is the point: a screen recording sitting
+ *  inside a device shell stops reading as "a clip" and starts reading as product design.
+ *  `out` matters — it is what lets a short loop fill a longer scene. */
+export type Media = {
+  src: string;
+  kind?: "video" | "image" | "auto";
+  /** seconds into the source */
+  in?: number;
+  /** seconds into the source; set it so a short clip can loop under a longer scene */
+  out?: number;
+  speed?: number;
+  /** default true — a bed under a voice is the deck's job, not a clip's */
+  mute?: boolean;
+  /** default true when `out` is known */
+  loop?: boolean;
+  fit?: "cover" | "contain";
+};
+
+/** Shorthand: a bare path means an auto-detected, muted, looping source. */
+export type MediaRef = Media | string;
+
+export type Frame = "full" | "card" | "phone" | "browser" | "none";
+
+export type Mark = {
+  x: number;
+  y: number;
+  kind?: "ring" | "arrow" | "box" | "dot";
+  label?: string;
+  /** seconds into the scene */
+  at?: number;
+  size?: number;
+};
+
 export type Glyph =
   | "sparkle" | "dot" | "bolt" | "check" | "arrow" | "terminal"
   | "square" | "circle" | "triangle" | "plus" | "star";
@@ -46,13 +79,27 @@ export const justify = (a?: "top" | "center" | "bottom") =>
 
 export type Scene = Base &
   (
-    | { type: "textStack"; lines: Line[]; align?: "center" | "left"; anim?: SpringName }
+    | { type: "textStack"; lines: Line[]; align?: "center" | "left"; anim?: SpringName;
+        reveal?: "line" | "word" }
     | { type: "pill"; label: string; lines?: Line[]; sub?: string }
     | { type: "logoList"; heading?: Line[]; items: Item[]; footer?: Line[] }
-    | { type: "card"; lines?: Line[]; src?: string; device?: "phone" | "browser" | "none";
-        gradient?: [string, string]; caption?: Line[] }
+    | { type: "card"; lines?: Line[]; media?: MediaRef; src?: string;
+        device?: "phone" | "browser" | "none"; gradient?: [string, string];
+        caption?: Line[]; float?: number; tilt?: number }
+    | { type: "media"; media: MediaRef; frame?: Frame; lines?: Line[];
+        position?: "top" | "bottom"; scrim?: boolean; scale?: number;
+        float?: number; tilt?: number }
+    | { type: "tiles"; lines?: Line[];
+        items: { media: MediaRef; x?: number; y?: number; scale?: number;
+                 rotate?: number; frame?: Frame; label?: string }[] }
+    | { type: "annotate"; media: MediaRef; frame?: Frame; lines?: Line[];
+        marks: Mark[]; scale?: number }
+    | { type: "marquee"; lines?: Line[]; items: string[]; speed?: number; rows?: 1 | 2 }
+    | { type: "quote"; text: string; author?: string; role?: string }
+    | { type: "progress"; heading?: Line[];
+        items: { label: string; value: number; sub?: string; accent?: boolean }[] }
     | { type: "bullets"; heading?: Line[]; items: Item[] }
-    | { type: "stat"; value: string; label?: string; sub?: string }
+    | { type: "stat"; value: string; label?: string; sub?: string; countUp?: boolean }
     | { type: "code"; title?: string; lines: string[]; prompt?: string }
     | { type: "compare"; left: { label: string; items: string[] };
         right: { label: string; items: string[] } }

@@ -20,6 +20,7 @@ export const TextStack: React.FC<SceneProps<"textStack">> = ({ scene, theme, bas
       font={font}
       align={scene.align}
       anim={scene.anim}
+      reveal={scene.reveal}
     />
   </AbsoluteFill>
 );

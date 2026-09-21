@@ -2,7 +2,7 @@ import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
 import { TypeStack } from "../components/Type";
 import { enter, rise } from "../motion";
-import { Device } from "../components/Device";
+import { Device, useFloat } from "../components/Device";
 import { justify } from "../deck";
 import type { SceneProps } from "./types";
 
@@ -14,13 +14,15 @@ export const Card: React.FC<SceneProps<"card">> = ({ scene, theme, base, font })
   const { fps, width } = useVideoConfig();
   const p = enter(frame, fps, scene.lines ? 5 : 0, "snap");
   const g = scene.gradient ?? ["#A9A6D8", "#8FB4DE"];
+  const drift = useFloat(scene.float ?? 0, scene.tilt ?? 0);
+  const media = scene.media ?? scene.src;
   const cardW = width * 0.72;
   const device = scene.device ?? "phone";
 
-  const media = (
+  const inner = (
     <Device
       kind={device}
-      src={scene.src}
+      media={media}
       width={device === "phone" ? cardW * 0.46 : cardW * 0.9}
       theme={theme}
       radius={base}
@@ -43,6 +45,7 @@ export const Card: React.FC<SceneProps<"card">> = ({ scene, theme, base, font })
       <div
         style={{
           ...rise(p, base * 0.55),
+          ...drift,
           width: cardW,
           padding: base * 0.55,
           borderRadius: base * 0.5,
@@ -53,7 +56,7 @@ export const Card: React.FC<SceneProps<"card">> = ({ scene, theme, base, font })
           alignItems: "center",
         }}
       >
-        {media}
+        {inner}
       </div>
 
       {scene.caption ? (

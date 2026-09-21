@@ -1,8 +1,14 @@
 # The studio-short look
 
-The reference: clean vertical explainers with no footage at all — bold type on warm
-off-white, soft raised objects, one accent colour, a new idea every ~2 seconds. It reads
-as expensive because it is *restrained*, not because it is busy.
+The reference: clean vertical explainers — bold type on warm off-white, soft raised
+objects, one accent colour, a new idea every ~2 seconds. It reads as expensive because it
+is *restrained*, not because it is busy.
+
+**There is footage in it.** That is the thing most people get wrong when copying this
+look, because the footage is presented so well it stops registering as footage. Screen
+recordings sit inside phone and browser shells, on a gradient, with a real shadow, often
+drifting a few pixels. The clip is doing the explaining; the frame is what makes it look
+designed. A deck that is nothing but type carries about 10 seconds — not 30.
 
 ## The rules that make it work
 
@@ -40,7 +46,13 @@ want") go italic and muted. Lines that are the claim stay upright and black.
 a slide; top-anchored blocks read as a page being written.
 
 **Nothing holds still and nothing is busy.** One element enters per beat, springs into
-place, and stays. No looping ambient motion, no particles, no background video.
+place, and stays. No particles, no background video. The one exception is the slow drift
+on a framed object (`float: 8`, `tilt: 4`) — a few pixels of movement makes a card read
+as an object in a space rather than a rectangle on a slide.
+
+**Motion has to be monotone where the eye is reading a value.** Springs overshoot, which
+is right for a card arriving and wrong for a counter: digits that run 1,240 → 1,228 →
+1,240 read as a bug. Values ramp; objects spring.
 
 ## Cadence
 
@@ -56,14 +68,27 @@ place, and stays. No looping ambient motion, no particles, no background video.
 ## Structure that works for a tool/product short
 
 1. `textStack` — the claim, biggest type in the video
-2. `pill` — name the thing
-3. `code` or `card` — proof it is real
-4. `logoList` or `bullets` — what it works with / what you get
+2. `card` — the thing, running, inside a phone or browser
+3. `media` or `annotate` — the step that proves it, pointed at
+4. `logoList`, `bullets` or `marquee` — what it works with / what you get
 5. `stat` — the number that settles the argument
 6. `outro` — where to go next
 
-Six beats, ~15 s. Swap 3 and 4 depending on whether proof or breadth is the stronger
-argument for this particular subject.
+Six beats, ~13 s. At least two of them must show something moving that is not type.
+Swap 3 and 4 depending on whether proof or breadth is the stronger argument here.
+
+## Framing footage
+
+| Source | Frame |
+|---|---|
+| A phone app, a vertical capture | `card` with `device: "phone"` on a gradient |
+| A web app, a dashboard, a terminal UI | `frame: "browser"` |
+| A result worth filling the screen | `frame: "full"` with a scrim and one line of text |
+| Two or three things at once | `tiles` — different scales and angles, never a grid |
+| One detail the viewer would otherwise miss | `annotate` with a single ring |
+
+Crop before you import: most of a 16:9 desktop capture is empty for a 9:16 video. And
+zoom the OS to 125-150% *before recording*, or the UI will not read at phone size.
 
 ## What breaks it
 
