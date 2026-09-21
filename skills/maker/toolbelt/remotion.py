@@ -19,12 +19,15 @@ from _common import (die, emit, ffmpeg, ffprobe_json, home, read_json, run,
 TEMPLATE = Path(__file__).resolve().parent.parent / "remotion"
 SCENE_TYPES = {"textStack", "pill", "logoList", "card", "bullets", "stat",
                "code", "compare", "outro", "media", "tiles", "annotate",
-               "marquee", "quote", "progress"}
+               "marquee", "quote", "progress", "chips", "diagram", "flow", "mock"}
 # scenes that can carry footage…
 MEDIA_SCENES = {"card", "media", "tiles", "annotate"}
 # …and the subset that is pointless without it. A `card` with an empty device shell is a
 # deliberate, good-looking choice; an `annotate` with nothing to annotate is not.
 MEDIA_REQUIRED = {"media", "annotate", "tiles"}
+# scenes that actually render the flowing `rich` caption. Setting it elsewhere would do
+# nothing at all, which is worse than an error.
+RICH_SCENES = {"textStack", "chips", "diagram", "flow", "mock", "card", "media", "tiles"}
 
 # Chromium lookup: reuse whatever the host already has before downloading 150 MB.
 BROWSER_HINTS = [
@@ -230,6 +233,9 @@ def lint(deck: dict) -> tuple[list[str], list[str]]:
         d = float(s.get("duration", 2))
         if d > 3.5 and vertical:
             warns.append(f"scene {i} ({t}) runs {d}s — over ~3s a single card stops earning its place")
+        if s.get("rich") and t not in RICH_SCENES:
+            errors.append(f"scene {i} ({t}): `rich` is not rendered by this scene type. "
+                          f"Use one of {sorted(RICH_SCENES)}, or put the text in `lines`")
         if t in MEDIA_REQUIRED and not (s.get("media") or s.get("src") or s.get("items")):
             errors.append(f"scene {i} ({t}): needs a `media` source")
         if t == "tiles":

@@ -5,7 +5,8 @@ import {
 } from "remotion";
 import { DEFAULTS, layout, type Deck as DeckType, type Scene } from "./deck";
 import { THEMES } from "./theme";
-import { useBrandFont } from "./components/BrandFont";
+import { useDisplayFont } from "./components/Fonts";
+import { Decor } from "./components/Decor";
 import { Watermark } from "./components/Watermark";
 import { TextStack } from "./scenes/TextStack";
 import { Pill } from "./scenes/Pill";
@@ -22,12 +23,17 @@ import { Annotate } from "./scenes/Annotate";
 import { Marquee } from "./scenes/Marquee";
 import { Quote } from "./scenes/Quote";
 import { Progress } from "./scenes/Progress";
+import { Chips } from "./scenes/Chips";
+import { Diagram } from "./scenes/Diagram";
+import { Flow } from "./scenes/Flow";
+import { Mock } from "./scenes/Mock";
 
 const RENDERERS = {
   textStack: TextStack, pill: Pill, logoList: LogoList, card: Card,
   bullets: Bullets, stat: Stat, code: Code, compare: Compare, outro: Outro,
   media: MediaScene, tiles: Tiles, annotate: Annotate, marquee: Marquee,
-  quote: Quote, progress: Progress,
+  quote: Quote, progress: Progress, chips: Chips, diagram: Diagram,
+  flow: Flow, mock: Mock,
 } as const;
 
 /** Wraps one scene: owns its cross-fade in and the final fade-out of the video. */
@@ -61,11 +67,13 @@ export const Deck: React.FC<DeckType> = (deck) => {
     ...(deck.brand?.accent ? { accent: deck.brand.accent } : {}),
   };
   const base = width * (deck.baseSize ?? DEFAULTS.baseSize);
-  const font = useBrandFont(undefined, deck.brand?.font);
+  const font = useDisplayFont(deck.brand?.font);
   const { places } = layout(deck);
 
   return (
     <AbsoluteFill style={{ background: theme.bg }}>
+      <Decor spec={deck.decor} theme={theme} />
+
       {deck.scenes.map((scene, i) => {
         const place = places[i];
         const Renderer = RENDERERS[scene.type] as React.FC<any>;
@@ -77,6 +85,7 @@ export const Deck: React.FC<DeckType> = (deck) => {
               overlap={place.overlap}
               isLast={place.start + place.frames >= durationInFrames}
             >
+              {scene.decor ? <Decor spec={scene.decor} theme={theme} /> : null}
               <Renderer
                 scene={scene}
                 theme={theme}

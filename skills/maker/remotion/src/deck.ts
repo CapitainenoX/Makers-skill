@@ -1,5 +1,6 @@
 import type { ThemeName, WeightName } from "./theme";
 import type { SpringName } from "./motion";
+import type { DecorSpec } from "./components/Decor";
 
 /** A "deck" is the whole video, described as data. The model writes this JSON;
  *  the components own every pixel decision. Same contract as the ffmpeg EDL:
@@ -70,12 +71,31 @@ type Base = {
   transition?: { type: "cut" | "fade"; duration?: number };
   /** override the deck background for this scene */
   bg?: string;
-  /** where the block sits on the canvas — the reference look favours `top` */
+  /** where the block sits. Default `center`: the reference optically centres the whole
+   *  composition and fills the edges with decor rather than pinning content to the top. */
   anchor?: "top" | "center" | "bottom";
+  /** the flowing caption under the visual — the signature of this look.
+   *  Markers: **bold**, __accent__, ==highlight==.
+   *  e.g. "every **AI assistant** you have ever used **works** this way" */
+  rich?: string;
+  /** multiplier on the base type size for the rich caption (default 1.02) */
+  richSize?: number;
+  /** frames to wait before the caption starts revealing (default 6) */
+  richDelay?: number;
+  /** bleed shapes behind this scene; overrides the deck-level decor */
+  decor?: DecorSpec;
 };
 
 export const justify = (a?: "top" | "center" | "bottom") =>
   a === "top" ? "flex-start" : a === "bottom" ? "flex-end" : "center";
+
+export type ChipSpec = {
+  /** a built-in glyph name, or a path to the creator's own logo in public/ */
+  icon?: string;
+  label?: string;
+  accent?: boolean;
+  shape?: "circle" | "squircle";
+};
 
 export type Scene = Base &
   (
@@ -98,6 +118,13 @@ export type Scene = Base &
     | { type: "quote"; text: string; author?: string; role?: string }
     | { type: "progress"; heading?: Line[];
         items: { label: string; value: number; sub?: string; accent?: boolean }[] }
+    | { type: "chips"; items: ChipSpec[]; lines?: Line[]; columns?: number; size?: number }
+    | { type: "diagram"; hub?: ChipSpec; nodes: ChipSpec[]; lines?: Line[];
+        connector?: "dashed" | "solid"; layout?: "grid" | "fan" | "cross"; size?: number }
+    | { type: "flow"; title?: string; steps: { label: string; icon?: string }[];
+        lines?: Line[] }
+    | { type: "mock"; kind?: "prompt" | "search" | "message"; text: string;
+        meta?: string; badge?: string; lines?: Line[]; chip?: ChipSpec }
     | { type: "bullets"; heading?: Line[]; items: Item[] }
     | { type: "stat"; value: string; label?: string; sub?: string; countUp?: boolean }
     | { type: "code"; title?: string; lines: string[]; prompt?: string }
@@ -121,6 +148,8 @@ export type Deck = {
   /** base type size as a fraction of the canvas width (0.058 ≈ 63px at 1080) */
   baseSize?: number;
   audio?: { src: string; gain?: number; fadeIn?: number; fadeOut?: number };
+  /** bleed shapes behind every scene, so the top and bottom of the frame are never dead */
+  decor?: DecorSpec;
   scenes: Scene[];
 };
 

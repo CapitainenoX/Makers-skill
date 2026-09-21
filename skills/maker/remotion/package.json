@@ -2,13 +2,14 @@
   "name": "maker-remotion",
   "version": "1.0.0",
   "private": true,
-  "description": "Maker Skill's Remotion renderer — JSON decks in, motion-designed video out.",
+  "description": "Maker Skill's Remotion renderer \u2014 JSON decks in, motion-designed video out.",
   "scripts": {
     "studio": "remotion studio",
     "render": "remotion render src/index.ts Deck out/video.mp4",
     "still": "remotion still src/index.ts Deck out/still.png"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
     "@remotion/cli": "4.0.526",
     "react": "19.0.0",
     "react-dom": "19.0.0",

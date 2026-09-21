@@ -5,6 +5,7 @@ import { Media as MediaEl } from "../components/Media";
 import { Device, useFloat } from "../components/Device";
 import { enter, rise } from "../motion";
 import { justify } from "../deck";
+import { RichCaption } from "../components/RichCaption";
 import type { SceneProps } from "./types";
 
 /** Footage, presented. Full-bleed with a scrim and a headline, or framed in a shell.
@@ -69,6 +70,7 @@ export const MediaScene: React.FC<SceneProps<"media">> = ({ scene, theme, base, 
       <div style={{ ...rise(p, base * 0.5), ...drift }}>
         <Device kind={kind} media={scene.media} width={w} theme={theme} radius={base} />
       </div>
+      <RichCaption scene={scene} theme={theme} base={base} font={font} />
     </AbsoluteFill>
   );
 };

@@ -4,6 +4,7 @@ import { TypeStack } from "../components/Type";
 import { enter, rise } from "../motion";
 import { Device, useFloat } from "../components/Device";
 import { justify } from "../deck";
+import { RichCaption } from "../components/RichCaption";
 import type { SceneProps } from "./types";
 
 /** A raised card holding a screenshot or a device mockup, with text above and
@@ -62,6 +63,7 @@ export const Card: React.FC<SceneProps<"card">> = ({ scene, theme, base, font })
       {scene.caption ? (
         <TypeStack lines={scene.caption} theme={theme} base={base} font={font} delay={11} />
       ) : null}
+      <RichCaption scene={scene} theme={theme} base={base} font={font} />
     </AbsoluteFill>
   );
 };

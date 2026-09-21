@@ -4,6 +4,7 @@ import { TypeStack } from "../components/Type";
 import { Device } from "../components/Device";
 import { enter, rise, stagger } from "../motion";
 import { WEIGHTS } from "../theme";
+import { RichCaption } from "../components/RichCaption";
 import type { SceneProps } from "./types";
 
 /** Two to four sources floating at different depths. Reads as a product shelf rather
@@ -71,6 +72,12 @@ export const Tiles: React.FC<SceneProps<"tiles">> = ({ scene, theme, base, font 
         <AbsoluteFill style={{ justifyContent: "flex-start", alignItems: "center",
           padding: `${base * 1.6}px ${base * 0.8}px`, pointerEvents: "none" }}>
           <TypeStack lines={scene.lines} theme={theme} base={base} font={font} />
+        </AbsoluteFill>
+      ) : null}
+      {scene.rich ? (
+        <AbsoluteFill style={{ justifyContent: "flex-end", alignItems: "center",
+          padding: `${base * 2.2}px ${base * 0.7}px`, pointerEvents: "none" }}>
+          <RichCaption scene={scene} theme={theme} base={base} font={font} />
         </AbsoluteFill>
       ) : null}
     </AbsoluteFill>

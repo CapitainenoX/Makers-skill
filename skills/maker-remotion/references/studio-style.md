@@ -16,18 +16,27 @@ designed. A deck that is nothing but type carries about 10 seconds — not 30.
 a blank page; pure black looks like a different genre. Cards are white *on* the paper, so
 the contrast comes from elevation, not colour.
 
-**Two weights, one idea.** Every stack alternates a small medium-weight muted line with a
-huge black line:
+**The sentence flows; the emphasis is inside it.** This is the single most-copied and
+most-misunderstood part of the look. It is *not* a stack of lines with one weight each.
+It is one sentence that wraps naturally, with individual words pulled forward:
 
 ```
-it is                          0.72 / medium / muted
-Motion Design                  2.05 / black
-that works the way your        0.72 / medium / muted
-Brain Does                     2.05 / black
+every **AI assistant** you have ever used **works** this way
 ```
 
-The small lines are grammar; the big lines are the message. Read only the big lines and
-the video still makes sense — that is the test.
+Plain words are medium-weight and muted; emphasised words are black, near-black and a
+touch larger. **Read only the bold words and the sentence still works** — that is the
+test, and it is what lets someone follow the video while scrolling past it.
+
+Write it as `rich` on any scene. Markers: `**bold**`, `__accent__`, `==highlight==`
+(a black box with reversed text, for the one line per video that must not be missed).
+
+Keep it to one sentence that wraps to two lines. Three lines is a paragraph, and nobody
+reads a paragraph on a short. Watch the wrap: a line ending on "il" or "de" reads as
+broken even when the words are right — rewrite rather than resize.
+
+**Stacked lines still exist** for the beats that are genuinely a list of statements
+(`lines`), but the flowing sentence is the default voice.
 
 **Tight tracking on display type.** `-0.035em` at black weight, leading at 1.0. Loose
 display type is the single clearest tell of a template.
@@ -42,8 +51,14 @@ no gradients on text, no glow.
 **Italic for narration.** Lines that are the voice talking ("then you pick any model you
 want") go italic and muted. Lines that are the claim stay upright and black.
 
-**Content sits high.** `anchor: "top"` with generous bottom space. Centred blocks read as
-a slide; top-anchored blocks read as a page being written.
+**Centre the block, fill the edges.** The composition — visual above, sentence below —
+is optically centred. The top and bottom are not left empty: shapes bleed off the corners
+(`decor`), slowly drifting and rotating. Pinning content to the top and leaving dead space
+below is what makes a copy of this look feel cheap.
+
+Move the decor around between scenes (`corners`, and alternate `rays` / `arcs` / `blobs`).
+Identical wallpaper on eleven scenes in a row is the repetition viewers feel without being
+able to name.
 
 **Nothing holds still and nothing is busy.** One element enters per beat, springs into
 place, and stays. No particles, no background video. The one exception is the slow drift
@@ -79,6 +94,20 @@ Swap 3 and 4 depending on whether proof or breadth is the stronger argument here
 
 ## Framing footage
 
+## The shapes that carry the "works with" beats
+
+| Beat | Scene |
+|---|---|
+| Two or three tools, named | `chips` — white circles, a mark in each, elevated |
+| A system: one hub, several parts | `diagram` — dashed connectors from a hub to its nodes |
+| A pipeline, input to output | `flow` — a white card with a numbered, dotted spine |
+| One UI control, not a whole window | `mock` — rebuild the prompt bar; do not crop a screenshot |
+
+Chips ship with geometric glyphs. For a real product mark, put the brand's own file in
+`public/` and pass its path as `icon` — this repo ships nobody's trademark.
+
+## Framing footage
+
 | Source | Frame |
 |---|---|
 | A phone app, a vertical capture | `card` with `device: "phone"` on a gradient |
@@ -97,6 +126,9 @@ zoom the OS to 125-150% *before recording*, or the UI will not read at phone siz
 - A display line over ~26 characters: it wraps and the rhythm dies.
 - Stock photography. This look has no photographs in it, only screenshots in device shells.
 - A logo intro. There is no intro; the first frame is the claim.
+- A system font. The display face is bundled with the project (`@fontsource-variable/inter`),
+  never fetched from a CDN at render time — a font that fails to load takes the render
+  down or silently swaps the face halfway through.
 - Colour used for decoration rather than for meaning.
 
 ## Adapting it

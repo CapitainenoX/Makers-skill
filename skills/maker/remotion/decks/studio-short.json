@@ -1,0 +1,126 @@
+{
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "theme": "light",
+  "baseSize": 0.058,
+  "brand": {
+    "accent": "#D97757",
+    "watermark": "REPLACE-handle"
+  },
+  "decor": {
+    "kind": "rays",
+    "corners": [
+      "top-left",
+      "bottom-right"
+    ],
+    "opacity": 0.14,
+    "scale": 1.1
+  },
+  "scenes": [
+    {
+      "type": "chips",
+      "duration": 1.5,
+      "items": [
+        {
+          "icon": "sparkle",
+          "accent": true
+        },
+        {
+          "icon": "circle"
+        }
+      ],
+      "rich": "every **AI assistant** you have ever used **works** this way"
+    },
+    {
+      "type": "diagram",
+      "duration": 2.0,
+      "hub": {
+        "icon": "gear"
+      },
+      "nodes": [
+        {
+          "icon": "sparkle",
+          "accent": true
+        },
+        {
+          "icon": "code"
+        },
+        {
+          "icon": "cube"
+        },
+        {
+          "icon": "database"
+        }
+      ],
+      "rich": "but the **infrastructure** underneath all of it"
+    },
+    {
+      "type": "diagram",
+      "duration": 2.0,
+      "layout": "cross",
+      "hub": {
+        "icon": "gear"
+      },
+      "nodes": [
+        {
+          "icon": "sparkle",
+          "accent": true
+        },
+        {
+          "icon": "code"
+        },
+        {
+          "icon": "cube"
+        },
+        {
+          "icon": "rocket"
+        },
+        {
+          "icon": "cloud"
+        }
+      ],
+      "rich": "all are incredibly **powerful**"
+    },
+    {
+      "type": "flow",
+      "duration": 2.2,
+      "title": "LLM (Large Language Model)",
+      "steps": [
+        {
+          "label": "Input",
+          "icon": "chat"
+        },
+        {
+          "label": "Tokenization",
+          "icon": "code"
+        },
+        {
+          "label": "Embedding",
+          "icon": "database"
+        },
+        {
+          "label": "Transformer",
+          "icon": "gear"
+        },
+        {
+          "label": "Output",
+          "icon": "bolt"
+        }
+      ],
+      "rich": "it moves through the model's **trained parameters**"
+    },
+    {
+      "type": "mock",
+      "duration": 1.8,
+      "text": "Build me a landing page for a hair salon.",
+      "badge": "Chat",
+      "meta": "Sonnet 5 · Medium",
+      "chip": {
+        "icon": "sparkle",
+        "accent": true
+      },
+      "rich": "every time you send a **prompt** to an ==assistant=="
+    }
+  ]
+}

@@ -38,3 +38,11 @@ export const rise = (progress: number, distance = 30) => ({
     0.965 + progress * 0.035
   })`,
 });
+
+/** Same entrance for an absolutely-positioned element that is centred on a point.
+ *  Spreading `rise` next to a `translate(-50%,-50%)` silently drops the centring —
+ *  the second `transform` key wins. */
+export const riseAt = (progress: number, distance = 30) => {
+  const r = rise(progress, distance);
+  return { opacity: r.opacity, transform: `translate(-50%,-50%) ${r.transform}` };
+};

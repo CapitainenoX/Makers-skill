@@ -39,6 +39,39 @@ through the background. It also shortens the total, which `validate` reports.
 The whole typographic idea is **one small light line above one huge black line**. A stack
 of four lines alternating `0.72/medium/muted` and `2.05/black` is the reference look.
 
+## `rich` — the flowing caption
+
+Every scene that shows something takes a `rich` sentence under it. This is the voice of
+the format; `lines` is for the beats that really are a list.
+
+```jsonc
+"rich": "every **AI assistant** you have ever used **works** this way",
+"richSize": 1.02,          // multiplier on baseSize
+"richDelay": 6             // frames before the words start arriving
+```
+
+| Marker | Renders as |
+|---|---|
+| `**word**` | black, near-black, slightly larger — the words that carry the sentence |
+| `__word__` | the accent colour |
+| `==word==` | reversed out of a black box — one per video, maximum |
+| plain | medium weight, muted |
+
+Words arrive one at a time. Supported on `textStack`, `chips`, `diagram`, `flow`, `mock`,
+`card`, `media` and `tiles`; `validate` errors if you put it anywhere else rather than
+letting it silently do nothing.
+
+## `decor` — filling the top and bottom
+
+```jsonc
+"decor": { "kind": "rays",              // rays | arcs | blobs | grid | none
+           "corners": ["top-left", "bottom-right"],
+           "opacity": 0.1, "scale": 0.8 }
+```
+
+Set it on the deck for a default and override it per scene. Vary the corners and the kind
+between scenes — the same wallpaper on every scene is the repetition viewers feel.
+
 ## Media — the part that matters most
 
 Footage is not optional decoration in this look. A screen recording sitting inside a
@@ -130,6 +163,30 @@ source with ffprobe and warns you before you spend minutes rendering.
   "right": { "label": "After",  "items": ["one prompt", "38 s"] } }
 
 { "type": "outro", "duration": 2.0, "lines": [ … ], "handle": "@yourhandle" }
+
+{ "type": "chips", "duration": 1.8,      // white circles holding marks
+  "items": [ { "icon": "sparkle", "label": "claude", "accent": true },
+             { "icon": "logos/acme.svg", "label": "Acme" } ],   // a file = your own logo
+  "columns": 4, "size": 0.18,
+  "rich": "**ten agents**, already **wired**" }
+
+{ "type": "diagram", "duration": 2.4,    // a hub wired to its parts
+  "hub": { "icon": "gear", "accent": true },
+  "nodes": [ { "icon": "terminal", "label": "Arch" }, { "icon": "cube", "label": "Hyprland" } ],
+  "layout": "grid",                      // grid | fan | cross
+  "connector": "dashed",                 // dashed | solid
+  "rich": "but the **infrastructure** underneath it" }
+
+{ "type": "flow", "duration": 2.4,       // a pipeline on a white card
+  "title": "LLM (Large Language Model)",
+  "steps": [ { "label": "Input", "icon": "chat" }, { "label": "Output", "icon": "bolt" } ],
+  "rich": "it moves through the model's **trained parameters**" }
+
+{ "type": "mock", "duration": 1.8,       // one rebuilt UI control
+  "kind": "prompt", "text": "Build me a landing page for a hair salon.",
+  "badge": "Chat", "meta": "Sonnet 5 · Medium",
+  "chip": { "icon": "sparkle", "accent": true },
+  "rich": "every time you send a **prompt**" }
 ```
 
 `code` takes plain strings, not Line objects. Lines starting with `prompt` render bright;
@@ -138,7 +195,8 @@ the rest render as dimmed output.
 ## Icons
 
 Built-in glyphs, drawn in code: `sparkle` `star` `dot` `circle` `square` `triangle`
-`plus` `bolt` `check` `arrow` `terminal`.
+`plus` `bolt` `check` `arrow` `terminal` `gear` `folder` `cube` `chat` `cloud` `lock`
+`rocket` `code` `database`.
 
 Anything else is treated as a file in `public/` (or a URL) — that is how you use a real
 brand logo. **Take brand marks from the brand's own press kit**; this repo ships none.
@@ -163,9 +221,9 @@ mk remotion render out.json -o insert.webm --transparent
   `npx remotion browser ensure` inside `.maker/remotion`.
 - *Text overflows the frame* — a display line over ~26 characters will wrap. `validate`
   warns about this; shorten the line rather than shrinking the type.
-- *Fonts look wrong* — no web font is loaded by default, so the render falls back to a
-  system grotesque. Put a `.woff2` in `public/` and set `brand.font`, or install a font
-  on the host.
+- *Fonts look wrong* — the display face (Inter) is bundled through
+  `@fontsource-variable/inter`, so it needs no network. If it is missing, run
+  `mk remotion init` again. Set `brand.font` to put your own family in front of it.
 - *Render is slow* — iterate on `still` and `sheet`; only the last pass needs `render`.
 - *A clip freezes partway through a scene* — its segment is shorter than the scene and
   `out` was not set, so it cannot loop. `validate` names the scene and the shortfall.

@@ -46,11 +46,47 @@ with "Failed to launch the browser process". Point `REMOTION_BROWSER_EXECUTABLE`
 Then rewrite it from the beat sheet. Full schema, every scene type and every field:
 `references/deck-schema.md`. The house look and its rules: `references/studio-style.md`.
 
-Fifteen scene types, each one beat. The ones in bold carry footage:
+## The voice: one flowing sentence, emphasis inside it
+
+Before the scene list, the thing that actually defines this look. It is **not** a stack of
+lines with one weight each. It is a sentence that wraps, with words pulled forward:
+
+```jsonc
+"rich": "every **AI assistant** you have ever used **works** this way"
+```
+
+Plain words muted and medium; `**bold**` black and slightly larger; `__accent__` in the
+brand colour; `==highlight==` reversed out of a black box, once per video at most. Words
+arrive one at a time.
+
+Read only the bold words — if the sentence still works, it is written right.
+
+Put `rich` on almost any scene. `validate` errors if you put it on one that cannot render
+it, rather than letting it silently vanish.
+
+## Centre the block, fill the edges
+
+The composition is **visual above, sentence below, optically centred**. The top and bottom
+are never dead: `decor` bleeds shapes off the corners, drifting slowly.
+
+```jsonc
+"decor": { "kind": "rays", "corners": ["top-left", "bottom-right"], "opacity": 0.1 }
+```
+
+Set it deck-wide, then override per scene and move it around. Identical wallpaper on every
+scene is the repetition viewers feel without being able to name it.
+
+## Scene types
+
+Nineteen, each one beat. Bold ones carry footage; starred ones carry logos and structure:
 
 | Type | Beat it serves |
 |---|---|
-| `textStack` | the spine — mixed-weight lines, the hook, every statement |
+| `textStack` | stacked display lines, for a genuine list of statements |
+| ★ `chips` | white circles holding marks — the "works with" beat |
+| ★ `diagram` | a hub wired to its parts, dashed connectors |
+| ★ `flow` | a pipeline on a white card, numbered and dotted |
+| ★ `mock` | one rebuilt UI control — a prompt bar, not a cropped screenshot |
 | **`card`** | a clip inside a phone or browser shell, on a gradient, drifting |
 | **`media`** | footage framed, or full-bleed under a scrim and one line |
 | **`tiles`** | two to four sources floating at different scales and angles |
@@ -65,6 +101,10 @@ Fifteen scene types, each one beat. The ones in bold carry footage:
 | `compare` | before/after, them/us |
 | `quote` | someone else's words, given room |
 | `outro` | the last frame that sends them somewhere |
+
+Chips take a built-in glyph (`sparkle` `gear` `cube` `terminal` `database` `rocket` …) or
+a path to the creator's own logo in `public/`. This repo ships nobody's trademark — for a
+real brand mark, take it from that brand's press kit.
 
 Put the clips in `.maker/remotion/public/shots/` and reference them by that relative path.
 **Always set `media.out`** — it is how a 3 s clip loops under a 4 s scene instead of
@@ -125,6 +165,11 @@ Three moves carry most of the life in this look:
   Enough to feel alive, not enough to notice.
 - `stat` counts its digits up on a monotonic ramp, never on the spring: a value that
   overshoots and comes back reads as a bug, not as energy.
+- The `rich` caption reveals word by word, so a written line lands like a spoken one.
+
+The display face (Inter) is **bundled with the project**, not fetched. A font pulled from
+a CDN at render time fails on an offline machine, behind a proxy, or on any host whose CA
+the renderer does not trust — and it took the whole render down when it did.
 
 Scenes cut by default. A `fade` transition overlaps the two scenes into a real
 cross-dissolve; use it at chapter breaks, not between every card.

@@ -1,0 +1,98 @@
+import React from "react";
+import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
+import type { Theme } from "../theme";
+
+export type DecorKind = "rays" | "blobs" | "grid" | "arcs" | "none";
+export type Corner = "top-left" | "top-right" | "bottom-left" | "bottom-right";
+
+export type DecorSpec = {
+  kind?: DecorKind;
+  corners?: Corner[];
+  opacity?: number;
+  scale?: number;
+};
+
+const place = (c: Corner, size: number, w: number, h: number): React.CSSProperties => ({
+  position: "absolute",
+  width: size,
+  height: size,
+  left: c.endsWith("left") ? -size * 0.5 : undefined,
+  right: c.endsWith("right") ? -size * 0.5 : undefined,
+  top: c.startsWith("top") ? -size * 0.42 : undefined,
+  bottom: c.startsWith("bottom") ? -size * 0.42 : undefined,
+});
+
+/** Shapes that bleed off the edges so the top and bottom of a 9:16 frame are never
+ *  dead space. Deliberately slow and low-contrast: this is wallpaper, not an event. */
+export const Decor: React.FC<{ spec?: DecorSpec; theme: Theme }> = ({ spec, theme }) => {
+  const frame = useCurrentFrame();
+  const { fps, width, height } = useVideoConfig();
+  const kind = spec?.kind ?? "none";
+  if (kind === "none") return null;
+
+  const t = frame / fps;
+  const corners = spec?.corners ?? ["top-left", "bottom-right"];
+  const opacity = spec?.opacity ?? 0.11;
+  const size = width * (spec?.scale ?? 0.82);
+
+  return (
+    <AbsoluteFill style={{ overflow: "hidden", pointerEvents: "none" }}>
+      {kind === "grid" ? (
+        <AbsoluteFill
+          style={{
+            opacity: opacity * 0.9,
+            backgroundImage: `radial-gradient(${theme.muted} ${Math.max(1, width * 0.0016)}px, transparent 0)`,
+            backgroundSize: `${width * 0.055}px ${width * 0.055}px`,
+          }}
+        />
+      ) : null}
+
+      {kind !== "grid"
+        ? corners.map((c, i) => {
+            const dir = i % 2 === 0 ? 1 : -1;
+            const spin = t * 2.1 * dir;
+            const breathe = 1 + Math.sin(t * 0.55 + i) * 0.03;
+            const style = {
+              ...place(c, size, width, height),
+              opacity,
+              transform: `rotate(${spin}deg) scale(${breathe})`,
+            };
+            if (kind === "rays") {
+              return (
+                <svg key={c + i} viewBox="0 0 100 100" style={style}>
+                  <g fill={theme.accent}>
+                    {Array.from({ length: 12 }).map((_, k) => (
+                      <path key={k} d="M50 2 L55 46 Q50 51 45 46 Z"
+                        transform={`rotate(${k * 30} 50 50)`} />
+                    ))}
+                    <circle cx="50" cy="50" r="8" />
+                  </g>
+                </svg>
+              );
+            }
+            if (kind === "arcs") {
+              return (
+                <svg key={c + i} viewBox="0 0 100 100" style={style}>
+                  {[46, 34, 22].map((r, k) => (
+                    <circle key={k} cx="50" cy="50" r={r} fill="none"
+                      stroke={k === 1 ? theme.accent : theme.muted} strokeWidth="1.2" />
+                  ))}
+                </svg>
+              );
+            }
+            return (
+              <div
+                key={c + i}
+                style={{
+                  ...style,
+                  borderRadius: "50%",
+                  background: `radial-gradient(circle at 40% 40%, ${theme.accent}, transparent 66%)`,
+                  filter: `blur(${width * 0.035}px)`,
+                }}
+              />
+            );
+          })
+        : null}
+    </AbsoluteFill>
+  );
+};

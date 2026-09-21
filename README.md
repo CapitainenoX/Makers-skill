@@ -74,8 +74,19 @@ Un skill routeur qui appelle dix sous-skills, chacun chargé **au moment où il 
 avec une vraie ombre et une dérive de quelques pixels, ne se lit plus comme un rush mais
 comme du design produit. C'est le style « studio » fond clair.
 
-15 types de scène, dont cinq portent de la vidéo : `card`, `media`, `tiles`, `annotate`
-et le plein cadre. Les deux moteurs se composent : on rend l'habillage en Remotion (avec
+19 types de scène. Cinq portent de la vidéo (`card`, `media`, `tiles`, `annotate`, plein
+cadre), quatre portent la structure (`chips` pastilles à logos, `diagram` hub + connecteurs,
+`flow` pipeline, `mock` composant d'UI reconstruit).
+
+La signature du style, c'est **une phrase qui coule avec l'emphase dedans** — pas des
+lignes empilées :
+
+```json
+"rich": "every **AI assistant** you have ever used **works** this way"
+```
+
+Le bloc est **centré**, et les bords haut/bas sont remplis par un `decor` qui déborde et
+dérive lentement. La police (Inter) est **embarquée**, jamais tirée d'un CDN au rendu. Les deux moteurs se composent : on rend l'habillage en Remotion (avec
 alpha), on le pose sur la timeline de l'EDL.
 
 ```bash
