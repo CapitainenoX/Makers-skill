@@ -23,18 +23,20 @@ export const Stat: React.FC<SceneProps<"stat">> = ({ scene, theme, base, font })
   // "40K", "38s", "1,200+" -> animate the digits, keep the suffix
   const shown = (() => {
     if (scene.countUp === false) return scene.value;
-    const m = /^([^\d]*)([\d.,]+)(.*)$/.exec(String(scene.value));
+    const m = /^([^\d]*)([\d.,\u00A0\u202F ]*\d)(.*)$/.exec(String(scene.value));
     if (!m) return scene.value;
     const [, pre, digits, post] = m;
     const decimals = (digits.split(".")[1] ?? "").length;
-    const target = parseFloat(digits.replace(/,/g, ""));
+    const target = parseFloat(digits.replace(/[,\u00A0\u202F ]/g, ""));
     if (!isFinite(target)) return scene.value;
-    const grouped = digits.includes(",");
+    // "1,165,980" and "1 165 980" both count up in the style they were written in
+    const sepMatch = /\d([,\u00A0\u202F ])\d{3}/.exec(digits);
+    const sep = sepMatch ? sepMatch[1] : null;
     const now = target * count;
     const text = decimals
       ? now.toFixed(decimals)
-      : grouped
-        ? Math.round(now).toLocaleString("en-US")
+      : sep
+        ? String(Math.round(now)).replace(/\B(?=(\d{3})+(?!\d))/g, sep)
         : String(Math.round(now));
     return `${pre}${text}${post}`;
   })();
