@@ -18,7 +18,7 @@ allowed-tools: Read, Write, Edit, Bash, Glob, Grep, WebSearch, WebFetch
 |---|---|
 | No NLE, or nobody will open this again | **EDL + `mk assemble`** — default, fastest, reproducible |
 | The creator names an app, or will hand-finish | **That app's MCP** |
-| Data-driven / repeated / heavy motion graphics | **Remotion** (React → MP4) |
+| No footage at all: type, cards, stats, mockups, diagrams | **`maker-remotion`** |
 | 3D, camera moves, cinematics | **Blender MCP**, composite the render back into the EDL |
 
 Check what is actually connected before choosing — list your MCP tools and look for the
@@ -78,20 +78,25 @@ Rules that apply to every one of them:
 Per-app specifics — draft paths, scripting APIs, known limits, which MCP servers exist:
 `references/nle-mcp.md`. Read it when you actually target an app.
 
-## 4. Remotion for motion graphics
+## 4. Motion-graphics inserts
 
-When the insert is data-driven (a chart, a leaderboard, a code walkthrough, a repeated
-lower third), code beats hand-keyframing:
+Anything with no footage in it — titles, lists, charts, device mockups, lower thirds —
+belongs to `maker-remotion`, which renders it from a JSON deck. Render the insert with
+alpha and drop it onto the EDL timeline as an ordinary clip:
 
 ```bash
-npx create-video@latest          # once, in the project
-npx remotion render src/index.ts Scene out/scene.mov --codec=prores --prores-profile=4444
+"$MK" remotion render insert.json -o out/intro.webm --transparent
 ```
 
-Render with alpha, then drop it into the EDL as an image layer over the footage. Keep
-Remotion scenes short and single-purpose — a whole video in Remotion is a slow render and
-a hard edit. `spring()` and `interpolate()` with the easings from `maker-motion` keep the
-code and the cut speaking the same language.
+```jsonc
+// then in edl.json, as a layer over the footage
+{ "type": "image", "src": "out/intro.webm", "start": 0.0, "duration": 2.4,
+  "x": 0.5, "y": 0.5, "scale": 1.0 }
+```
+
+Keep each insert short and single-purpose. A whole video built in Remotion is a slow
+render and a hard edit — unless the whole video genuinely has no footage, and then it is
+`maker-remotion`'s job from the start, not yours.
 
 ## 5. Output
 

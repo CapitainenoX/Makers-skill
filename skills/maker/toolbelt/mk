@@ -50,8 +50,16 @@ ANALYSIS
   mk scan <dir|file> [--deep]     Index rushes: cuts, motion, loudness, stills
   mk transcribe <file> [--srt]    Whisper transcript (if available)
 
-BUILD
+BUILD (footage)
   mk assemble <edl.json> [--fast|--preview] [--dry-run]
+
+BUILD (motion graphics, no footage — Remotion)
+  mk remotion init                       Install the renderer once
+  mk remotion deck <out.json> [--template T]
+  mk remotion validate <deck.json>       Lint the deck before rendering
+  mk remotion sheet <deck.json> -o s.png One frame per scene, tiled — LOOK AT IT
+  mk remotion still <deck.json> -o p.png [--scene N | --frame N]
+  mk remotion render <deck.json> -o v.mp4 [--preview] [--transparent]
   mk subs <in.srt> -o <out.ass> [--style S]
   mk tts "<text>" -o <out.wav> [--voice V] [--engine E]
   mk bgremove <in> <out> [--video]
@@ -75,6 +83,7 @@ case "$cmd" in
   fetch|music|sfx|gif|stock) py assets.py "$cmd" "$@" ;;
   probe|scan|transcribe)     py scan.py "$cmd" "$@" ;;
   assemble)         py edl.py "$@" ;;
+  remotion)         py remotion.py "$@" ;;
   subs)             py subs.py "$@" ;;
   tts)              py tts.py "$@" ;;
   bgremove)         py matte.py "$@" ;;

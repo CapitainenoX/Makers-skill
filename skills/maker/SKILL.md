@@ -52,13 +52,18 @@ Load one sub-skill per phase, when you reach that phase. Never preload them all.
 | 2 | Concept & script | `maker-script` | Hook, beats, VO script, title/description exist |
 | 3 | Source | `maker-assets` + `maker-voice` | Every shot in the beat sheet has a real file on disk |
 | 4 | Look | `maker-motion` | Pacing, typography, transitions and colour chosen — not defaults |
-| 5 | Build | `maker-edit` (+ `maker-vfx`) | An EDL renders, or the NLE timeline is populated |
+| 5 | Build | `maker-edit` / `maker-remotion` (+ `maker-vfx`) | An EDL or a deck renders, or the NLE timeline is populated |
 | 6 | Review | `maker-render` | `mk qc` returns PASS and you have watched the contact sheet |
 | 7 | Deliver | `maker-render` | Files listed, one-line verdict given |
 | 8 | Learn | `maker-memory` | Style/feedback/log updated |
 
 Shortcuts are allowed and expected: a 20-second meme edit from supplied rushes goes
 3 → 5 → 6. A "find me a topic" request starts at 1. Never skip 6 and 8.
+
+**Which build engine.** No footage — the content is type, cards, stats, mockups →
+`maker-remotion`. Real footage, rushes, screen capture, downloaded clips → `maker-edit`.
+Both, which is the usual answer for a good short → build the graphics beats in Remotion,
+render them, and drop them on the EDL timeline as clips.
 
 ## 3. Routing table
 
@@ -69,7 +74,8 @@ Shortcuts are allowed and expected: a 20-second meme edit from supplied rushes g
 | clips, music, memes, SFX, GIFs, b-roll, YouTube downloads | `maker-assets` |
 | narration, AI voice, dubbing, ElevenLabs, subtitles from audio | `maker-voice` |
 | pacing, easing, kinetic text, transitions, "make it dynamic" | `maker-motion` |
-| the actual cut, a timeline, CapCut/Premiere/Resolve/Kdenlive | `maker-edit` |
+| the actual cut of real footage, CapCut/Premiere/Resolve/Kdenlive | `maker-edit` |
+| motion design with no footage: kinetic type, cards, mockups, Remotion | `maker-remotion` |
 | background removal, keying, compositing, glitch, cinematics | `maker-vfx` |
 | "record your screen and I'll edit it" | `maker-screen` |
 | render, export, QC, self-review, delivery | `maker-render` |

@@ -1,0 +1,177 @@
+{
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "theme": "light",
+  "baseSize": 0.052,
+  "brand": {
+    "accent": "#D97757",
+    "watermark": "maker-skill"
+  },
+  "scenes": [
+    {
+      "type": "textStack",
+      "duration": 2.0,
+      "lines": [
+        {
+          "t": "it is",
+          "w": "medium",
+          "s": 0.72,
+          "c": "muted"
+        },
+        {
+          "t": "Motion Design",
+          "w": "black",
+          "s": 2.05
+        },
+        {
+          "t": "that works the way your",
+          "w": "medium",
+          "s": 0.72,
+          "c": "muted"
+        },
+        {
+          "t": "Brain Does",
+          "w": "black",
+          "s": 2.05
+        }
+      ],
+      "anchor": "top"
+    },
+    {
+      "type": "pill",
+      "duration": 1.6,
+      "label": "maker",
+      "lines": [
+        {
+          "t": "one skill.",
+          "w": "medium",
+          "s": 0.72,
+          "c": "muted",
+          "i": true
+        },
+        {
+          "t": "a whole studio.",
+          "w": "black",
+          "s": 1.6
+        }
+      ]
+    },
+    {
+      "type": "logoList",
+      "duration": 2.8,
+      "heading": [
+        {
+          "t": "then you pick any",
+          "w": "medium",
+          "s": 0.8,
+          "c": "muted",
+          "i": true
+        },
+        {
+          "t": "engine you want",
+          "w": "medium",
+          "s": 0.8,
+          "c": "muted",
+          "i": true
+        }
+      ],
+      "items": [
+        {
+          "icon": "sparkle",
+          "label": "Remotion",
+          "accent": true
+        },
+        {
+          "icon": "terminal",
+          "label": "ffmpeg"
+        },
+        {
+          "icon": "square",
+          "label": "CapCut"
+        },
+        {
+          "icon": "triangle",
+          "label": "Premiere Pro"
+        }
+      ],
+      "footer": [
+        {
+          "t": "or all of them at once",
+          "w": "medium",
+          "s": 0.6,
+          "c": "muted",
+          "i": true
+        }
+      ],
+      "anchor": "top"
+    },
+    {
+      "type": "card",
+      "duration": 2.4,
+      "transition": {
+        "type": "fade",
+        "duration": 0.28
+      },
+      "lines": [
+        {
+          "t": "You Think It",
+          "w": "black",
+          "s": 1.75
+        },
+        {
+          "t": "Claude Builds It",
+          "w": "black",
+          "s": 1.75
+        }
+      ],
+      "device": "phone",
+      "gradient": [
+        "#A9A6D8",
+        "#8FB4DE"
+      ],
+      "anchor": "top"
+    },
+    {
+      "type": "code",
+      "duration": 2.6,
+      "title": "terminal",
+      "lines": [
+        "$ mk assemble deck.json",
+        "  14 scenes · 1080x1920 · 30fps",
+        "  rendering …",
+        "  PASS  -14.1 LUFS"
+      ]
+    },
+    {
+      "type": "stat",
+      "duration": 1.8,
+      "value": "38s",
+      "label": "from prompt to render",
+      "sub": "no timeline, no keyframes"
+    },
+    {
+      "type": "outro",
+      "duration": 2.0,
+      "transition": {
+        "type": "fade",
+        "duration": 0.3
+      },
+      "lines": [
+        {
+          "t": "install it",
+          "w": "medium",
+          "s": 0.78,
+          "c": "muted",
+          "i": true
+        },
+        {
+          "t": "make the video",
+          "w": "black",
+          "s": 1.8
+        }
+      ],
+      "handle": "maker-skill"
+    }
+  ]
+}

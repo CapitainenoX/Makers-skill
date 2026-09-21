@@ -130,7 +130,8 @@ reads as style; an inconsistent correct one reads as sloppy.
 
 Web-animation craft transfers directly: spring overshoot, staggered entrances (lag each
 item 60–90 ms so a list *cascades* instead of appearing), transform-only movement,
-and motion that respects where things came from. If a Framer-Motion-style or animation
+and motion that respects where things came from. `maker-remotion` renders with real
+springs, so these curves are literal there rather than approximated. If a Framer-Motion-style or animation
 review skill is installed, its timing and easing guidance applies here unchanged —
 `maker-motion` sets the video-specific limits, that skill sharpens the curves.
 

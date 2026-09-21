@@ -39,7 +39,7 @@ bash ~/.claude/skills/maker/toolbelt/doctor.sh
 | whisper / faster-whisper | optionnel | transcription → sous-titres |
 | rembg | optionnel | détourage IA (sans fond vert) |
 | edge-tts / kokoro / piper | optionnel | voix off locale et gratuite |
-| node | optionnel | Remotion (motion design en code) |
+| node 18+ | pour `maker-remotion` | rendu Remotion (motion design en code) |
 
 Clés d'API, toutes facultatives et fournies par toi :
 `ELEVENLABS_API_KEY`, `TENOR_API_KEY`, `GIPHY_API_KEY`, `PEXELS_API_KEY`, `PIXABAY_API_KEY`.
@@ -61,12 +61,34 @@ Un skill routeur qui appelle dix sous-skills, chacun chargé **au moment où il 
 | `maker-voice` | TTS (ElevenLabs / Kokoro / Piper / edge-tts), transcription, sous-titres |
 | `maker-motion` | rythme, easing, typo cinétique, transitions, couleur — la doctrine |
 | `maker-edit` | l'EDL ffmpeg, ou piloter CapCut / Premiere / Resolve / Kdenlive… en MCP |
+| `maker-remotion` | motion design sans rushs : typo cinétique, cards, mockups, rendu par code |
 | `maker-vfx` | détourage, fond vert, looks, glitch, cinématiques Blender |
 | `maker-screen` | briefer un enregistrement d'écran puis le rendre dynamique |
 | `maker-render` | rendu, QC mesuré, auto-critique, livraison |
 | `maker-memory` | marché, style appris, retours du créateur, journal des vidéos |
 
-### Le moteur : un EDL déclaratif
+### Deux moteurs
+
+**`mk assemble`** monte des rushs avec ffmpeg. **`mk remotion`** rend des vidéos qui ne
+contiennent aucun rush : typographie animée, cards en relief, mockups de téléphone,
+listes, terminaux, gros chiffres — le style « studio » fond clair. Les deux se composent :
+on rend l'habillage en Remotion (avec alpha), on le pose sur la timeline de l'EDL.
+
+```bash
+mk remotion init                                 # une fois
+mk remotion deck deck.json --template tool-short
+mk remotion validate deck.json                   # gratuit, toujours avant de rendre
+mk remotion sheet deck.json -o out/sheet.png     # une image par scène — et on la REGARDE
+mk remotion render deck.json -o out/final.mp4
+```
+
+Là aussi le modèle écrit du JSON (des *scènes*), les composants React possèdent chaque
+pixel. Le style et ses règles : `skills/maker-remotion/references/studio-style.md`.
+
+Dépendances : Node 18+ et un Chromium **headless shell** (Chrome moderne a supprimé
+l'ancien mode headless ; `mk` réutilise celui de l'hôte s'il en trouve un).
+
+### Le moteur rushs : un EDL déclaratif
 
 Le modèle écrit un JSON (plans, mouvements, textes, sons), `mk assemble` construit le
 graphe ffmpeg, met chaque étape en cache, et **critique le montage** :
@@ -103,6 +125,8 @@ mk transcribe voice/vo.wav -o subs/vo.srt
 mk subs subs/vo.srt -o subs/captions.ass --style shout
 mk bgremove rushes/cam.mp4 out/cam.webm --mode auto
 mk assemble edl.json --preview
+mk remotion sheet deck.json -o out/sheet.png
+mk remotion render deck.json -o out/final.mp4
 mk qc out/final.mp4 --target shorts
 mk mem similar "repo github qui remplace notion"
 ```

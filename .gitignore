@@ -3,6 +3,12 @@
 **/__pycache__/
 *.pyc
 
+# Remotion install artefacts — the template source is committed, its deps are not
+node_modules/
+skills/maker/remotion/out/
+skills/maker/remotion/public/*
+!skills/maker/remotion/public/.gitkeep
+
 # Media never belongs in the skill repo
 *.mp4
 *.mov

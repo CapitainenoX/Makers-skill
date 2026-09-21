@@ -53,6 +53,18 @@ That is how you watch the rushes without spending the context window on frames.
 "$MK" bgremove rushes/cam.mp4 out/cam.webm --mode auto
 ```
 
+## Motion graphics (no footage)
+```bash
+"$MK" remotion init                                   # once per machine
+"$MK" remotion deck deck.json --template tool-short
+"$MK" remotion validate deck.json                     # free — always before rendering
+"$MK" remotion sheet deck.json -o out/sheet.png       # one frame per scene, then LOOK
+"$MK" remotion still deck.json -o out/hook.png --scene 0
+"$MK" remotion render deck.json -o out/final.mp4 --preview
+"$MK" remotion render deck.json -o out/insert.webm --transparent
+```
+Stills take seconds, renders take minutes — iterate on stills.
+
 ## Delivering
 ```bash
 "$MK" qc out/final.mp4 --target shorts        # PASS | FIX | REWORK + the exact fixes

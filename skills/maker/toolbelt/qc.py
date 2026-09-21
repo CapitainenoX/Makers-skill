@@ -33,6 +33,9 @@ def main():
     ap = argparse.ArgumentParser(prog="mk qc")
     ap.add_argument("file")
     ap.add_argument("--target", default="shorts", choices=TARGETS)
+    ap.add_argument("--graphics", action="store_true",
+                    help="motion-graphics source: cuts between flat frames need a lower "
+                         "scene threshold than footage does")
     a = ap.parse_args()
 
     f = safe_path(a.file, must_exist=True)
@@ -50,8 +53,10 @@ def main():
     except (ValueError, ZeroDivisionError):
         fps = 0.0
 
+    thresh = 0.06 if a.graphics else 0.28
     log = null_log(["-i", str(f), "-filter:v",
-                    "select='gt(scene,0.28)',showinfo,blackdetect=d=0.25:pic_th=0.98", "-an"])
+                    f"select='gt(scene,{thresh})',showinfo,"
+                    "blackdetect=d=0.25:pic_th=0.98", "-an"])
     cuts = [float(x) for x in re.findall(r"pts_time:([\d.]+)", log)]
     blacks = [float(x) for x in re.findall(r"black_start:([\d.]+)", log)]
     shots = len(cuts) + 1
@@ -88,20 +93,30 @@ def main():
             fails.append(f"true peak {loud['true_peak']} dBTP will clip on playback — add alimiter")
         if any(s < 1.0 for s in loud.get("silence_starts", [])):
             fails.append("silent opening — the first second must carry sound")
+    # Pacing is measured by diffing frames, which is reliable on footage and unreliable
+    # on flat motion graphics — a cut between two near-white cards barely moves the score.
+    # In graphics mode the deck's own lint owns pacing, so this only ever advises.
+    pace_note = (f"pixel-diff pacing is unreliable on graphics; `mk remotion validate "
+                 f"<deck>` measures scene length exactly") if a.graphics else ""
     if avg_shot > T["max_shot"]:
-        fails.append(f"average shot {avg_shot}s > {T['max_shot']}s — the edit drags. Cut more, "
-                     f"or add motion to the long shots")
-    if cuts and cuts[0] > 2.0:
+        msg = (f"average shot {avg_shot}s > {T['max_shot']}s — the edit drags. Cut more, "
+               f"or add motion to the long shots")
+        (warns if a.graphics else fails).append(msg + (f" ({pace_note})" if pace_note else ""))
+    if cuts and cuts[0] > 2.0 and not a.graphics:
         warns.append(f"first cut lands at {cuts[0]:.1f}s — hooks work better with a change "
                      f"inside the first 1.5s")
     if any(b < 0.5 for b in blacks):
         fails.append("starts on black frames — viewers read that as a dead video")
+    if a.graphics and shots <= 1 and dur > 4:
+        warns.append("no scene changes detected even at the low threshold — if this really "
+                     "is one held card for the whole video, it is a slide, not an edit")
     if blacks:
         warns.append(f"black frames at {blacks[:5]}")
 
     verdict = "PASS" if not fails else ("FIX" if len(fails) <= 2 else "REWORK")
     emit({
         "file": str(f), "target": a.target, "verdict": verdict,
+        "mode": "graphics" if a.graphics else "footage",
         "measured": {"duration_s": round(dur, 2), "canvas": f"{v.get('width')}x{v.get('height')}",
                      "fps": round(fps, 2), "shots": shots, "avg_shot_s": avg_shot,
                      "size_mb": round(int(fmt.get("size", 0)) / 1e6, 2), **loud},
