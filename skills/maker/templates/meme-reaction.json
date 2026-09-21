@@ -1,0 +1,48 @@
+{
+  "output": "out/final.mp4",
+  "preset": "shorts",
+  "background": "#000000",
+  "lufs": -13,
+  "clip_audio_db": -2,
+
+  "clips": [
+    { "src": "REPLACE/setup.mp4", "in": 0.0, "out": 1.0, "fit": "cover",
+      "motion": { "type": "punch", "from": 1.0, "to": 1.12, "ease": "easeOutCubic" } },
+
+    { "src": "REPLACE/turn.mp4", "in": 0.0, "out": 0.8, "fit": "cover",
+      "transition": { "type": "cut" },
+      "motion": { "type": "shake", "amount": 0.6, "freq": 11 } },
+
+    { "src": "REPLACE/reaction.mp4", "in": 0.0, "out": 1.3, "fit": "cover",
+      "transition": { "type": "flash", "duration": 0.12 },
+      "motion": { "type": "punch", "from": 1.1, "to": 1.3, "ease": "easeOutExpo" } },
+
+    { "src": "REPLACE/punchline.mp4", "in": 0.0, "out": 1.6, "fit": "cover",
+      "transition": { "type": "whip", "duration": 0.16 },
+      "motion": { "type": "zoomout", "amount": 0.2, "ease": "easeOutCubic" } }
+  ],
+
+  "layers": [
+    { "type": "text", "text": "REPLACE", "style": "hook", "uppercase": true,
+      "start": 0.0, "duration": 0.95, "y": 0.25,
+      "in": { "anim": "popIn", "duration": 0.16, "ease": "easeOutBack" },
+      "out": { "anim": "popOut", "duration": 0.1 } },
+
+    { "type": "image", "src": "REPLACE/sticker.png",
+      "start": 1.85, "duration": 1.2, "x": 0.72, "y": 0.28, "scale": 0.38, "rotate": 8,
+      "in": { "anim": "popIn", "duration": 0.14, "ease": "easeOutBack" },
+      "out": { "anim": "popOut", "duration": 0.12 } },
+
+    { "type": "text", "text": "mais genre… QUOI ?", "style": "caption", "color": "#FFD400",
+      "start": 3.2, "duration": 1.3, "y": 0.78,
+      "in": { "anim": "slideUp", "duration": 0.16 },
+      "out": { "anim": "fadeOut", "duration": 0.12 } }
+  ],
+
+  "audio": [
+    { "type": "sfx", "src": "REPLACE/vine-boom.mp3", "start": 0.94, "gain": -4 },
+    { "type": "sfx", "src": "REPLACE/bruh.mp3", "start": 1.75, "gain": -5 },
+    { "type": "music", "src": "REPLACE/bed.mp3", "start": 0.0, "gain": -21,
+      "duck": true, "fadeIn": 0.2, "duration": 5 }
+  ]
+}

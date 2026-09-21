@@ -1,0 +1,51 @@
+{
+  "output": "out/final.mp4",
+  "preset": "youtube",
+  "background": "#07070b",
+  "lufs": -14,
+  "clip_audio_db": -4,
+
+  "clips": [
+    { "src": "REPLACE/cold-open.mp4", "in": 0.0, "out": 3.2, "fit": "cover",
+      "motion": { "type": "punch", "from": 1.0, "to": 1.08, "ease": "easeInOutCubic" },
+      "grade": "eq=contrast=1.06:saturation=0.96,curves=preset=medium_contrast" },
+
+    { "src": "REPLACE/promise.mp4", "in": 0.0, "out": 4.0, "fit": "cover", "volume": -3,
+      "transition": { "type": "cut" },
+      "motion": { "type": "panright", "amount": 0.08, "ease": "easeInOutCubic" },
+      "grade": "eq=contrast=1.06:saturation=0.96,curves=preset=medium_contrast" },
+
+    { "src": "color:#07070b", "duration": 1.2,
+      "transition": { "type": "black", "duration": 0.25 } },
+
+    { "src": "REPLACE/chapter-1.mp4", "in": 0.0, "out": 5.5, "fit": "cover", "volume": -3,
+      "transition": { "type": "fade", "duration": 0.4 },
+      "motion": { "type": "punch", "from": 1.0, "to": 1.06, "ease": "easeInOutCubic" },
+      "grade": "eq=contrast=1.06:saturation=0.96,curves=preset=medium_contrast" }
+  ],
+
+  "layers": [
+    { "type": "text", "text": "REPLACE — la question", "style": "title",
+      "start": 0.2, "duration": 2.6, "y": 0.2,
+      "in":  { "anim": "popIn", "duration": 0.24, "ease": "easeOutBack" },
+      "out": { "anim": "fadeOut", "duration": 0.2 } },
+
+    { "type": "text", "text": "À la fin tu sauras REPLACE", "style": "kicker",
+      "start": 3.4, "duration": 2.4, "y": 0.84,
+      "in":  { "anim": "slideUp", "duration": 0.22 },
+      "out": { "anim": "fadeOut", "duration": 0.18 } },
+
+    { "type": "text", "text": "1 — REPLACE", "style": "hook", "uppercase": true,
+      "start": 7.3, "duration": 1.1, "y": "center",
+      "in":  { "anim": "zoomIn", "duration": 0.3, "ease": "easeOutExpo" },
+      "out": { "anim": "fadeOut", "duration": 0.2 } }
+  ],
+
+  "audio": [
+    { "type": "voice", "src": "REPLACE/voice/vo.wav", "start": 0.0, "gain": 0 },
+    { "type": "music", "src": "REPLACE/bed.mp3", "start": 0.0, "gain": -22,
+      "duck": true, "fadeIn": 0.6, "fadeOut": 2.0, "duration": 14 }
+  ],
+
+  "subtitles": { "src": "REPLACE/subs/captions.ass", "style": "doc", "y": 0.86 }
+}

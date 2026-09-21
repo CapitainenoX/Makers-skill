@@ -1,0 +1,10 @@
+{
+  "name": "maker-skill",
+  "version": "1.0.0",
+  "description": "An agentic video-production harness for Claude Code: market research, scripting, sourcing, motion design, editing (EDL/ffmpeg or any NLE over MCP), VFX, voice, QC and long-term channel memory.",
+  "author": { "name": "CapitainenoX" },
+  "homepage": "https://github.com/CapitainenoX/Makers-skill",
+  "license": "MIT",
+  "keywords": ["video", "editing", "montage", "motion-design", "ffmpeg", "capcut",
+               "premiere-pro", "davinci-resolve", "kdenlive", "shorts", "youtube", "tiktok"]
+}

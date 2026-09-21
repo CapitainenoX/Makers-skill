@@ -1,0 +1,66 @@
+{
+  "output": "out/final.mp4",
+  "preset": "shorts",
+  "background": "#0b0b0f",
+  "font_family": "DejaVu Sans",
+  "lufs": -14,
+  "clip_audio_db": -8,
+
+  "clips": [
+    { "src": "REPLACE/hook-shot.mp4", "in": 0.0, "out": 0.9, "fit": "cover", "volume": -40,
+      "motion": { "type": "punch", "from": 1.0, "to": 1.16, "ease": "easeOutCubic" },
+      "grade": "eq=contrast=1.10:saturation=1.08,curves=preset=medium_contrast" },
+
+    { "src": "REPLACE/context.mp4", "in": 4.0, "out": 5.6, "fit": "blur", "volume": -40,
+      "motion": { "type": "panup", "amount": 0.12, "ease": "easeInOutCubic" },
+      "transition": { "type": "whip", "duration": 0.2 },
+      "grade": "eq=contrast=1.10:saturation=1.08,curves=preset=medium_contrast" },
+
+    { "src": "REPLACE/proof-1.mp4", "in": 0.0, "out": 2.4, "speed": 1.6, "fit": "cover",
+      "volume": -40,
+      "motion": { "type": "punch", "from": 1.25, "to": 1.42, "ease": "easeInOutCubic" },
+      "transition": { "type": "cut" },
+      "grade": "eq=contrast=1.10:saturation=1.08,curves=preset=medium_contrast" },
+
+    { "src": "REPLACE/proof-2.mp4", "in": 0.0, "out": 1.5, "fit": "cover", "volume": -40,
+      "motion": { "type": "shake", "amount": 0.4, "freq": 9 },
+      "transition": { "type": "flash", "duration": 0.14 },
+      "grade": "eq=contrast=1.10:saturation=1.08,curves=preset=medium_contrast" },
+
+    { "src": "REPLACE/payoff.mp4", "in": 0.0, "out": 1.8, "fit": "cover", "volume": -40,
+      "motion": { "type": "zoomout", "amount": 0.16, "ease": "easeOutCubic" },
+      "transition": { "type": "cut" },
+      "grade": "eq=contrast=1.10:saturation=1.08,curves=preset=medium_contrast" }
+  ],
+
+  "layers": [
+    { "type": "text", "text": "REPLACE — LE HOOK", "style": "hook", "uppercase": true,
+      "start": 0.0, "duration": 1.3, "y": 0.22,
+      "in":  { "anim": "popIn", "duration": 0.22, "ease": "easeOutBack" },
+      "out": { "anim": "popOut", "duration": 0.14 } },
+
+    { "type": "text", "text": "et ça change tout", "style": "kicker",
+      "start": 1.05, "duration": 1.1, "y": 0.33,
+      "in":  { "anim": "slideUp", "duration": 0.2 },
+      "out": { "anim": "fadeOut", "duration": 0.15 } },
+
+    { "type": "image", "src": "REPLACE/meme.png",
+      "start": 4.6, "duration": 1.2, "x": 0.74, "y": 0.3, "scale": 0.32, "rotate": -7,
+      "in":  { "anim": "slideRight", "duration": 0.18 },
+      "out": { "anim": "popOut", "duration": 0.14 } },
+
+    { "type": "text", "text": "lien en description", "style": "caption",
+      "start": 6.4, "duration": 1.4, "y": 0.8,
+      "in":  { "anim": "popIn", "duration": 0.2 },
+      "out": { "anim": "fadeOut", "duration": 0.16 } }
+  ],
+
+  "audio": [
+    { "type": "music", "src": "REPLACE/bed.mp3", "start": 0.0, "gain": -19,
+      "duck": true, "fadeIn": 0.3, "fadeOut": 1.2, "duration": 9 },
+    { "type": "sfx", "src": "REPLACE/whoosh.mp3", "start": 0.86, "gain": -7 },
+    { "type": "sfx", "src": "REPLACE/impact.mp3", "start": 4.5, "gain": -5 }
+  ],
+
+  "subtitles": { "src": "REPLACE/subs/captions.ass" }
+}

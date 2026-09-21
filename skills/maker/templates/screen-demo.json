@@ -1,0 +1,48 @@
+{
+  "output": "out/final.mp4",
+  "preset": "shorts",
+  "background": "#0d0d12",
+  "lufs": -14,
+  "clip_audio_db": -14,
+
+  "clips": [
+    { "src": "REPLACE/screen.mkv", "in": 2.0, "out": 3.0, "fit": "cover", "volume": -40,
+      "motion": { "type": "punch", "from": 1.35, "to": 1.55, "ease": "easeOutCubic" } },
+
+    { "src": "REPLACE/screen.mkv", "in": 8.0, "out": 20.0, "speed": 2.4, "fit": "cover",
+      "volume": -40, "transition": { "type": "cut" },
+      "motion": { "type": "pandown", "amount": 0.14, "ease": "easeInOutCubic" } },
+
+    { "src": "REPLACE/screen.mkv", "in": 31.0, "out": 33.4, "fit": "cover", "volume": -40,
+      "transition": { "type": "whip", "duration": 0.18 },
+      "motion": { "type": "punch", "from": 1.3, "to": 1.6, "ease": "easeInOutCubic" } },
+
+    { "src": "REPLACE/result.png", "duration": 1.6, "fit": "contain",
+      "transition": { "type": "flash", "duration": 0.13 },
+      "motion": { "type": "zoomout", "amount": 0.14, "ease": "easeOutCubic" } }
+  ],
+
+  "layers": [
+    { "type": "text", "text": "3 COMMANDES", "style": "hook", "uppercase": true,
+      "start": 0.0, "duration": 1.1, "y": 0.18,
+      "in": { "anim": "popIn", "duration": 0.2, "ease": "easeOutBack" },
+      "out": { "anim": "popOut", "duration": 0.13 } },
+
+    { "type": "text", "text": "ici 👇", "style": "kicker",
+      "start": 5.6, "duration": 1.0, "x": 0.6, "y": 0.45,
+      "in": { "anim": "popIn", "duration": 0.18, "ease": "easeOutBack" },
+      "out": { "anim": "fadeOut", "duration": 0.12 } },
+
+    { "type": "text", "text": "et c'est tout.", "style": "caption",
+      "start": 7.0, "duration": 1.4, "y": 0.8,
+      "in": { "anim": "slideUp", "duration": 0.2 },
+      "out": { "anim": "fadeOut", "duration": 0.15 } }
+  ],
+
+  "audio": [
+    { "type": "voice", "src": "REPLACE/voice/vo.wav", "start": 0.2, "gain": 0 },
+    { "type": "music", "src": "REPLACE/bed.mp3", "start": 0.0, "gain": -20,
+      "duck": true, "fadeIn": 0.3, "duration": 9 },
+    { "type": "sfx", "src": "REPLACE/click.mp3", "start": 5.55, "gain": -14 }
+  ]
+}

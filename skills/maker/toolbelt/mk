@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+# mk — Maker Skill toolbelt dispatcher.
+# Single entry point for every deterministic operation a video agent needs.
+# Safety: no destructive op outside the project workspace, no eval, no shell
+# interpolation of downloaded content, every network call is time-bounded.
+set -euo pipefail
+
+MK_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+export MK_DIR
+MK_VERSION="1.0.0"
+
+# --- workspace resolution -----------------------------------------------------
+# Everything writable lives under MAKER_HOME (default ./.maker). Scripts refuse
+# to write outside it.
+MAKER_HOME="${MAKER_HOME:-$PWD/.maker}"
+export MAKER_HOME
+
+PY="${MAKER_PYTHON:-}"
+if [ -z "$PY" ]; then
+  for c in python3 python; do command -v "$c" >/dev/null 2>&1 && { PY="$c"; break; }; done
+fi
+export MAKER_PYTHON="${PY:-python3}"
+
+py() { "$MAKER_PYTHON" "$MK_DIR/$1" "${@:2}"; }
+
+usage() {
+  cat <<'USAGE'
+mk — Maker Skill toolbelt
+
+SETUP
+  mk doctor                       Probe the host, write .maker/env + capabilities.json
+  mk init <slug> [--format X]     Create a project workspace under .maker/projects/
+  mk state <slug> [k=v ...]       Read / patch a project's state.json
+
+MEMORY
+  mk mem show [section]           Print channel memory (market|style|feedback|log)
+  mk mem add <section> <text>     Append a dated entry
+  mk mem log <slug> --title T ..  Record a published video (for dedupe)
+  mk mem similar "<topic>"        Check if a topic was already covered
+
+SOURCING
+  mk fetch <url> [-o name] [--audio] [--clip S E] [--max-height N]
+  mk music <query|url> [-o name]  Download a track (yt-dlp / spotdl)
+  mk sfx <query> [-n 5]           Search + download meme sounds (Myinstants)
+  mk gif <query> [-n 5]           Search + download GIF/MP4 stickers (Tenor)
+  mk stock <query> [-n 5]         Search CC0 b-roll (Pexels/Pixabay, needs key)
+
+ANALYSIS
+  mk probe <file>                 Compact ffprobe JSON
+  mk scan <dir|file> [--deep]     Index rushes: cuts, motion, loudness, stills
+  mk transcribe <file> [--srt]    Whisper transcript (if available)
+
+BUILD
+  mk assemble <edl.json> [--fast|--preview] [--dry-run]
+  mk subs <in.srt> -o <out.ass> [--style S]
+  mk tts "<text>" -o <out.wav> [--voice V] [--engine E]
+  mk bgremove <in> <out> [--video]
+  mk thumb <video> <out.png> [--at 1.5]
+
+DELIVERY
+  mk qc <file> [--target youtube|shorts]
+  mk clean [--cache]              Remove regenerable files only
+
+Docs: see the maker skills. `mk <cmd> --help` for details.
+USAGE
+}
+
+cmd="${1:-help}"; shift || true
+case "$cmd" in
+  -h|--help|help)   usage ;;
+  --version)        echo "mk $MK_VERSION" ;;
+  doctor)           bash "$MK_DIR/doctor.sh" "$@" ;;
+  init|state|clean) py workspace.py "$cmd" "$@" ;;
+  mem|memory)       py memory.py "$@" ;;
+  fetch|music|sfx|gif|stock) py assets.py "$cmd" "$@" ;;
+  probe|scan|transcribe)     py scan.py "$cmd" "$@" ;;
+  assemble)         py edl.py "$@" ;;
+  subs)             py subs.py "$@" ;;
+  tts)              py tts.py "$@" ;;
+  bgremove)         py matte.py "$@" ;;
+  thumb)            py scan.py thumb "$@" ;;
+  qc)               py qc.py "$@" ;;
+  *) echo "mk: unknown command '$cmd'" >&2; usage >&2; exit 2 ;;
+esac
