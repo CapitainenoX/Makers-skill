@@ -29,6 +29,16 @@ export const Rich: React.FC<{
   const tokens = typeof text === "string" ? parse(text) : text;
   const px = base * size;
 
+  // A highlight is one continuous marker stroke, so consecutive ==marked== words share a
+  // single box. Rendering them per-word gave a separate black rectangle around each word.
+  type Group = { words: string[]; em: Token["em"]; index: number };
+  const groups: Group[] = [];
+  tokens.forEach((t, i) => {
+    const last = groups[groups.length - 1];
+    if (t.em === "mark" && last && last.em === "mark") last.words.push(t.text);
+    else groups.push({ words: [t.text], em: t.em, index: i });
+  });
+
   return (
     <div
       style={{
@@ -42,9 +52,9 @@ export const Rich: React.FC<{
         lineHeight: 1.08,
       }}
     >
-      {tokens.map((t, i) => {
+      {groups.map((t, gi) => {
         const p = reveal === "word"
-          ? enter(frame, fps, delay + stagger(i, fps, cadence), "snap")
+          ? enter(frame, fps, delay + stagger(t.index, fps, cadence), "snap")
           : enter(frame, fps, delay, "snap");
         const strong = t.em === "bold" || t.em === "accent" || t.em === "mark";
         const color =
@@ -54,7 +64,7 @@ export const Rich: React.FC<{
           : theme.muted;
         return (
           <span
-            key={i}
+            key={gi}
             style={{
               ...rise(p, px * 0.26),
               display: "inline-block",
@@ -71,7 +81,7 @@ export const Rich: React.FC<{
                 : {}),
             }}
           >
-            {t.text}
+            {t.words.join(" ")}
           </span>
         );
       })}
