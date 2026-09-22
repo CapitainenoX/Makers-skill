@@ -31,10 +31,17 @@ export const Rich: React.FC<{
 
   // A highlight is one continuous marker stroke, so consecutive ==marked== words share a
   // single box. Rendering them per-word gave a separate black rectangle around each word.
-  type Group = { words: string[]; em: Token["em"]; index: number };
+  type Group = { words: string[]; em: Token["em"]; index: number; trail?: string };
   const groups: Group[] = [];
   tokens.forEach((t, i) => {
     const last = groups[groups.length - 1];
+    // Punctuation left behind by a marker ("**JSON**, not") is its own token, and the
+    // flex gap would push it off the word as "JSON , not". Glue it to the group before.
+    const punct = /^[,.;:!?…)\]}»"']+$/.test(t.text);
+    if (punct && last) {
+      last.trail = (last.trail ?? "") + t.text;
+      return;
+    }
     if (t.em === "mark" && last && last.em === "mark") last.words.push(t.text);
     else groups.push({ words: [t.text], em: t.em, index: i });
   });
@@ -104,6 +111,9 @@ export const Rich: React.FC<{
               >
                 {t.words.join(" ")}
               </span>
+              {t.trail ? (
+                <span style={{ position: "relative", color: theme.muted }}>{t.trail}</span>
+              ) : null}
             </span>
           );
         }
@@ -118,6 +128,7 @@ export const Rich: React.FC<{
             }}
           >
             {t.words.join(" ")}
+            {t.trail ? <span style={{ color: theme.muted }}>{t.trail}</span> : null}
           </span>
         );
       })}

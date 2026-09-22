@@ -8,6 +8,7 @@ Copy one, replace every `REPLACE`, then `mk remotion validate` before rendering.
 | `tool-short.json` | "here is a tool, here is why" — claim, name, proof, options, number, CTA |
 | `footage-short.json` | **the usual one** — the creator's screen recordings, framed in mockups |
 | `studio-short.json` | the reference grammar: chips, diagram, flow, mock + flowing captions |
+| `makers-skill.json` | a finished 11-scene short with real logos, a CTA and per-scene decor |
 
 `footage-short.json` is the template to reach for when rushes exist. Put the clips in
 `public/shots/`, then `mk remotion validate` measures each one and tells you whether the

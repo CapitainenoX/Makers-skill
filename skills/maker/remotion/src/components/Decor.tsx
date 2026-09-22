@@ -32,7 +32,7 @@ export const Decor: React.FC<{ spec?: DecorSpec; theme: Theme }> = ({ spec, them
 
   const t = frame / fps;
   const corners = spec?.corners ?? ["top-left", "bottom-right"];
-  const opacity = spec?.opacity ?? 0.11;
+  const opacity = spec?.opacity ?? 0.05;
   const size = width * (spec?.scale ?? 0.82);
 
   return (

@@ -39,7 +39,7 @@ export const Outro: React.FC<SceneProps<"outro">> = ({ scene, theme, base, font 
           <span
             style={{
               fontFamily: font,
-              fontSize: base * 0.58,
+              fontSize: base * (scene.handle && scene.handle.length > 16 ? 0.4 : 0.58),
               fontWeight: WEIGHTS.bold,
               letterSpacing: "-0.02em",
               color: theme.text,

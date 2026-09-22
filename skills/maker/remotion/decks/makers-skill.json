@@ -1,0 +1,320 @@
+{
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "theme": "light",
+  "baseSize": 0.058,
+  "brand": {
+    "watermark": "github.com/CapitainenoX/Makers-skill"
+  },
+  "decor": {
+    "kind": "rays",
+    "corners": [
+      "top-left",
+      "bottom-right"
+    ],
+    "opacity": 0.045,
+    "scale": 0.8
+  },
+  "scenes": [
+    {
+      "type": "chips",
+      "duration": 1.5,
+      "size": 0.23,
+      "decor": {
+        "kind": "rays",
+        "corners": [
+          "top-left"
+        ],
+        "opacity": 0.05
+      },
+      "items": [
+        {
+          "icon": "logos/claude.svg"
+        },
+        {
+          "icon": "logos/github.svg"
+        }
+      ],
+      "rich": "**Claude Code** can now cut video"
+    },
+    {
+      "type": "mock",
+      "duration": 1.9,
+      "decor": {
+        "kind": "arcs",
+        "corners": [
+          "top-right",
+          "bottom-left"
+        ],
+        "opacity": 0.06
+      },
+      "text": "Make me a short about this GitHub project.",
+      "badge": "Chat",
+      "meta": "one prompt",
+      "rich": "you write **one line**"
+    },
+    {
+      "type": "flow",
+      "duration": 2.5,
+      "decor": {
+        "kind": "rays",
+        "corners": [
+          "bottom-left"
+        ],
+        "opacity": 0.045
+      },
+      "title": "What it actually does",
+      "steps": [
+        {
+          "label": "Writes the script",
+          "icon": "chat"
+        },
+        {
+          "label": "Builds the deck",
+          "icon": "code"
+        },
+        {
+          "label": "Renders and mixes",
+          "icon": "bolt"
+        }
+      ],
+      "rich": "it writes **JSON**, not keyframes"
+    },
+    {
+      "type": "diagram",
+      "duration": 2.5,
+      "hub": {
+        "icon": "gear"
+      },
+      "decor": {
+        "kind": "blobs",
+        "corners": [
+          "top-left",
+          "bottom-right"
+        ],
+        "opacity": 0.05
+      },
+      "nodes": [
+        {
+          "icon": "logos/react.svg",
+          "label": "Remotion"
+        },
+        {
+          "icon": "logos/ffmpeg.svg",
+          "label": "ffmpeg"
+        },
+        {
+          "icon": "logos/python.svg",
+          "label": "toolbelt"
+        },
+        {
+          "icon": "logos/nodedotjs.svg",
+          "label": "render"
+        }
+      ],
+      "rich": "**Remotion** for design, **ffmpeg** for footage"
+    },
+    {
+      "type": "chips",
+      "duration": 2.2,
+      "columns": 4,
+      "size": 0.16,
+      "decor": {
+        "kind": "arcs",
+        "corners": [
+          "top-left"
+        ],
+        "opacity": 0.055
+      },
+      "items": [
+        {
+          "icon": "logos/claude.svg",
+          "label": "Claude"
+        },
+        {
+          "icon": "logos/github.svg",
+          "label": "GitHub"
+        },
+        {
+          "icon": "logos/openai.svg",
+          "label": "OpenAI"
+        },
+        {
+          "icon": "logos/typescript.svg",
+          "label": "TypeScript"
+        }
+      ],
+      "rich": "real brand marks, ==never redrawn=="
+    },
+    {
+      "type": "stat",
+      "duration": 1.8,
+      "value": "20",
+      "decor": {
+        "kind": "rays",
+        "corners": [
+          "top-right"
+        ],
+        "opacity": 0.05
+      },
+      "label": "scene types",
+      "sub": "one beat each"
+    },
+    {
+      "type": "compare",
+      "duration": 2.7,
+      "decor": {
+        "kind": "blobs",
+        "corners": [
+          "bottom-left"
+        ],
+        "opacity": 0.05
+      },
+      "left": {
+        "label": "Before",
+        "items": [
+          "Hours in a timeline",
+          "Every video from zero",
+          "Music that doesn't fit"
+        ]
+      },
+      "right": {
+        "label": "After",
+        "items": [
+          "One prompt",
+          "It remembers what worked",
+          "Voice, bed and SFX mixed"
+        ]
+      }
+    },
+    {
+      "type": "bullets",
+      "duration": 2.3,
+      "decor": {
+        "kind": "arcs",
+        "corners": [
+          "top-right",
+          "bottom-left"
+        ],
+        "opacity": 0.055
+      },
+      "heading": [
+        {
+          "t": "All of it is free",
+          "w": "black",
+          "s": 1.3
+        }
+      ],
+      "items": [
+        {
+          "icon": "check",
+          "label": "Real logos, fetched",
+          "sub": "Simple Icons, CC0"
+        },
+        {
+          "icon": "check",
+          "label": "CC0 sound and SFX",
+          "sub": "credits written for you"
+        },
+        {
+          "icon": "bolt",
+          "label": "Neural narration",
+          "sub": "no provider API key",
+          "accent": true
+        }
+      ]
+    },
+    {
+      "type": "marquee",
+      "duration": 1.9,
+      "speed": 78,
+      "decor": {
+        "kind": "rays",
+        "corners": [
+          "top-left",
+          "bottom-right"
+        ],
+        "opacity": 0.045
+      },
+      "lines": [
+        {
+          "t": "and it drives your editor too",
+          "w": "medium",
+          "s": 0.72,
+          "c": "muted",
+          "i": true
+        }
+      ],
+      "items": [
+        "Remotion",
+        "ffmpeg",
+        "CapCut",
+        "Premiere Pro",
+        "DaVinci Resolve",
+        "Kdenlive",
+        "OpenShot"
+      ]
+    },
+    {
+      "type": "cta",
+      "duration": 2.0,
+      "size": 0.19,
+      "decor": {
+        "kind": "arcs",
+        "corners": [
+          "top-left",
+          "bottom-right"
+        ],
+        "opacity": 0.06
+      },
+      "actions": [
+        {
+          "icon": "thumbsUp",
+          "label": "Like"
+        },
+        {
+          "icon": "bell",
+          "label": "Subscribe",
+          "accent": true
+        },
+        {
+          "icon": "comment",
+          "label": "Comment"
+        }
+      ],
+      "rich": "if this saves you an hour, ==say so=="
+    },
+    {
+      "type": "outro",
+      "duration": 3.1,
+      "transition": {
+        "type": "fade",
+        "duration": 0.28
+      },
+      "decor": {
+        "kind": "rays",
+        "corners": [
+          "top-right",
+          "bottom-left"
+        ],
+        "opacity": 0.05
+      },
+      "lines": [
+        {
+          "t": "it's open source",
+          "w": "medium",
+          "s": 0.76,
+          "c": "muted",
+          "i": true
+        },
+        {
+          "t": "Makers-skill",
+          "w": "black",
+          "s": 1.85
+        }
+      ],
+      "handle": "github.com/CapitainenoX"
+    }
+  ]
+}

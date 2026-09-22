@@ -49,16 +49,16 @@ export const Flow: React.FC<SceneProps<"flow">> = ({ scene, theme, base, font })
               <div style={{ ...rise(p, base * 0.22), display: "flex", alignItems: "center",
                 gap: base * 0.3 }}>
                 <span style={{ width: base * 0.56, height: base * 0.56, borderRadius: "50%",
-                  background: i === 0 || last ? theme.accent : `${theme.muted}2E`,
-                  color: i === 0 || last ? "#fff" : theme.muted,
+                  background: last ? theme.accent : `${theme.muted}26`,
+                  color: last ? theme.bg : theme.text,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontFamily: font, fontSize: base * 0.3, fontWeight: WEIGHTS.bold }}>
                   {i + 1}
                 </span>
                 {st.icon ? <Glyph name={st.icon} size={base * 0.44} color={theme.muted} /> : null}
                 <span style={{ fontFamily: font, fontSize: base * 0.54,
-                  fontWeight: i === 0 || last ? WEIGHTS.bold : WEIGHTS.medium,
-                  letterSpacing: "-0.02em", color: i === 0 || last ? theme.text : theme.muted }}>
+                  fontWeight: WEIGHTS.semibold,
+                  letterSpacing: "-0.02em", color: theme.text }}>
                   {st.label}
                 </span>
               </div>
