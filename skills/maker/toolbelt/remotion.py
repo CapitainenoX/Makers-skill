@@ -158,12 +158,39 @@ def scene_media(s: dict) -> list[tuple[str, dict]]:
     return out
 
 
+def scene_icons(s: dict) -> list[str]:
+    """Every icon in a scene that names a file rather than a built-in glyph.
+
+    A glyph is a bare word (`gear`, `sparkle`); anything with a slash or a dot is a path
+    into public/. Missing ones used to sail through validate and then kill the render
+    with a 404 that named a URL, not a fix."""
+    found: list[str] = []
+
+    def take(v):
+        if isinstance(v, str) and ("/" in v or "." in v) and not v.startswith("http"):
+            found.append(v)
+
+    for key in ("hub", "chip"):
+        if isinstance(s.get(key), dict):
+            take(s[key].get("icon"))
+    for key in ("items", "nodes", "steps"):
+        for it in (s.get(key) or []):
+            if isinstance(it, dict):
+                take(it.get("icon"))
+    return found
+
+
 def probe_media(deck: dict, project: Path) -> tuple[list[str], list[str], list[dict]]:
     """Resolve every source against public/ and measure it. Footage that silently
     freezes or goes missing mid-render is the most expensive bug in this pipeline."""
     errors, warns, report = [], [], []
     public = project / "public"
     for i, sc in enumerate(deck.get("scenes") or []):
+        for icon in scene_icons(sc):
+            if not (public / icon).exists():
+                slug = Path(icon).stem
+                errors.append(f"scene {i}: icon not found — {icon}. "
+                              f"Fetch it: mk logo get {slug}")
         for _, m in scene_media(sc):
             src = str(m["src"])
             if src.startswith(("http://", "https://", "data:")):
