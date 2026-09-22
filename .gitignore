@@ -1,3 +1,10 @@
+# Secrets live in the environment. Never in the repo.
+.env
+*.env
+!.env.example
+secrets.json
+**/credentials*
+
 # Maker workspaces are generated per project, never committed
 .maker/
 **/__pycache__/

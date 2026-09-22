@@ -42,8 +42,9 @@ bash ~/.claude/skills/maker/toolbelt/doctor.sh
 | node 18+ | pour `maker-remotion` | rendu Remotion (motion design en code) |
 
 Clés d'API, toutes facultatives et fournies par toi :
-`ELEVENLABS_API_KEY`, `TENOR_API_KEY`, `GIPHY_API_KEY`, `PEXELS_API_KEY`, `PIXABAY_API_KEY`.
-Aucune n'est jamais écrite dans un fichier ni affichée.
+`ELEVENLABS_API_KEY`, `TENOR_API_KEY`, `GIPHY_API_KEY`, `PEXELS_API_KEY`, `PIXABAY_API_KEY`, `FREESOUND_API_KEY`.
+Aucune n'est jamais écrite dans un fichier ni affichée — `mk doctor` dit seulement
+lesquelles sont présentes. Chaque son téléchargé écrit sa ligne dans `credits.md`.
 
 ---
 
@@ -95,7 +96,9 @@ La police (Inter) est **embarquée**, jamais tirée d'un CDN au rendu.
 
 ```bash
 mk logo get github docker node --color 111111   # marques réelles (Simple Icons, CC0)
-mk sfx gen --all                                # one-shots synthétisés, aucune clé d'API
+mk sound pack                                   # one-shots enregistrés (Freesound, CC0) + crédits
+mk sound music "minimal tech ambient loop"      # un lit musical, licence tracée
+mk sfx gen --all                                # repli synthétisé, aucune clé d'API
 mk tts "<le script>" -o voice/vo.wav
 mk mix out/video.mp4 -o out/final.mp4 --from-deck deck.json --voice voice/vo.wav --music bed.mp3
 ```

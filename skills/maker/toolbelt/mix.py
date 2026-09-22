@@ -83,15 +83,28 @@ def scene_starts(deck: dict) -> list[tuple[float, str]]:
     return out
 
 
+def resolve_sfx(name: str, sfx_dir: Path) -> tuple[Path, str]:
+    """A recorded take if one is there, otherwise synthesise it.
+
+    `mk sound pack` writes .mp3 files with air and room in them; `mk sfx gen` writes .wav
+    synths that are clean and tail-free. Recorded wins for whooshes and impacts, and the
+    synth is always available so a missing key never means a silent cut."""
+    for ext in (".mp3", ".ogg", ".wav"):
+        p = sfx_dir / f"{name}{ext}"
+        if p.exists():
+            return p, "recorded" if ext != ".wav" else "synth"
+    p = sfx_dir / f"{name}.wav"
+    render_sfx(name, p, 0.0)
+    return p, "synth"
+
+
 def auto_sfx(deck: dict, sfx_dir: Path, lead: float = 0.06) -> list[dict]:
     """One one-shot per cut, landing `lead` seconds early — the ear leads the eye."""
     tracks = []
     for i, (t, kind) in enumerate(scene_starts(deck)):
         name, gain = SCENE_SFX.get(kind, ("swoosh", -13))
-        src = sfx_dir / f"{name}.wav"
-        if not src.exists():
-            render_sfx(name, src, 0.0)
-        tracks.append({"type": "sfx", "src": str(src),
+        src, origin = resolve_sfx(name, sfx_dir)
+        tracks.append({"type": "sfx", "src": str(src), "origin": origin,
                        "start": max(0.0, t - (lead if i else 0.0)), "gain": gain})
     return tracks
 
@@ -139,12 +152,17 @@ def main():
             "unmute and hear nothing swipe.")
 
     kinds = {t.get("type") for t in tracks}
+    origins = {t.get("origin") for t in tracks if t.get("origin")}
     warnings = []
     if "voice" not in kinds:
         warnings.append("no narration. Your own voice outperforms trending audio on small "
                         "channels — `mk tts` if you will not record it yourself")
     if "music" not in kinds:
-        warnings.append("no music bed under the edit")
+        warnings.append("no music bed under the edit — `mk sound music \"<mood> loop\"` "
+                        "pulls a CC0 one, then match its tempo to your cuts")
+    if origins == {"synth"}:
+        warnings.append("every one-shot is synthesised. `mk sound pack` fetches recorded "
+                        "takes, which have air in them and sit better under a voice")
 
     if a.dry_run:
         emit({"ok": True, "dry_run": True, "video_s": round(dur, 2),
@@ -172,6 +190,7 @@ def main():
     emit({"ok": True, "output": str(out), "duration_s": round(duration_of(out), 2),
           "tracks": len(tracks), "kinds": sorted(k for k in kinds if k),
           "sfx_events": sum(1 for t in tracks if t.get("type") == "sfx"),
+          "sfx_source": sorted(origins) or None,
           "lufs_target": a.lufs,
           "lufs_before": stats.get("input_i"), "warnings": warnings,
           "next": f"mk qc {out} --target shorts --graphics"})

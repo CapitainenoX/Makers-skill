@@ -51,6 +51,8 @@ SOURCING
   mk logo list
   mk sfx gen --all [-o dir]              Synthesised one-shots — no key, no licence
   mk sfx list
+  mk sound pack                          Recorded one-shots from Freesound (CC0), + credits
+  mk sound search "<q>" | get "<q>" | music "<q>"    needs FREESOUND_API_KEY
   mk fetch <url> [-o name] [--audio] [--clip S E] [--max-height N]
   mk music <query|url> [-o name]  Download a track (yt-dlp / spotdl)
   mk sfx <query> [-n 5]           Search + download meme sounds (Myinstants)
@@ -102,6 +104,7 @@ case "$cmd" in
   remotion)         py remotion.py "$@" ;;
   logo)             py logos.py "$@" ;;
   sfx)              py sfx.py "$@" ;;
+  sound)            py sound.py "$@" ;;
   mix)              py mix.py "$@" ;;
   lib|library)      py lib.py "$@" ;;
   subs)             py subs.py "$@" ;;

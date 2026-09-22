@@ -44,7 +44,13 @@ This is the single most expensive mistake in this format, and it is worth being 
   −8 to −14 dB, whole mix at −14 LUFS with true peak under −1 dBTP.
 
 `mk mix --from-deck` places a one-shot on every scene cut automatically, 60 ms early,
-chosen by scene type. There is no excuse for a silent edit.
+chosen by scene type. `mk sound pack` fills the one-shot folder with recorded CC0 takes
+and `mk sfx gen` synthesises any that are missing, so there is no excuse for a silent edit.
+
+Choosing a bed: `mk sound music "<mood> loop"` returns CC0 candidates with their length.
+Count your cuts per ten seconds and pick the one whose pulse lands near them. A bed chosen
+for the topic's mood rather than the edit's tempo is the "unrelated music" failure — it
+reads as assembled rather than made.
 
 ## Sound-off is the other half
 

@@ -29,6 +29,10 @@ MK="$(ls -d ~/.claude/skills/maker/toolbelt/mk .claude/skills/maker/toolbelt/mk 
 Read `.maker/capabilities.json` once. Never assume a tool exists; never install anything
 without asking. If something is missing, keep going with what is there and say so at the end.
 
+**Keys live in the environment, never in a file.** `capabilities.json` records only whether
+each one is present. If a creator pastes a key into a message, use it from the environment
+for that session, tell them it is now in the transcript, and never write it to disk.
+
 ## 1. Modes
 
 | Mode | Trigger | Behaviour |

@@ -134,11 +134,25 @@ is barely better: it signals the video was assembled rather than made. The rende
 outputs silent video on purpose; sound is a separate, deterministic pass.
 
 ```bash
-"$MK" sfx gen --all                                   # synthesised one-shots, no API key
+"$MK" sound pack                                      # recorded one-shots (Freesound, CC0)
+"$MK" sound music "minimal tech ambient loop"         # a bed, with its credit recorded
+"$MK" sfx gen --all                                   # synthesised fallback, no key needed
 "$MK" tts "<the script>" -o voice/vo.wav --lang en    # your own voice beats trending audio
 "$MK" mix out/video.mp4 -o out/final.mp4 \
-     --from-deck deck.json --voice voice/vo.wav --music assets/bed.mp3
+     --from-deck deck.json --voice voice/vo.wav --music assets/bed.mp3 \
+     --sfx-dir .maker/sound/sfx
 ```
+
+Two sources of one-shots, and the mix prefers the first: **recorded** takes from Freesound
+have air and room in them and sit better under a voice; **synthesised** ones are clean and
+tail-free, need no key, and are always there so a missing key never means a silent cut.
+`mk sound pack` names its files to match the cut types the mixer looks for.
+
+Freesound needs `FREESOUND_API_KEY` in the environment (free, from
+freesound.org/apiv2/apply). It is read from the environment only — never write a key into
+a file the repo tracks. Every download appends to `credits.md` beside the files; paste the
+lines marked *credit required* into the description, because a CC-BY sound without credit
+is a licence breach and nobody remembers the author a week later.
 
 `--from-deck` reads the scene boundaries and drops one one-shot per cut, 60 ms early,
 chosen by scene type. Voice sits at 0 dB, the bed ducks under it, the whole mix is
