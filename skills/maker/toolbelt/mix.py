@@ -154,6 +154,21 @@ def main():
     kinds = {t.get("type") for t in tracks}
     origins = {t.get("origin") for t in tracks if t.get("origin")}
     warnings = []
+
+    # A voice longer than the picture gets its ending cut off — usually the payoff and
+    # the call to action, which are the two lines that matter most.
+    for t in tracks:
+        if t.get("type") != "voice":
+            continue
+        vdur = duration_of(Path(t["src"])) + float(t.get("start", 0) or 0)
+        if vdur > dur + 0.15:
+            warnings.append(
+                f"narration runs {vdur:.1f}s against {dur:.1f}s of video — the last "
+                f"{vdur - dur:.1f}s will be cut, and that is where the payoff and the CTA "
+                f"live. Cut about {int((vdur - dur) * 2.6)} words, or lengthen the deck.")
+        elif dur - vdur > 3.0:
+            warnings.append(f"narration ends {dur - vdur:.1f}s before the video does — "
+                            f"either add a line or tighten the last scenes")
     if "voice" not in kinds:
         warnings.append("no narration. Your own voice outperforms trending audio on small "
                         "channels — `mk tts` if you will not record it yourself")

@@ -42,6 +42,8 @@ This is the single most expensive mistake in this format, and it is worth being 
   cuts, not the mood adjective to the topic.
 - **Mix discipline:** voice at 0 dB, bed at −19 dB sidechain-ducked under it, one-shots
   −8 to −14 dB, whole mix at −14 LUFS with true peak under −1 dBTP.
+- **Fit the script to the picture.** ~2.6 words per second including pauses. A narration
+  that overruns loses its last lines, which are the payoff and the ask.
 
 `mk mix --from-deck` places a one-shot on every scene cut automatically, 60 ms early,
 chosen by scene type. `mk sound pack` fills the one-shot folder with recorded CC0 takes

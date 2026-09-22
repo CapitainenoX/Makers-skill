@@ -45,6 +45,11 @@ Text is split on sentence boundaries at the API's 3000-character limit and the p
 joined, so a long script needs no manual chunking. Output is levelled to −16 LUFS mono
 like every other engine, so the mix behaves identically whichever one produced the voice.
 
+**Write the script to the video's length, not the other way round.** Roughly 2.6 words per
+second including pauses, so a 23 s video takes about 55 words. `mk mix` measures the
+narration against the picture and warns when it overruns — the tail that gets cut is
+always the payoff and the call to action.
+
 Two more paths worth offering rather than assuming:
 
 - The creator's **own editor** may have TTS built in (e.g. a local studio app with Qwen-based
