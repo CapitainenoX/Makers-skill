@@ -76,6 +76,8 @@ BUILD (motion graphics, no footage — Remotion)
   mk remotion render <deck.json> -o v.mp4 [--preview] [--transparent]
   mk subs <in.srt> -o <out.ass> [--style S]
   mk tts "<text>" -o <out.wav> [--voice V] [--engine E]
+  mk puter say "<text>" -o vo.wav [--voice Joanna] [--provider openai]
+  mk puter voices | engines            free neural TTS, needs PUTER_AUTH_TOKEN
   mk bgremove <in> <out> [--video]
   mk thumb <video> <out.png> [--at 1.5]
 
@@ -105,6 +107,7 @@ case "$cmd" in
   logo)             py logos.py "$@" ;;
   sfx)              py sfx.py "$@" ;;
   sound)            py sound.py "$@" ;;
+  puter)            py puter.py "$@" ;;
   mix)              py mix.py "$@" ;;
   lib|library)      py lib.py "$@" ;;
   subs)             py subs.py "$@" ;;

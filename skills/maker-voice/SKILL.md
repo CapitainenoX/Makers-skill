@@ -21,11 +21,29 @@ The chain, best available first:
 
 | Engine | When | Cost |
 |---|---|---|
+| **Puter** | Default when a token exists — real neural voices, no provider key | User-pays credits |
 | **ElevenLabs** | The creator hands you a key and delivery matters | Their credits — ask first |
 | **Kokoro** | Local, Apache-2.0, 82M params, CPU-fast, 54 voices | `pip install kokoro soundfile` |
 | **Piper** | Local, tiny, real-time on weak hardware | `pip install piper-tts` + a voice |
 | **edge-tts** | No key, good quality, needs network | `pipx install edge-tts` |
 | **system** | Last resort | Robotic — say so to the creator |
+
+### Puter — neural voices without a provider key
+
+```bash
+"$MK" puter say "<the script>" -o voice/vo.wav --voice Joanna
+"$MK" puter voices                      # what the provider offers
+"$MK" puter say "<script>" -o vo.wav --provider openai --voice nova
+```
+
+Puter fronts AWS Polly, OpenAI, ElevenLabs, Gemini and xAI on a user-pays model, so the
+creator gets real narration without buying into any one provider. It needs
+`PUTER_AUTH_TOKEN`: sign in once at puter.com, run `puter.auth.getToken()` in the browser
+console, and export it. Read from the environment only, never written to disk.
+
+Text is split on sentence boundaries at the API's 3000-character limit and the parts are
+joined, so a long script needs no manual chunking. Output is levelled to −16 LUFS mono
+like every other engine, so the mix behaves identically whichever one produced the voice.
 
 Two more paths worth offering rather than assuming:
 

@@ -39,10 +39,11 @@ bash ~/.claude/skills/maker/toolbelt/doctor.sh
 | whisper / faster-whisper | optionnel | transcription → sous-titres |
 | rembg | optionnel | détourage IA (sans fond vert) |
 | edge-tts / kokoro / piper | optionnel | voix off locale et gratuite |
+| Puter (token) | optionnel | voix neuronales réelles, sans clé de fournisseur |
 | node 18+ | pour `maker-remotion` | rendu Remotion (motion design en code) |
 
 Clés d'API, toutes facultatives et fournies par toi :
-`ELEVENLABS_API_KEY`, `TENOR_API_KEY`, `GIPHY_API_KEY`, `PEXELS_API_KEY`, `PIXABAY_API_KEY`, `FREESOUND_API_KEY`.
+`ELEVENLABS_API_KEY`, `TENOR_API_KEY`, `GIPHY_API_KEY`, `PEXELS_API_KEY`, `PIXABAY_API_KEY`, `FREESOUND_API_KEY`, `PUTER_AUTH_TOKEN`.
 Aucune n'est jamais écrite dans un fichier ni affichée — `mk doctor` dit seulement
 lesquelles sont présentes. Chaque son téléchargé écrit sa ligne dans `credits.md`.
 

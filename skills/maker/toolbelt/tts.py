@@ -15,13 +15,15 @@ from pathlib import Path
 
 from _common import die, emit, ffmpeg, run, safe_path, which
 
-ENGINES = ["elevenlabs", "kokoro", "piper", "edge-tts", "system"]
+ENGINES = ["puter", "elevenlabs", "kokoro", "piper", "edge-tts", "system"]
 EDGE_VOICES = {"fr": "fr-FR-HenriNeural", "fr-f": "fr-FR-DeniseNeural",
                "en": "en-US-AndrewMultilingualNeural", "en-f": "en-US-AvaMultilingualNeural"}
 
 
 def available() -> list[str]:
     out = []
+    if os.environ.get("PUTER_AUTH_TOKEN"):
+        out.append("puter")
     if os.environ.get("ELEVENLABS_API_KEY"):
         out.append("elevenlabs")
     try:
@@ -89,7 +91,10 @@ def main():
 
     if a.list:
         emit({"available": available(),
-              "install": {"kokoro": "pip install kokoro soundfile",
+              "install": {"puter": "export PUTER_AUTH_TOKEN=... — sign in at puter.com, "
+                                   "then puter.auth.getToken() in the console. Real neural "
+                                   "voices with no provider API key.",
+                          "kokoro": "pip install kokoro soundfile",
                           "piper": "pip install piper-tts",
                           "edge-tts": "pipx install edge-tts",
                           "elevenlabs": "export ELEVENLABS_API_KEY=... (ask the creator; "
@@ -112,6 +117,15 @@ def main():
     errors = []
     for eng in chain:
         try:
+            if eng == "puter":
+                # Puter writes and levels the wav itself, so this branch returns early.
+                import argparse as _ap
+                import puter as puter_mod
+                lang = a.lang if "-" in a.lang else {"fr": "fr-FR", "en": "en-US"}.get(a.lang, "en-US")
+                puter_mod.cmd_say(_ap.Namespace(
+                    text=text, output=str(out), voice=a.voice, engine="neural",
+                    language=lang, lufs=a.lufs, provider="aws-polly"))
+                return
             if eng == "elevenlabs":
                 say_elevenlabs(text, raw, a.voice, a.model)
             elif eng == "kokoro":
