@@ -1,5 +1,5 @@
 import type { ThemeName, WeightName } from "./theme";
-import type { SpringName } from "./motion";
+import type { SpringName, Variant } from "./motion";
 import type { DecorSpec } from "./components/Decor";
 
 /** A "deck" is the whole video, described as data. The model writes this JSON;
@@ -84,6 +84,9 @@ type Base = {
   richDelay?: number;
   /** bleed shapes behind this scene; overrides the deck-level decor */
   decor?: DecorSpec;
+  /** how this scene's block arrives. Left unset it rotates by index, which is what
+   *  stops eleven scenes from entering eleven times the same way. */
+  variant?: Variant;
 };
 
 export const justify = (a?: "top" | "center" | "bottom") =>
@@ -125,6 +128,8 @@ export type Scene = Base &
         lines?: Line[] }
     | { type: "mock"; kind?: "prompt" | "search" | "message"; text: string;
         meta?: string; badge?: string; lines?: Line[]; chip?: ChipSpec }
+    | { type: "cta"; actions?: { icon?: string; label?: string; accent?: boolean }[];
+        size?: number }
     | { type: "bullets"; heading?: Line[]; items: Item[] }
     | { type: "stat"; value: string; label?: string; sub?: string; countUp?: boolean }
     | { type: "code"; title?: string; lines: string[]; prompt?: string }

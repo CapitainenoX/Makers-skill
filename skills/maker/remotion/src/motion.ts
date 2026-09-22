@@ -1,3 +1,4 @@
+import type React from "react";
 import { Easing, interpolate, spring } from "remotion";
 
 /** Spring presets. `pop` overshoots — that overshoot is what makes an entrance
@@ -26,6 +27,29 @@ export const exit = (frame: number, durationInFrames: number, tail = 7) =>
     extrapolateRight: "clamp",
     easing: Easing.in(Easing.cubic),
   });
+
+export type Variant = "up" | "down" | "left" | "right" | "scale" | "fade";
+
+/** Rotated by scene index so consecutive scenes never share an entrance. */
+export const VARIANTS: Variant[] = ["up", "left", "scale", "right", "fade", "down"];
+
+export const variantFor = (index: number, explicit?: Variant): Variant =>
+  explicit ?? VARIANTS[index % VARIANTS.length];
+
+/** The whole-scene arrival, layered under each element's own spring. Deliberately small:
+ *  it should read as a different angle of approach, not as a second animation. */
+export const variantStyle = (v: Variant, p: number, unit: number): React.CSSProperties => {
+  const t = 1 - p;
+  const shift: Record<Variant, string> = {
+    up: `translateY(${t * unit}px)`,
+    down: `translateY(${-t * unit}px)`,
+    left: `translateX(${t * unit}px)`,
+    right: `translateX(${-t * unit}px)`,
+    scale: `scale(${1 - t * 0.05})`,
+    fade: "none",
+  };
+  return { opacity: Math.min(1, p * 1.5), transform: shift[v] };
+};
 
 /** Items in a list cascade instead of appearing together. 60-90ms reads best. */
 export const stagger = (index: number, fps: number, ms = 75) =>

@@ -12,9 +12,14 @@ designed. A deck that is nothing but type carries about 10 seconds — not 30.
 
 ## The rules that make it work
 
-**Paper, not screen.** Background `#F4F3F1`, a warm off-white. Pure `#FFFFFF` looks like
-a blank page; pure black looks like a different genre. Cards are white *on* the paper, so
-the contrast comes from elevation, not colour.
+**Black on white.** That is the default and it is deliberate: `#FFFFFF` background,
+near-black type, one accent that a deck opts into with `brand.accent`. White cards on a
+white page separate through elevation — a strong shadow and a hairline — not a tinted
+background. The restraint is the style; colour is what you add for one word, one icon,
+one number.
+
+A warmer paper (`#F4F3F1`) is a legitimate variation, but set it per deck rather than
+making it the house default.
 
 **The sentence flows; the emphasis is inside it.** This is the single most-copied and
 most-misunderstood part of the look. It is *not* a stack of lines with one weight each.
@@ -41,8 +46,16 @@ broken even when the words are right — rewrite rather than resize.
 **Tight tracking on display type.** `-0.035em` at black weight, leading at 1.0. Loose
 display type is the single clearest tell of a template.
 
-**One accent, used sparingly.** A warm coral (`#D97757`) on one word, one icon, one
-number per scene. Two accents is a brand; three is a mess.
+**One accent, used sparingly.** Set `brand.accent` and use it on one word, one icon, one
+number per scene. Two accents is a brand; three is a mess. Left unset the deck stays
+mono, which is the safe default and rarely the wrong one.
+
+**Logos are real.** Fetch the brand's actual mark (`mk logo get github docker node`)
+rather than drawing an approximation. A redrawn logo is immediately wrong to the people
+who know the product, and they are the audience.
+
+**Every scene arrives differently.** `variant` rotates by index. Same-entrance repetition
+is what a viewer feels at scene six without being able to name it.
 
 **Elevation is the only decoration.** Two shadows on every raised object — a wide soft
 one for depth (`0 28px 70px rgba(18,18,15,0.14)`) and a tight one for contact. No borders,

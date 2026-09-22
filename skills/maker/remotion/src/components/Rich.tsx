@@ -1,5 +1,5 @@
 import React from "react";
-import { useCurrentFrame, useVideoConfig } from "remotion";
+import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { parse, type Token } from "../text";
 import { WEIGHTS, type Theme } from "../theme";
 import { enter, rise, stagger } from "../motion";
@@ -57,28 +57,64 @@ export const Rich: React.FC<{
           ? enter(frame, fps, delay + stagger(t.index, fps, cadence), "snap")
           : enter(frame, fps, delay, "snap");
         const strong = t.em === "bold" || t.em === "accent" || t.em === "mark";
-        const color =
-          t.em === "accent" ? theme.accent
-          : t.em === "mark" ? theme.bg
-          : strong ? theme.text
-          : theme.muted;
+        const base3 = rise(p, px * 0.26);
+        const typo: React.CSSProperties = {
+          display: "inline-block",
+          fontSize: strong ? px * 1.07 : px,
+          fontWeight: strong ? WEIGHTS.black : WEIGHTS.medium,
+          letterSpacing: strong ? "-0.038em" : "-0.02em",
+        };
+
+        if (t.em === "mark") {
+          // The words arrive as normal text, then the marker strokes across them and the
+          // ink flips. Painting the box at the same instant as the word reads as a static
+          // label; the sweep reads as someone highlighting a line.
+          const wordDelay = delay + stagger(t.index, fps, cadence);
+          const sweepStart = wordDelay + Math.round(fps * 0.2);
+          const sweepFrames = Math.max(3, Math.round(fps * 0.26));
+          const sweep = interpolate(frame, [sweepStart, sweepStart + sweepFrames], [0, 1], {
+            extrapolateLeft: "clamp",
+            extrapolateRight: "clamp",
+            easing: Easing.out(Easing.cubic),
+          });
+          const inked = interpolate(
+            frame,
+            [sweepStart + sweepFrames * 0.35, sweepStart + sweepFrames * 0.75],
+            [0, 1],
+            { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
+          );
+          return (
+            <span key={gi} style={{ ...base3, ...typo, position: "relative" }}>
+              <span
+                style={{
+                  position: "absolute",
+                  inset: `${-px * 0.06}px ${-px * 0.16}px`,
+                  background: theme.text,
+                  borderRadius: px * 0.1,
+                  transform: `scaleX(${sweep})`,
+                  transformOrigin: "left center",
+                }}
+              />
+              <span
+                style={{
+                  position: "relative",
+                  color: inked > 0.5 ? theme.bg : theme.text,
+                  transition: "none",
+                }}
+              >
+                {t.words.join(" ")}
+              </span>
+            </span>
+          );
+        }
+
         return (
           <span
             key={gi}
             style={{
-              ...rise(p, px * 0.26),
-              display: "inline-block",
-              fontSize: strong ? px * 1.07 : px,
-              fontWeight: strong ? WEIGHTS.black : WEIGHTS.medium,
-              letterSpacing: strong ? "-0.038em" : "-0.02em",
-              color,
-              ...(t.em === "mark"
-                ? {
-                    background: theme.text,
-                    borderRadius: px * 0.12,
-                    padding: `${px * 0.06}px ${px * 0.16}px`,
-                  }
-                : {}),
+              ...base3,
+              ...typo,
+              color: t.em === "accent" ? theme.accent : strong ? theme.text : theme.muted,
             }}
           >
             {t.words.join(" ")}

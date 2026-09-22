@@ -37,8 +37,20 @@ MEMORY
   mk mem add <section> <text>     Append a dated entry
   mk mem log <slug> --title T ..  Record a published video (for dedupe)
   mk mem similar "<topic>"        Check if a topic was already covered
+  mk mem win "<what worked>" --evidence "72% avg view"
+  mk mem fail "<what flopped>" --evidence "7/15 engaged, no voice"
+  mk mem perf <slug> --views 15 --engaged 7 --retention 41
+
+LIBRARY (things that already worked, reused instead of re-sourced)
+  mk lib save <logo|sfx|music|voice|snippet|deck|image> <path> --why "..."
+  mk lib list [kind]
+  mk lib use <kind> <name> -o <dest>
 
 SOURCING
+  mk logo get <brand>... [--color HEX]   Real brand marks (Simple Icons, CC0), cached
+  mk logo list
+  mk sfx gen --all [-o dir]              Synthesised one-shots — no key, no licence
+  mk sfx list
   mk fetch <url> [-o name] [--audio] [--clip S E] [--max-height N]
   mk music <query|url> [-o name]  Download a track (yt-dlp / spotdl)
   mk sfx <query> [-n 5]           Search + download meme sounds (Myinstants)
@@ -65,6 +77,10 @@ BUILD (motion graphics, no footage — Remotion)
   mk bgremove <in> <out> [--video]
   mk thumb <video> <out.png> [--at 1.5]
 
+AUDIO
+  mk mix <video> -o out.mp4 [--voice vo.wav] [--music bed.mp3] [--from-deck deck.json]
+      Voice on top, music sidechain-ducked, one one-shot per scene cut, loudnorm.
+
 DELIVERY
   mk qc <file> [--target youtube|shorts]
   mk clean [--cache]              Remove regenerable files only
@@ -84,6 +100,10 @@ case "$cmd" in
   probe|scan|transcribe)     py scan.py "$cmd" "$@" ;;
   assemble)         py edl.py "$@" ;;
   remotion)         py remotion.py "$@" ;;
+  logo)             py logos.py "$@" ;;
+  sfx)              py sfx.py "$@" ;;
+  mix)              py mix.py "$@" ;;
+  lib|library)      py lib.py "$@" ;;
   subs)             py subs.py "$@" ;;
   tts)              py tts.py "$@" ;;
   bgremove)         py matte.py "$@" ;;

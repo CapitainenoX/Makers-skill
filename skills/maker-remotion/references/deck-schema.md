@@ -19,7 +19,8 @@ full URL. Copy assets into `.maker/remotion/public/` before referencing them.
 | Key | Meaning |
 |---|---|
 | `duration` | seconds (required) |
-| `anchor` | `top` \| `center` \| `bottom` — this look favours `top` for text-led scenes |
+| `anchor` | `top` \| `center` \| `bottom` — default `center`; the edges are filled by `decor` |
+| `variant` | `up` \| `down` \| `left` \| `right` \| `scale` \| `fade` — how this scene's block arrives. Left unset it rotates by index, which is what prevents entrance repetition |
 | `bg` | override the deck background for this scene |
 | `transition` | `{ "type": "cut" }` (default) or `{ "type": "fade", "duration": 0.3 }` |
 
@@ -54,7 +55,7 @@ the format; `lines` is for the beats that really are a list.
 |---|---|
 | `**word**` | black, near-black, slightly larger — the words that carry the sentence |
 | `__word__` | the accent colour |
-| `==word==` | reversed out of a black box — one per video, maximum |
+| `==word==` | the words land, then a marker strokes across and the ink flips — one per video |
 | plain | medium weight, muted |
 
 Words arrive one at a time. Supported on `textStack`, `chips`, `diagram`, `flow`, `mock`,
@@ -182,6 +183,10 @@ source with ffprobe and warns you before you spend minutes rendering.
   "steps": [ { "label": "Input", "icon": "chat" }, { "label": "Output", "icon": "bolt" } ],
   "rich": "it moves through the model's **trained parameters**" }
 
+{ "type": "cta", "duration": 1.8,        // the ask — one action, animated
+  "actions": [ { "icon": "bell", "label": "Subscribe", "accent": true } ],
+  "rich": "if this saved you an hour, ==say so==" }
+
 { "type": "mock", "duration": 1.8,       // one rebuilt UI control
   "kind": "prompt", "text": "Build me a landing page for a hair salon.",
   "badge": "Chat", "meta": "Sonnet 5 · Medium",
@@ -196,7 +201,10 @@ the rest render as dimmed output.
 
 Built-in glyphs, drawn in code: `sparkle` `star` `dot` `circle` `square` `triangle`
 `plus` `bolt` `check` `arrow` `terminal` `gear` `folder` `cube` `chat` `cloud` `lock`
-`rocket` `code` `database`.
+`rocket` `code` `database` `thumbsUp` `bell` `comment` `share`.
+
+**For a real product, use the real mark.** `mk logo get github docker node` fetches them
+from Simple Icons (CC0) into `public/logos/`, then `"icon": "logos/github.svg"`.
 
 Anything else is treated as a file in `public/` (or a URL) — that is how you use a real
 brand logo. **Take brand marks from the brand's own press kit**; this repo ships none.

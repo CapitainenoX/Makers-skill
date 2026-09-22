@@ -18,7 +18,12 @@ Four files in `.maker/memory/`. They are small on purpose: a briefing, not an ar
 | `market.md` | Niche, audience, formats that perform, competitors | Re-verify ~every 60 days |
 | `style.md` | The channel's learned signature — pacing, type, colour, audio | Grows slowly |
 | `feedback.md` | Dated liked/disliked rulings from the creator | Permanent, newest wins |
-| `log.jsonl` | One line per delivered video | Append-only |
+| `patterns.md` | What worked and what flopped, **each backed by a number** | Grows with every result |
+| `log.jsonl` | One line per delivered video, with its performance | Append-only |
+
+Plus `.maker/library/` — the assets that already earned their place: logos, beds,
+one-shots, voice takes, deck snippets. Reusing them is most of what makes the second
+video take five minutes instead of forty.
 
 ## Reading — before you decide anything
 
@@ -61,6 +66,40 @@ feedback; a repeated one is style.
 - `duplicate` → drop the angle, or pitch it explicitly as a sequel with a genuinely new take.
 - `adjacent` → fine, but the hook must not repeat the earlier one. Read the old hook first.
 - `clear` → go.
+
+## Performance — the only thing that turns taste into a rule
+
+When the creator reports numbers, record them and read them out loud:
+
+```bash
+"$MK" mem perf ghost-projects --views 15 --engaged 7 --retention 41
+```
+
+Engaged over total views is the honest signal. **Below 60 % means the body lost them, not
+the hook** — look at audio, pacing and the 3–15 s stretch before touching the opening.
+
+Then turn the result into a rule the next video reads first:
+
+```bash
+"$MK" mem win  "own narration + bed ducked under it" --evidence "72% avg view, 3x prior"
+"$MK" mem fail "silent edit with an unrelated bed"   --evidence "7/15 engaged"
+```
+
+`patterns.md` outranks style and market. A pattern without evidence is an opinion — do
+not write one.
+
+## The library — stop re-sourcing what already worked
+
+```bash
+"$MK" lib save music bed.mp3 --why "matched the cut tempo, 72% avg view" --tags github calm
+"$MK" lib save snippet hook-stat.json --why "the stat-first hook that held 84% at 3s"
+"$MK" lib list
+"$MK" lib use music bed -o .maker/projects/<slug>/assets/bed.mp3
+```
+
+Save on delivery, while you still know *why* it worked — the `why` field is the whole
+point, and it is worthless written a week later. `uses` counts itself, so the library
+tells you which assets keep earning.
 
 ## Logging — at the end of every delivery, without exception
 

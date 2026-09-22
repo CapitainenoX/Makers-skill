@@ -19,7 +19,7 @@ from _common import (die, emit, ffmpeg, ffprobe_json, home, read_json, run,
 TEMPLATE = Path(__file__).resolve().parent.parent / "remotion"
 SCENE_TYPES = {"textStack", "pill", "logoList", "card", "bullets", "stat",
                "code", "compare", "outro", "media", "tiles", "annotate",
-               "marquee", "quote", "progress", "chips", "diagram", "flow", "mock"}
+               "marquee", "quote", "progress", "chips", "diagram", "flow", "mock", "cta"}
 # scenes that can carry footage…
 MEDIA_SCENES = {"card", "media", "tiles", "annotate"}
 # …and the subset that is pointless without it. A `card` with an empty device shell is a
@@ -27,7 +27,8 @@ MEDIA_SCENES = {"card", "media", "tiles", "annotate"}
 MEDIA_REQUIRED = {"media", "annotate", "tiles"}
 # scenes that actually render the flowing `rich` caption. Setting it elsewhere would do
 # nothing at all, which is worse than an error.
-RICH_SCENES = {"textStack", "chips", "diagram", "flow", "mock", "card", "media", "tiles"}
+RICH_SCENES = {"textStack", "chips", "diagram", "flow", "mock", "card", "media",
+               "tiles", "cta"}
 
 # Chromium lookup: reuse whatever the host already has before downloading 150 MB.
 BROWSER_HINTS = [
@@ -286,7 +287,17 @@ def lint(deck: dict) -> tuple[list[str], list[str]]:
         warns.append(f"only {len(kinds)} scene types across {len(scenes)} scenes — vary the "
                      f"shapes or the back half will feel like the front half")
     if not deck.get("audio"):
-        warns.append("no audio bed — silence kills retention")
+        warns.append("no audio in the deck — a silent short is the most expensive mistake "
+                     "in this format. `mk mix <video> -o out.mp4 --from-deck <deck> "
+                     "--voice vo.wav --music bed.mp3` adds narration, a ducked bed and one "
+                     "one-shot per cut")
+    if "cta" not in kinds and total > 8:
+        warns.append("no `cta` scene — a short that never asks gets watched and forgotten. "
+                     "Add one in the last 2s, while the payoff is still warm")
+    variants = [s.get("variant") for s in scenes]
+    if len(scenes) >= 6 and len([v for v in variants if v]) == 0 and len(kinds) < 5:
+        warns.append("few scene shapes and no entrance variation — set `variant` on a few "
+                     "scenes, or mix in more types; repetition is what viewers feel")
     return errors, warns
 
 

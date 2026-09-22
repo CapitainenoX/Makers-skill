@@ -1,8 +1,9 @@
 import React from "react";
 import {
-  AbsoluteFill, Audio, Sequence, interpolate, staticFile,
+  AbsoluteFill, Audio, Easing, Sequence, interpolate, staticFile,
   useCurrentFrame, useVideoConfig,
 } from "remotion";
+import { variantFor, variantStyle } from "./motion";
 import { DEFAULTS, layout, type Deck as DeckType, type Scene } from "./deck";
 import { THEMES } from "./theme";
 import { useDisplayFont } from "./components/Fonts";
@@ -27,24 +28,26 @@ import { Chips } from "./scenes/Chips";
 import { Diagram } from "./scenes/Diagram";
 import { Flow } from "./scenes/Flow";
 import { Mock } from "./scenes/Mock";
+import { Cta } from "./scenes/Cta";
 
 const RENDERERS = {
   textStack: TextStack, pill: Pill, logoList: LogoList, card: Card,
   bullets: Bullets, stat: Stat, code: Code, compare: Compare, outro: Outro,
   media: MediaScene, tiles: Tiles, annotate: Annotate, marquee: Marquee,
   quote: Quote, progress: Progress, chips: Chips, diagram: Diagram,
-  flow: Flow, mock: Mock,
+  flow: Flow, mock: Mock, cta: Cta,
 } as const;
 
 /** Wraps one scene: owns its cross-fade in and the final fade-out of the video. */
 const SceneFrame: React.FC<{
   scene: Scene;
+  index: number;
   overlap: number;
   isLast: boolean;
   children: React.ReactNode;
-}> = ({ scene, overlap, isLast, children }) => {
+}> = ({ scene, index, overlap, isLast, children }) => {
   const frame = useCurrentFrame();
-  const { durationInFrames } = useVideoConfig();
+  const { durationInFrames, fps, width } = useVideoConfig();
   const fadeIn = overlap > 0
     ? interpolate(frame, [0, overlap], [0, 1], { extrapolateRight: "clamp" })
     : 1;
@@ -53,9 +56,22 @@ const SceneFrame: React.FC<{
         extrapolateLeft: "clamp", extrapolateRight: "clamp",
       })
     : 1;
+  const v = variantStyle(
+    variantFor(index, scene.variant),
+    interpolate(frame, [0, Math.round(fps * 0.34)], [0, 1], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+      easing: Easing.out(Easing.cubic),
+    }),
+    width * 0.055,
+  );
   return (
-    <AbsoluteFill style={{ opacity: fadeIn * fadeOut, background: scene.bg ?? "transparent" }}>
-      {children}
+    <AbsoluteFill style={{ background: scene.bg ?? "transparent" }}>
+      <AbsoluteFill
+        style={{ ...v, opacity: (v.opacity as number) * fadeIn * fadeOut }}
+      >
+        {children}
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };
@@ -82,6 +98,7 @@ export const Deck: React.FC<DeckType> = (deck) => {
           <Sequence key={i} from={place.start} durationInFrames={place.frames} name={scene.type}>
             <SceneFrame
               scene={scene}
+              index={i}
               overlap={place.overlap}
               isLast={place.start + place.frames >= durationInFrames}
             >

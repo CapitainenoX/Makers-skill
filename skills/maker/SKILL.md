@@ -55,7 +55,7 @@ Load one sub-skill per phase, when you reach that phase. Never preload them all.
 | 5 | Build | `maker-edit` / `maker-remotion` (+ `maker-vfx`) | An EDL or a deck renders, or the NLE timeline is populated |
 | 6 | Review | `maker-render` | `mk qc` returns PASS and you have watched the contact sheet |
 | 7 | Deliver | `maker-render` | Files listed, one-line verdict given |
-| 8 | Learn | `maker-memory` | Style/feedback/log updated |
+| 8 | Learn | `maker-memory` | Style, patterns and log updated; wins saved to the library |
 
 Shortcuts are allowed and expected: a 20-second meme edit from supplied rushes goes
 3 → 5 → 6. A "find me a topic" request starts at 1. Never skip 6 and 8.
@@ -81,20 +81,50 @@ render them, and drop them on the EDL timeline as clips.
 | render, export, QC, self-review, delivery | `maker-render` |
 | remember this, I liked/hated X, what did we post before | `maker-memory` |
 
+## 3b. Speed contract
+
+The first video on a channel is allowed to be slow: it pays for the market study, the
+logo set, the SFX pack and the style file. Every one after that reads those instead of
+redoing them.
+
+| Run | Budget | What it spends time on |
+|---|---|---|
+| **First** | 20–40 min | market study, `mk logo get`, `mk sfx gen --all`, style file, one full render |
+| **Every next** | **~5 min** | script → deck → render → mix → QC, reusing memory and library |
+
+What makes the second run fast, in order of value:
+
+1. `mk mem show` — the market, style and patterns are already written. Do not re-study.
+2. `mk lib list` — logos, beds, one-shots and deck snippets that already worked.
+3. `mk remotion validate` + `mk remotion sheet` — seconds, and they catch what a full
+   render would have shown you minutes later.
+4. One full render, at the end, once. Previews for everything before it.
+
+If a second run is taking longer than five minutes, you are re-deriving something that is
+already in `.maker/`. Stop and read it.
+
 ## 4. Non-negotiables
 
 1. **Hook in 1.5 s.** First frame carries motion *and* readable text. No logo intro, ever.
 2. **No dead shots.** Every shot gets a cut, a push-in, a pan, a layer or a sound change
    within its own length. `mk assemble` warns you when the average drags — fix it, don't ship it.
 3. **Sound-off first.** Burned captions on anything with speech. Sound-on is a bonus.
-4. **Loudness is a spec, not taste.** −14 LUFS long-form, −14…−13 social. `mk qc` enforces it.
-5. **Look before you judge.** Render a preview, open the contact sheet as an image, then decide.
+4. **Never ship a silent video, and never ship unmatched music.** Narration in your own
+   voice, a bed that matches the tempo of the cuts, one-shots on the cuts, −14 LUFS.
+   `mk mix --from-deck` does all four in one command. A silent short is the single most
+   expensive mistake in this format; an unrelated bed is barely better.
+5. **Ask for the action.** Every video ends with one named ask, animated, while the
+   payoff is still warm. One action, not four.
+6. **Loudness is a spec, not taste.** −14 LUFS, true peak under −1 dBTP. `mk qc` enforces it.
+7. **Look before you judge.** Render a preview, open the contact sheet as an image, then decide.
    Never claim a video is good without having seen frames of it.
-6. **Memory wins.** A ruling in `.maker/memory/feedback.md` overrides your own preference
-   and overrides this file. Read it before phase 2 every single time.
-7. **Rights.** Say where every asset came from. Flag copyrighted music and user-uploaded
+8. **Memory wins.** A ruling in `.maker/memory/feedback.md` or a pattern in `patterns.md`
+   overrides your own preference and overrides this file. Read both before phase 2, every time.
+9. **Real marks, never redrawn.** `mk logo get` fetches the brand's own logo. An
+   approximation is instantly wrong to the people who know the product.
+10. **Rights.** Say where every asset came from. Flag copyrighted music and user-uploaded
    meme sounds before a monetised upload. Never fabricate a licence.
-8. **Consent.** Do not put a real person's face or voice into content that implies they said
+11. **Consent.** Do not put a real person's face or voice into content that implies they said
    or did something they did not.
 
 ## 5. Answering the creator

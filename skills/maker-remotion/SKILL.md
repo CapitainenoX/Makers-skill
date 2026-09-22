@@ -83,6 +83,7 @@ Nineteen, each one beat. Bold ones carry footage; starred ones carry logos and s
 | Type | Beat it serves |
 |---|---|
 | `textStack` | stacked display lines, for a genuine list of statements |
+| `cta` | the ask — one action, a button that lands and pulses once |
 | ★ `chips` | white circles holding marks — the "works with" beat |
 | ★ `diagram` | a hub wired to its parts, dashed connectors |
 | ★ `flow` | a pipeline on a white card, numbered and dotted |
@@ -126,7 +127,42 @@ first scene, scenes over ~3 s, three of the same scene type in a row, display li
 long to fit, a deck with no footage in it at all, fewer than four scene shapes across a
 long deck, a missing audio bed.
 
-## 4. Render
+## 4. Sound — not optional
+
+A silent short is the most expensive mistake in this format, and an unrelated music bed
+is barely better: it signals the video was assembled rather than made. The renderer
+outputs silent video on purpose; sound is a separate, deterministic pass.
+
+```bash
+"$MK" sfx gen --all                                   # synthesised one-shots, no API key
+"$MK" tts "<the script>" -o voice/vo.wav --lang en    # your own voice beats trending audio
+"$MK" mix out/video.mp4 -o out/final.mp4 \
+     --from-deck deck.json --voice voice/vo.wav --music assets/bed.mp3
+```
+
+`--from-deck` reads the scene boundaries and drops one one-shot per cut, 60 ms early,
+chosen by scene type. Voice sits at 0 dB, the bed ducks under it, the whole mix is
+loudness-normalised in two passes to −14 LUFS.
+
+Pick music that matches the **tempo of your cuts**, not the mood of the topic. Full
+reasoning and the retention numbers behind all of this: `references/retention.md`.
+
+## 5. Logos — real ones
+
+```bash
+"$MK" logo get github "arch linux" docker node --color 111111
+"$MK" logo list
+```
+
+Real marks from Simple Icons (CC0), cached in `public/logos/`. A redrawn approximation
+looks wrong to exactly the audience that knows the brand — which is the audience for a
+video about a GitHub project. Reference one as a chip icon:
+
+```jsonc
+{ "icon": "logos/github.svg", "label": "GitHub" }
+```
+
+## 6. Render
 
 ```bash
 "$MK" remotion render deck.json -o out/final.mp4 --preview   # half scale, fast
@@ -137,7 +173,7 @@ long deck, a missing audio bed.
 `--transparent` renders VP8 with alpha, for an insert you will composite over footage
 in the EDL — that is the normal way to mix the two engines.
 
-## 5. Mixing with footage
+## 7. Mixing with footage
 
 The two renderers compose. Build the motion-graphics beats here, render them with alpha
 or as clips, then put them on the EDL timeline as ordinary sources:
@@ -150,7 +186,7 @@ or as clips, then put them on the EDL timeline as ordinary sources:
 Rule of thumb: screen recordings, camera and downloaded clips → `maker-edit`. Titles,
 lists, stats, diagrams, anything data-driven or repeated → here.
 
-## 6. Timing and motion
+## 8. Timing and motion
 
 Remotion counts in frames; the deck counts in seconds. Keep `maker-motion`'s limits:
 scenes 1.2–2.2 s on vertical, first scene ≤ 1.5 s, entrances 0.18–0.25 s. The spring
@@ -166,6 +202,12 @@ Three moves carry most of the life in this look:
 - `stat` counts its digits up on a monotonic ramp, never on the spring: a value that
   overshoots and comes back reads as a bug, not as energy.
 - The `rich` caption reveals word by word, so a written line lands like a spoken one.
+- `==highlight==` is animated: the words land as normal text, then the marker strokes
+  across them and the ink flips. A box that appears with the word reads as a label; the
+  sweep reads as someone highlighting a line.
+- Every scene arrives from a different direction. `variant` rotates by index unless the
+  deck names one — that rotation is what stops eleven scenes entering eleven times the
+  same way.
 
 The display face (Inter) is **bundled with the project**, not fetched. A font pulled from
 a CDN at render time fails on an offline machine, behind a proxy, or on any host whose CA
@@ -174,7 +216,7 @@ the renderer does not trust — and it took the whole render down when it did.
 Scenes cut by default. A `fade` transition overlaps the two scenes into a real
 cross-dissolve; use it at chapter breaks, not between every card.
 
-## 7. Going beyond the deck
+## 9. Going beyond the deck
 
 When a beat genuinely needs something the scene library has no shape for, write a real
 Remotion component and register it. At that point use Remotion's own documentation and
@@ -188,7 +230,7 @@ Those cover the framework. This skill covers the look and the pipeline. Add a ne
 type to `src/scenes/`, wire it into `RENDERERS` in `src/Deck.tsx`, and extend `Scene` in
 `src/deck.ts` — then it is available to every future deck, which is the point.
 
-## 8. Output
+## 10. Output
 
 ```
 **Deck** — 8 scènes, 16 s, `deck.json` · lint OK

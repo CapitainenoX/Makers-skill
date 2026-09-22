@@ -85,8 +85,25 @@ lignes empilées :
 "rich": "every **AI assistant** you have ever used **works** this way"
 ```
 
-Le bloc est **centré**, et les bords haut/bas sont remplis par un `decor` qui déborde et
-dérive lentement. La police (Inter) est **embarquée**, jamais tirée d'un CDN au rendu. Les deux moteurs se composent : on rend l'habillage en Remotion (avec
+Le bloc est **centré**, les bords haut/bas remplis par un `decor` qui déborde et dérive.
+Le style par défaut est **noir sur blanc** ; la couleur s'active avec `brand.accent`.
+Chaque scène entre par une direction différente (`variant` tourne automatiquement).
+Les surlignages sont **animés** : le texte arrive, puis le marqueur le traverse.
+La police (Inter) est **embarquée**, jamais tirée d'un CDN au rendu.
+
+### De vrais logos, du vrai son
+
+```bash
+mk logo get github docker node --color 111111   # marques réelles (Simple Icons, CC0)
+mk sfx gen --all                                # one-shots synthétisés, aucune clé d'API
+mk tts "<le script>" -o voice/vo.wav
+mk mix out/video.mp4 -o out/final.mp4 --from-deck deck.json --voice voice/vo.wav --music bed.mp3
+```
+
+`mk mix --from-deck` place un one-shot par coupe, 60 ms en avance, choisi selon le type de
+scène ; la voix passe devant, le lit est ducké dessous, et le tout est normalisé en deux
+passes à −14 LUFS. **Une vidéo muette est l'erreur la plus chère de ce format** — le lint
+et le QC la refusent tous les deux. Les deux moteurs se composent : on rend l'habillage en Remotion (avec
 alpha), on le pose sur la timeline de l'EDL.
 
 ```bash
@@ -118,11 +135,26 @@ Le texte passe par libass, pas par `drawtext` : ça survit aux builds ffmpeg 7 s
 libharfbuzz, et ça permet le scale animé, l'overshoot et la typo cinétique que `drawtext`
 ne sait pas faire.
 
-### La mémoire
+### La mémoire, et la bibliothèque
 
-`.maker/memory/` — quatre fichiers courts : le marché, le style appris, tes retours datés,
-et le journal des vidéos publiées (pour ne jamais refaire deux fois le même sujet).
-Tes retours priment sur les préférences de l'agent. Toujours.
+`.maker/memory/` — le marché, le style appris, tes retours datés, **les patterns prouvés
+par un chiffre**, et le journal des vidéos avec leurs performances.
+
+```bash
+mk mem perf mon-short --views 15 --engaged 7 --retention 41
+#  → "47% des vues engagées — sous 60%, c'est le corps qui a perdu, pas le hook"
+mk mem win  "voix off + lit ducké" --evidence "72% de vue moyenne"
+mk mem fail "montage muet, musique hors sujet" --evidence "7/15 engagées"
+```
+
+`.maker/library/` garde ce qui a déjà marché — logos, lits musicaux, one-shots, prises de
+voix, fragments de deck — avec le **pourquoi**. C'est ce qui fait passer la deuxième vidéo
+de quarante minutes à cinq.
+
+| Passage | Budget | Ce qu'il paie |
+|---|---|---|
+| **Le premier** | 20–40 min | étude de marché, logos, pack SFX, fichier de style, un rendu complet |
+| **Tous les suivants** | **~5 min** | script → deck → rendu → mix → QC, en relisant la mémoire |
 
 ---
 

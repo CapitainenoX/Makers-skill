@@ -59,6 +59,27 @@ const BUILTINS: Record<string, (c: string) => React.ReactNode> = {
       <path d="M18 54v22c0 7 14 12 32 12s32-5 32-12V54c0 7-14 12-32 12s-32-5-32-12z" />
     </g>
   ),
+  thumbsUp: (c) => (
+    <path fill={c} d="M28 44h14l14-30a10 10 0 0114 12l-6 18h20a10 10 0 019.8 12l-7 30A12 12 0 0175 96H28zM8 44h14v52H8z" />
+  ),
+  bell: (c) => (
+    <g fill={c}>
+      <path d="M50 6a8 8 0 018 8v4a26 26 0 0120 25v18l8 14H14l8-14V43a26 26 0 0120-25v-4a8 8 0 018-8z" />
+      <path d="M38 82h24a12 12 0 01-24 0z" />
+    </g>
+  ),
+  comment: (c) => (
+    <g fill={c}>
+      <path d="M12 20h76a8 8 0 018 8v34a8 8 0 01-8 8H46L26 88V70H12a8 8 0 01-8-8V28a8 8 0 018-8z" />
+    </g>
+  ),
+  share: (c) => (
+    <g fill={c}>
+      <circle cx="76" cy="20" r="12" /><circle cx="24" cy="50" r="12" />
+      <circle cx="76" cy="80" r="12" />
+      <path fill="none" stroke={c} strokeWidth="8" d="M66 26L34 44M34 56l32 18" />
+    </g>
+  ),
   star: (c) => (
     <path fill={c} d="M50 4l13 30 33 3-25 22 8 32-29-17-29 17 8-32-25-22 33-3z" />
   ),

@@ -14,13 +14,14 @@ export type Theme = {
 
 export const THEMES: Record<ThemeName, Theme> = {
   light: {
-    bg: "#F4F3F1",
+    // Black on white is the default. A deck turns colour on by setting brand.accent.
+    bg: "#FFFFFF",
     surface: "#FFFFFF",
-    text: "#17171A",
-    muted: "#7A7A75",
-    accent: "#D97757",
-    shadowStrong: "0 28px 70px rgba(18,18,15,0.14)",
-    shadowSoft: "0 2px 8px rgba(18,18,15,0.07)",
+    text: "#0A0A0B",
+    muted: "#71717A",
+    accent: "#111113",
+    shadowStrong: "0 26px 64px rgba(10,10,12,0.16)",
+    shadowSoft: "0 1px 3px rgba(10,10,12,0.10), 0 0 0 1px rgba(10,10,12,0.05)",
   },
   dark: {
     bg: "#0C0C0E",

@@ -16,7 +16,12 @@ SECTIONS = {
     "market":   "Market study",
     "style":    "Style signature",
     "feedback": "Creator feedback (liked / disliked)",
+    "patterns": "Patterns proven by performance",
 }
+PATTERNS_SEED = (
+    "# Patterns\n\nWhat has actually worked on this channel, and what has not.\n"
+    "A pattern earns its place by a number, not by taste.\n\n## WORKS\n## FAILS\n"
+)
 SEEDS = {
     "market": "# Market study\n\n_Fill via `mk mem add market \"...\"` or the maker-research skill._\n\n"
               "## Channel\n## Audience\n## What performs\n## What flops\n## Formats & cadence\n## Competitors\n",
@@ -24,6 +29,7 @@ SEEDS = {
              "## Audio\n## Hooks & structure\n## Never do\n",
     "feedback": "# Creator feedback\n\nEvery ruling is law until contradicted by a newer one.\n\n"
                 "## LIKED\n## DISLIKED\n",
+    "patterns": PATTERNS_SEED,
 }
 
 
@@ -95,6 +101,73 @@ def cmd_log(a):
     emit({"ok": True, "logged": rec})
 
 
+def cmd_win(a):
+    """A pattern that a number backed up. This is the file the next video reads first."""
+    text = " ".join(a.text).strip()
+    if not text:
+        die("say what worked")
+    evidence = f" — {a.evidence}" if a.evidence else ""
+    p = mem_dir() / "patterns.md"
+    body = p.read_text(encoding="utf-8")
+    entry = f"- [{today()}] {text}{evidence}\n"
+    marker = "## WORKS\n"
+    if marker in body:
+        i = body.index(marker) + len(marker)
+        body = body[:i] + entry + body[i:]
+    else:
+        body = body.rstrip() + f"\n\n## WORKS\n{entry}"
+    p.write_text(body, encoding="utf-8")
+    emit({"ok": True, "file": str(p), "added": entry.strip()})
+
+
+def cmd_fail(a):
+    text = " ".join(a.text).strip()
+    if not text:
+        die("say what failed")
+    evidence = f" — {a.evidence}" if a.evidence else ""
+    p = mem_dir() / "patterns.md"
+    body = p.read_text(encoding="utf-8")
+    entry = f"- [{today()}] {text}{evidence}\n"
+    marker = "## FAILS\n"
+    if marker in body:
+        i = body.index(marker) + len(marker)
+        body = body[:i] + entry + body[i:]
+    else:
+        body = body.rstrip() + f"\n\n## FAILS\n{entry}"
+    p.write_text(body, encoding="utf-8")
+    emit({"ok": True, "file": str(p), "added": entry.strip()})
+
+
+def cmd_perf(a):
+    """Attach real numbers to a delivered video. Without these, 'what works' is taste."""
+    p = mem_dir() / "log.jsonl"
+    rows = [json.loads(x) for x in p.read_text(encoding="utf-8").splitlines() if x.strip()]
+    hit = None
+    for r in reversed(rows):
+        if r.get("slug") == a.slug:
+            hit = r
+            break
+    if hit is None:
+        die(f"no logged video with slug {a.slug!r}. Run `mk mem log` at delivery.")
+    perf = {"views": a.views, "engaged_views": a.engaged, "avg_view_pct": a.retention,
+            "likes": a.likes, "comments": a.comments,
+            "recorded": today()}
+    hit["performance"] = {k: v for k, v in perf.items() if v is not None}
+    p.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in rows) + "\n",
+                 encoding="utf-8")
+
+    verdict = []
+    if a.views and a.engaged and a.views > 0:
+        ratio = a.engaged / a.views
+        verdict.append(f"{ratio:.0%} of views were engaged")
+        if ratio < 0.6:
+            verdict.append("under 60% means the body lost them, not the hook — "
+                           "check audio, pacing and the 3-15s stretch")
+    emit({"ok": True, "slug": a.slug, "performance": hit["performance"],
+          "read": verdict,
+          "next": "mk mem win/fail to turn this into a rule the next video reads"})
+
+
 def _tokens(s: str) -> set[str]:
     stop = {"the", "a", "an", "de", "le", "la", "les", "un", "une", "des", "and", "et",
             "of", "for", "to", "in", "on", "with", "my", "your", "how", "i", "is"}
@@ -138,6 +211,17 @@ def main():
     lg.add_argument("--hook", default=""); lg.add_argument("--notes", default="")
     lg.add_argument("--tags", nargs="*", default=[]); lg.add_argument("--sources", nargs="*", default=[])
     lg.set_defaults(fn=cmd_log)
+
+    w = sub.add_parser("win"); w.add_argument("text", nargs="+")
+    w.add_argument("--evidence", default=""); w.set_defaults(fn=cmd_win)
+
+    fl = sub.add_parser("fail"); fl.add_argument("text", nargs="+")
+    fl.add_argument("--evidence", default=""); fl.set_defaults(fn=cmd_fail)
+
+    pf = sub.add_parser("perf"); pf.add_argument("slug")
+    pf.add_argument("--views", type=int); pf.add_argument("--engaged", type=int)
+    pf.add_argument("--retention", type=float); pf.add_argument("--likes", type=int)
+    pf.add_argument("--comments", type=int); pf.set_defaults(fn=cmd_perf)
 
     sm = sub.add_parser("similar"); sm.add_argument("query", nargs="+")
     sm.add_argument("--threshold", type=float, default=0.25); sm.set_defaults(fn=cmd_similar)
