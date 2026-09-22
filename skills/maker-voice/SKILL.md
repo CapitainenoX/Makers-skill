@@ -45,6 +45,11 @@ Text is split on sentence boundaries at the API's 3000-character limit and the p
 joined, so a long script needs no manual chunking. Output is levelled to −16 LUFS mono
 like every other engine, so the mix behaves identically whichever one produced the voice.
 
+`mk mix` levels the narration and the bed to −16 LUFS before balancing them, so the
+gains mean the same thing whatever the source files were mastered at. The bed sits
+−11 dB under the voice and ducks gently; if you cannot hear it, something is wrong with
+the balance, not with the bed.
+
 **Write the script to the video's length, not the other way round.** Roughly 2.6 words per
 second including pauses, so a 23 s video takes about 55 words. `mk mix` measures the
 narration against the picture and warns when it overruns — the tail that gets cut is

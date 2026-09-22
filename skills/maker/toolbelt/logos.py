@@ -53,6 +53,8 @@ def project_public(explicit: str | None) -> Path:
 
 
 def cmd_get(a):
+    if getattr(a, "mono", False) and not a.color:
+        a.color = "111113"
     dest = project_public(a.dir)
     index_path = dest / "index.json"
     index = read_json(index_path, {}) or {}
@@ -88,6 +90,7 @@ def cmd_get(a):
     write_json(index_path, index)
     emit({
         "ok": bool(got), "dir": str(dest), "logos": got, "missing": missing,
+        "colour": "recoloured" if a.color else "brand colours kept",
         "use": 'set a chip\'s icon to the path, e.g. {"icon": "logos/github.svg", "label": "GitHub"}',
         "licence": "Simple Icons is CC0. Brand marks stay the property of their owners — "
                    "use them to refer to the product, never to imply endorsement.",
@@ -111,7 +114,11 @@ def main():
 
     g = sub.add_parser("get"); g.add_argument("names", nargs="+")
     g.add_argument("--color", default=None, metavar="HEX",
-                   help="recolour the mark, e.g. 000000 for a mono deck")
+                   help="recolour the mark. Usually leave this off: on a black-and-white "
+                        "deck the brand colours are the only colour on screen, and that "
+                        "contrast is the point")
+    g.add_argument("--mono", action="store_true",
+                   help="shorthand for --color 111113, for when a logo must not stand out")
     g.add_argument("--force", action="store_true"); g.set_defaults(fn=cmd_get)
 
     l = sub.add_parser("list"); l.set_defaults(fn=cmd_list)

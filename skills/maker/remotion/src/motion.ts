@@ -28,13 +28,28 @@ export const exit = (frame: number, durationInFrames: number, tail = 7) =>
     easing: Easing.in(Easing.cubic),
   });
 
-export type Variant = "up" | "down" | "left" | "right" | "scale" | "fade";
+export type Variant =
+  | "up" | "down" | "left" | "right" | "scale" | "fade"
+  | "zoomOut" | "tiltLeft" | "tiltRight" | "riseFar";
 
 /** Rotated by scene index so consecutive scenes never share an entrance. */
-export const VARIANTS: Variant[] = ["up", "left", "scale", "right", "fade", "down"];
+export const VARIANTS: Variant[] = [
+  "up", "left", "scale", "right", "zoomOut", "down", "tiltLeft", "riseFar",
+  "fade", "tiltRight",
+];
 
-export const variantFor = (index: number, explicit?: Variant): Variant =>
-  explicit ?? VARIANTS[index % VARIANTS.length];
+/** Turn any deck identifier into a stable offset, so the same deck always animates the
+ *  same way and two different decks almost never share a sequence. */
+export const seedOf = (seed?: string | number): number => {
+  if (typeof seed === "number") return Math.abs(Math.round(seed));
+  if (!seed) return 0;
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
+  return Math.abs(h);
+};
+
+export const variantFor = (index: number, explicit?: Variant, seed = 0): Variant =>
+  explicit ?? VARIANTS[(index + seed) % VARIANTS.length];
 
 /** The whole-scene arrival, layered under each element's own spring. Deliberately small:
  *  it should read as a different angle of approach, not as a second animation. */
@@ -46,6 +61,10 @@ export const variantStyle = (v: Variant, p: number, unit: number): React.CSSProp
     left: `translateX(${t * unit}px)`,
     right: `translateX(${-t * unit}px)`,
     scale: `scale(${1 - t * 0.05})`,
+    zoomOut: `scale(${1 + t * 0.06})`,
+    riseFar: `translateY(${t * unit * 1.9}px) scale(${1 - t * 0.03})`,
+    tiltLeft: `perspective(1400px) rotateY(${t * 7}deg) translateX(${t * unit * 0.5}px)`,
+    tiltRight: `perspective(1400px) rotateY(${-t * 7}deg) translateX(${-t * unit * 0.5}px)`,
     fade: "none",
   };
   return { opacity: Math.min(1, p * 1.5), transform: shift[v] };

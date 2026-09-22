@@ -50,9 +50,10 @@ display type is the single clearest tell of a template.
 number per scene. Two accents is a brand; three is a mess. Left unset the deck stays
 mono, which is the safe default and rarely the wrong one.
 
-**Logos are real.** Fetch the brand's actual mark (`mk logo get github docker node`)
-rather than drawing an approximation. A redrawn logo is immediately wrong to the people
-who know the product, and they are the audience.
+**Logos are real, and they keep their colours.** Fetch the brand's actual mark
+(`mk logo get github docker node`) rather than drawing an approximation. On a
+black-and-white deck the brand colours are the only colour on screen, and that contrast
+is the point — do not recolour them unless a logo must deliberately recede (`--mono`).
 
 **Every scene arrives differently.** `variant` rotates by index. Same-entrance repetition
 is what a viewer feels at scene six without being able to name it.
@@ -72,6 +73,10 @@ below is what makes a copy of this look feel cheap.
 Move the decor around between scenes (`corners`, and alternate `rays` / `arcs` / `blobs`).
 Identical wallpaper on eleven scenes in a row is the repetition viewers feel without being
 able to name.
+
+**Everything drifts slightly.** Every scene gets a slow push (`zoom`, 0.035 by default),
+alternating in and out across the deck. A perfectly static frame reads as a slide; three
+or four percent of drift over two seconds reads as a camera.
 
 **Nothing holds still and nothing is busy.** One element enters per beat, springs into
 place, and stays. No particles, no background video. The one exception is the slow drift

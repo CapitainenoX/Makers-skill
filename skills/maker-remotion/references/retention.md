@@ -40,8 +40,15 @@ This is the single most expensive mistake in this format, and it is worth being 
 - **Music must match the subject and the cut.** An unrelated bed is not neutral; it
   actively signals that the video was assembled rather than made. Match the tempo to your
   cuts, not the mood adjective to the topic.
-- **Mix discipline:** voice at 0 dB, bed at −19 dB sidechain-ducked under it, one-shots
-  −8 to −14 dB, whole mix at −14 LUFS with true peak under −1 dBTP.
+- **Level the stems before you balance them.** A downloaded bed arrives anywhere from
+  −6 to −25 dB. Applying a fixed offset on top of that is how a bed ends up inaudible.
+  `mk mix` normalises voice and music to −16 LUFS first, so the gains express a balance.
+- **Mix discipline:** voice at 0 dB, bed at −11 dB under it and sidechain-ducked gently
+  (ratio 4, not 9 — at 9 the bed never comes back between phrases), one-shots −8 to
+  −14 dB, whole mix at −14 LUFS with true peak under −1 dBTP.
+- **A bed you cannot hear is the same as no bed.** Measure it: mix once with music and
+  once without, subtract, and look at the residual. It should sit about 10–12 dB under
+  the programme. Below about −15 dB relative, nobody hears it.
 - **Fit the script to the picture.** ~2.6 words per second including pauses. A narration
   that overruns loses its last lines, which are the payoff and the ask.
 

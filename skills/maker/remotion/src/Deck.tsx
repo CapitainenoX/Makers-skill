@@ -3,7 +3,7 @@ import {
   AbsoluteFill, Audio, Easing, Sequence, interpolate, staticFile,
   useCurrentFrame, useVideoConfig,
 } from "remotion";
-import { variantFor, variantStyle } from "./motion";
+import { seedOf, variantFor, variantStyle } from "./motion";
 import { DEFAULTS, layout, type Deck as DeckType, type Scene } from "./deck";
 import { THEMES } from "./theme";
 import { useDisplayFont } from "./components/Fonts";
@@ -42,10 +42,12 @@ const RENDERERS = {
 const SceneFrame: React.FC<{
   scene: Scene;
   index: number;
+  seed: number;
+  zoom: number;
   overlap: number;
   isLast: boolean;
   children: React.ReactNode;
-}> = ({ scene, index, overlap, isLast, children }) => {
+}> = ({ scene, index, seed, zoom, overlap, isLast, children }) => {
   const frame = useCurrentFrame();
   const { durationInFrames, fps, width } = useVideoConfig();
   const fadeIn = overlap > 0
@@ -56,8 +58,17 @@ const SceneFrame: React.FC<{
         extrapolateLeft: "clamp", extrapolateRight: "clamp",
       })
     : 1;
+  // Alternating push-in and pull-out across the deck, so the drift itself is not monotone.
+  const amount = scene.zoom ?? zoom;
+  const dir = (index + seed) % 2 === 0 ? 1 : -1;
+  const own = useVideoConfig().durationInFrames;
+  const k = interpolate(frame, [0, Math.max(1, own)], [0, 1], {
+    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+  });
+  const push = 1 + dir * amount * k;
+
   const v = variantStyle(
-    variantFor(index, scene.variant),
+    variantFor(index, scene.variant, seed),
     interpolate(frame, [0, Math.round(fps * 0.34)], [0, 1], {
       extrapolateLeft: "clamp",
       extrapolateRight: "clamp",
@@ -68,7 +79,11 @@ const SceneFrame: React.FC<{
   return (
     <AbsoluteFill style={{ background: scene.bg ?? "transparent" }}>
       <AbsoluteFill
-        style={{ ...v, opacity: (v.opacity as number) * fadeIn * fadeOut }}
+        style={{
+          ...v,
+          opacity: (v.opacity as number) * fadeIn * fadeOut,
+          transform: `scale(${push.toFixed(4)}) ${v.transform ?? ""}`.trim(),
+        }}
       >
         {children}
       </AbsoluteFill>
@@ -78,6 +93,7 @@ const SceneFrame: React.FC<{
 
 export const Deck: React.FC<DeckType> = (deck) => {
   const { width, durationInFrames } = useVideoConfig();
+  const seed = seedOf(deck.seed);
   const theme = {
     ...THEMES[deck.theme ?? DEFAULTS.theme],
     ...(deck.brand?.accent ? { accent: deck.brand.accent } : {}),
@@ -88,7 +104,7 @@ export const Deck: React.FC<DeckType> = (deck) => {
 
   return (
     <AbsoluteFill style={{ background: theme.bg }}>
-      <Decor spec={deck.decor} theme={theme} />
+      <Decor spec={deck.decor} theme={theme} seed={seed} index={0} />
 
       {deck.scenes.map((scene, i) => {
         const place = places[i];
@@ -99,10 +115,12 @@ export const Deck: React.FC<DeckType> = (deck) => {
             <SceneFrame
               scene={scene}
               index={i}
+              seed={seed}
+              zoom={deck.zoom ?? 0.035}
               overlap={place.overlap}
               isLast={place.start + place.frames >= durationInFrames}
             >
-              {scene.decor ? <Decor spec={scene.decor} theme={theme} /> : null}
+              <Decor spec={scene.decor ?? deck.decor} theme={theme} seed={seed} index={i + 1} />
               <Renderer
                 scene={scene}
                 theme={theme}

@@ -24,14 +24,29 @@ const place = (c: Corner, size: number, w: number, h: number): React.CSSProperti
 
 /** Shapes that bleed off the edges so the top and bottom of a 9:16 frame are never
  *  dead space. Deliberately slow and low-contrast: this is wallpaper, not an event. */
-export const Decor: React.FC<{ spec?: DecorSpec; theme: Theme }> = ({ spec, theme }) => {
+const KINDS: DecorKind[] = ["rays", "arcs", "blobs", "grid"];
+const CORNER_SETS: Corner[][] = [
+  ["top-left", "bottom-right"], ["top-right", "bottom-left"],
+  ["top-left"], ["bottom-right"], ["top-right"], ["bottom-left"],
+  ["top-left", "top-right"], ["bottom-left", "bottom-right"],
+];
+
+/** `seed` and `index` pick the family and the corners when the deck does not name them,
+ *  so the border treatment differs between scenes AND between videos. */
+export const Decor: React.FC<{
+  spec?: DecorSpec;
+  theme: Theme;
+  seed?: number;
+  index?: number;
+}> = ({ spec, theme, seed = 0, index = 0 }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
-  const kind = spec?.kind ?? "none";
+  const pick = seed + index;
+  const kind: DecorKind = spec?.kind ?? (spec ? "none" : KINDS[pick % KINDS.length]);
   if (kind === "none") return null;
 
   const t = frame / fps;
-  const corners = spec?.corners ?? ["top-left", "bottom-right"];
+  const corners = spec?.corners ?? CORNER_SETS[pick % CORNER_SETS.length];
   const opacity = spec?.opacity ?? 0.05;
   const size = width * (spec?.scale ?? 0.82);
 

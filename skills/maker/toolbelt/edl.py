@@ -357,7 +357,9 @@ def mix_audio(base: Path, tracks: list[dict], spec: dict, cache: Path, fast: boo
             chain.append(f"atrim=start={float(t.get('in',0)):.3f}"
                          + (f":end={float(t['out']):.3f}" if t.get("out") is not None else ""))
             chain.append("asetpts=PTS-STARTPTS")
-        default_gain = {"voice": 0.0, "music": -19.0, "sfx": -8.0}.get(kind, -6.0)
+        # Gains assume the stem was levelled first (mix.py normalises voice and music),
+        # so they are a balance, not a guess about how loud the file happens to be.
+        default_gain = {"voice": 0.0, "music": -11.0, "sfx": -8.0}.get(kind, -6.0)
         chain.append(f"volume={float(t.get('gain', default_gain)):.2f}dB")
         if t.get("fadeIn"):
             chain.append(f"afade=t=in:st=0:d={float(t['fadeIn']):.2f}")
@@ -382,8 +384,10 @@ def mix_audio(base: Path, tracks: list[dict], spec: dict, cache: Path, fast: boo
                   "".join(f"[vc{k}]" for k in range(len(music_labs) + 1)))
         labels = [l for l in labels if l != voice_lab] + [f"[vc{len(music_labs)}]"]
         for k, ml in enumerate(music_labs):
-            fc.append(f"{ml}[vc{k}]sidechaincompress=threshold=0.045:ratio=9:attack=12:"
-                      f"release=340:makeup=1[duck{k}]")
+            # Gentle enough that the bed returns between phrases. At ratio 9 with a
+            # low threshold it never came back, so the video read as voice-over-silence.
+            fc.append(f"{ml}[vc{k}]sidechaincompress=threshold=0.1:ratio=4:attack=20:"
+                      f"release=280:makeup=1[duck{k}]")
             labels.append(f"[duck{k}]")
     else:
         labels += music_labs

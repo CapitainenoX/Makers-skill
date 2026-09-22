@@ -6,6 +6,8 @@
   "theme": "light",                       // light | dark | ink
   "baseSize": 0.058,                      // type scale as a fraction of width
   "brand": { "accent": "#D97757", "font": "Inter", "watermark": "yourhandle" },
+  "seed": "my-video-slug",   // shifts entrances, push direction and the border treatment
+  "zoom": 0.035,             // slow push on every scene; 0 for a static deck
   "audio": { "src": "bed.mp3", "gain": -19, "fadeIn": 0.4, "fadeOut": 1.2 },
   "scenes": [ /* … */ ]
 }
@@ -20,7 +22,8 @@ full URL. Copy assets into `.maker/remotion/public/` before referencing them.
 |---|---|
 | `duration` | seconds (required) |
 | `anchor` | `top` \| `center` \| `bottom` — default `center`; the edges are filled by `decor` |
-| `variant` | `up` \| `down` \| `left` \| `right` \| `scale` \| `fade` — how this scene's block arrives. Left unset it rotates by index, which is what prevents entrance repetition |
+| `variant` | `up` `down` `left` `right` `scale` `fade` `zoomOut` `tiltLeft` `tiltRight` `riseFar` — how this scene's block arrives. Left unset it rotates by index **and the deck seed** |
+| `zoom` | slow push on this scene as a fraction (deck default `0.035`). `0` holds it still |
 | `bg` | override the deck background for this scene |
 | `transition` | `{ "type": "cut" }` (default) or `{ "type": "fade", "duration": 0.3 }` |
 
@@ -70,8 +73,12 @@ letting it silently do nothing.
            "opacity": 0.1, "scale": 0.8 }
 ```
 
-Set it on the deck for a default and override it per scene. Vary the corners and the kind
-between scenes — the same wallpaper on every scene is the repetition viewers feel.
+Set it on the deck for a default and override it per scene. **Leave it out entirely and
+the seed picks** the family and the corners per scene, so the border treatment differs
+between scenes and between videos without you choosing anything.
+
+Give every deck a different `seed` — the video's slug works. It shifts the entrance
+rotation, the push direction and the decor, so two videos never move the same way.
 
 ## Media — the part that matters most
 

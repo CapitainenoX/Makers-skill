@@ -7,27 +7,11 @@
   "brand": {
     "watermark": "github.com/CapitainenoX/Makers-skill"
   },
-  "decor": {
-    "kind": "rays",
-    "corners": [
-      "top-left",
-      "bottom-right"
-    ],
-    "opacity": 0.045,
-    "scale": 0.8
-  },
   "scenes": [
     {
       "type": "chips",
       "duration": 1.5,
       "size": 0.23,
-      "decor": {
-        "kind": "rays",
-        "corners": [
-          "top-left"
-        ],
-        "opacity": 0.05
-      },
       "items": [
         {
           "icon": "logos/claude.svg"
@@ -41,14 +25,6 @@
     {
       "type": "mock",
       "duration": 1.9,
-      "decor": {
-        "kind": "arcs",
-        "corners": [
-          "top-right",
-          "bottom-left"
-        ],
-        "opacity": 0.06
-      },
       "text": "Make me a short about this GitHub project.",
       "badge": "Chat",
       "meta": "one prompt",
@@ -57,13 +33,6 @@
     {
       "type": "flow",
       "duration": 2.5,
-      "decor": {
-        "kind": "rays",
-        "corners": [
-          "bottom-left"
-        ],
-        "opacity": 0.045
-      },
       "title": "What it actually does",
       "steps": [
         {
@@ -86,14 +55,6 @@
       "duration": 2.5,
       "hub": {
         "icon": "gear"
-      },
-      "decor": {
-        "kind": "blobs",
-        "corners": [
-          "top-left",
-          "bottom-right"
-        ],
-        "opacity": 0.05
       },
       "nodes": [
         {
@@ -120,13 +81,6 @@
       "duration": 2.2,
       "columns": 4,
       "size": 0.16,
-      "decor": {
-        "kind": "arcs",
-        "corners": [
-          "top-left"
-        ],
-        "opacity": 0.055
-      },
       "items": [
         {
           "icon": "logos/claude.svg",
@@ -151,26 +105,12 @@
       "type": "stat",
       "duration": 1.8,
       "value": "20",
-      "decor": {
-        "kind": "rays",
-        "corners": [
-          "top-right"
-        ],
-        "opacity": 0.05
-      },
       "label": "scene types",
       "sub": "one beat each"
     },
     {
       "type": "compare",
       "duration": 2.7,
-      "decor": {
-        "kind": "blobs",
-        "corners": [
-          "bottom-left"
-        ],
-        "opacity": 0.05
-      },
       "left": {
         "label": "Before",
         "items": [
@@ -191,14 +131,6 @@
     {
       "type": "bullets",
       "duration": 2.3,
-      "decor": {
-        "kind": "arcs",
-        "corners": [
-          "top-right",
-          "bottom-left"
-        ],
-        "opacity": 0.055
-      },
       "heading": [
         {
           "t": "All of it is free",
@@ -229,14 +161,6 @@
       "type": "marquee",
       "duration": 1.9,
       "speed": 78,
-      "decor": {
-        "kind": "rays",
-        "corners": [
-          "top-left",
-          "bottom-right"
-        ],
-        "opacity": 0.045
-      },
       "lines": [
         {
           "t": "and it drives your editor too",
@@ -260,14 +184,6 @@
       "type": "cta",
       "duration": 2.0,
       "size": 0.19,
-      "decor": {
-        "kind": "arcs",
-        "corners": [
-          "top-left",
-          "bottom-right"
-        ],
-        "opacity": 0.06
-      },
       "actions": [
         {
           "icon": "thumbsUp",
@@ -292,14 +208,6 @@
         "type": "fade",
         "duration": 0.28
       },
-      "decor": {
-        "kind": "rays",
-        "corners": [
-          "top-right",
-          "bottom-left"
-        ],
-        "opacity": 0.05
-      },
       "lines": [
         {
           "t": "it's open source",
@@ -316,5 +224,7 @@
       ],
       "handle": "github.com/CapitainenoX"
     }
-  ]
+  ],
+  "seed": "makers-skill",
+  "zoom": 0.035
 }

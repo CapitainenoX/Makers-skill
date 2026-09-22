@@ -84,9 +84,12 @@ type Base = {
   richDelay?: number;
   /** bleed shapes behind this scene; overrides the deck-level decor */
   decor?: DecorSpec;
-  /** how this scene's block arrives. Left unset it rotates by index, which is what
-   *  stops eleven scenes from entering eleven times the same way. */
+  /** how this scene's block arrives. Left unset it rotates by index and the deck seed,
+   *  which is what stops eleven scenes from entering eleven times the same way — and
+   *  stops two videos from sharing the same sequence. */
   variant?: Variant;
+  /** slow push on this scene, as a fraction (0.035 default). 0 holds it perfectly still. */
+  zoom?: number;
 };
 
 export const justify = (a?: "top" | "center" | "bottom") =>
@@ -155,6 +158,11 @@ export type Deck = {
   audio?: { src: string; gain?: number; fadeIn?: number; fadeOut?: number };
   /** bleed shapes behind every scene, so the top and bottom of the frame are never dead */
   decor?: DecorSpec;
+  /** any string — the video's slug works. It shifts the entrance rotation, the push
+   *  direction and the decor family, so each video moves differently from the last. */
+  seed?: string | number;
+  /** default slow push per scene (0.035). Set 0 for a completely static deck. */
+  zoom?: number;
   scenes: Scene[];
 };
 

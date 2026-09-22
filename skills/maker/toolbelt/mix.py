@@ -15,7 +15,7 @@ from pathlib import Path
 
 import edl
 from _common import (die, emit, ffmpeg, ffprobe_json, home, read_json, run,
-                     safe_path, which, write_json)
+                     safe_path, slugify, which, write_json)
 from sfx import PACK, render as render_sfx
 
 # Which one-shot suits which scene type, and how loud it sits.
@@ -54,6 +54,38 @@ def loudnorm_2pass(src: Path, dst: Path, target_lufs: float) -> dict:
     ffmpeg(["-i", str(src), "-af", af, "-c:v", "copy", "-c:a", "aac", "-b:a", "256k",
             "-ar", "48000", "-movflags", "+faststart", str(dst)], quiet=True)
     return stats
+
+
+def normalise_stem(src: Path, target_lufs: float, cache: Path, tag: str) -> Path:
+    """Level a stem before it reaches the mixer.
+
+    Downloaded beds arrive anywhere from -6 to -25 dB. Applying a fixed -19 dB offset on
+    top of that is what made the music inaudible: the file was already quiet, so it ended
+    up around -38 dB and the ducking finished it off. Normalising first means the mix
+    gains express a balance instead of a guess."""
+    cache.mkdir(parents=True, exist_ok=True)
+    out = cache / f"{tag}-{slugify(src.stem)[:24]}.wav"
+    if out.exists():
+        return out
+    exe = which("ffmpeg") or die("ffmpeg required")
+    probe = run([exe, "-hide_banner", "-nostdin", "-i", str(src), "-af",
+                 f"loudnorm=I={target_lufs}:TP=-1.5:LRA=11:print_format=json",
+                 "-f", "null", "-"], timeout=600, check=False, quiet=True)
+    blob = (probe.stderr or "") + (probe.stdout or "")
+    stats, start = {}, blob.rfind("{")
+    if start >= 0:
+        try:
+            stats = json.loads(blob[start:blob.rfind("}") + 1])
+        except ValueError:
+            stats = {}
+    af = f"loudnorm=I={target_lufs}:TP=-1.5:LRA=11"
+    if stats.get("input_i"):
+        af += (f":measured_I={stats['input_i']}:measured_TP={stats['input_tp']}"
+               f":measured_LRA={stats['input_lra']}:measured_thresh={stats['input_thresh']}"
+               f":offset={stats.get('target_offset', 0)}:linear=true")
+    ffmpeg(["-i", str(src), "-af", f"{af},aformat=sample_fmts=s16:sample_rates=48000",
+            "-c:a", "pcm_s16le", str(out)], quiet=True)
+    return out
 
 
 def has_audio(path: Path) -> bool:
@@ -118,8 +150,12 @@ def main():
                     help="place one one-shot per scene cut, chosen by scene type")
     ap.add_argument("--voice", help="shorthand: a narration file at 0 dB")
     ap.add_argument("--music", help="shorthand: a bed at -19 dB, ducked under the voice")
-    ap.add_argument("--music-gain", type=float, default=-19.0)
+    ap.add_argument("--music-gain", type=float, default=-11.0)
     ap.add_argument("--lufs", type=float, default=-14.0)
+    ap.add_argument("--stem-lufs", type=float, default=-16.0,
+                    help="level voice and music to this before balancing them")
+    ap.add_argument("--music-duck", type=float, default=None,
+                    help="override how far the bed drops under the voice, in dB")
     ap.add_argument("--sfx-dir", default=None)
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
@@ -139,7 +175,7 @@ def main():
     if a.music:
         tracks.append({"type": "music", "src": str(safe_path(a.music, must_exist=True)),
                        "start": 0.0, "gain": a.music_gain, "duck": True,
-                       "fadeIn": 0.4, "fadeOut": 1.4, "duration": dur})
+                       "fadeIn": 0.6, "fadeOut": 1.6, "duration": dur})
     if a.from_deck:
         deck = read_json(safe_path(a.from_deck, must_exist=True), {}) or {}
         sfx_dir = safe_path(a.sfx_dir, write=True) if a.sfx_dir else safe_path(home() / "sfx", write=True)
@@ -188,6 +224,12 @@ def main():
 
     cache = safe_path(home() / "cache" / "mix", write=True)
     cache.mkdir(parents=True, exist_ok=True)
+
+    # Level the voice and the bed to the same reference before balancing them.
+    for t in tracks:
+        kind = t.get("type")
+        if kind in ("voice", "music"):
+            t["src"] = str(normalise_stem(Path(t["src"]), a.stem_lufs, cache, kind))
 
     # The mixer maps [0:a]; a silent render has no such stream, so give it one first.
     base = video
