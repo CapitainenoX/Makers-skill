@@ -10,7 +10,7 @@ a video gets sound design without anyone hand-timing twenty events.
 """
 from __future__ import annotations
 
-import argparse, json, shutil
+import argparse, hashlib, json, shutil
 from pathlib import Path
 
 import edl
@@ -64,7 +64,12 @@ def normalise_stem(src: Path, target_lufs: float, cache: Path, tag: str) -> Path
     up around -38 dB and the ducking finished it off. Normalising first means the mix
     gains express a balance instead of a guess."""
     cache.mkdir(parents=True, exist_ok=True)
-    out = cache / f"{tag}-{slugify(src.stem)[:24]}.wav"
+    # Key on the file itself, not its name: every project calls its narration vo.wav,
+    # and a name-only key handed one video's voice to the next.
+    st = src.resolve().stat()
+    key = hashlib.sha1(f"{src.resolve()}|{st.st_size}|{st.st_mtime_ns}|{target_lufs}"
+                       .encode()).hexdigest()[:10]
+    out = cache / f"{tag}-{slugify(src.stem)[:24]}-{key}.wav"
     if out.exists():
         return out
     exe = which("ffmpeg") or die("ffmpeg required")
