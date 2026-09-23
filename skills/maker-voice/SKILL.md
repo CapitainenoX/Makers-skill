@@ -23,10 +23,30 @@ The chain, best available first:
 |---|---|---|
 | **Puter** | Default when a token exists — real neural voices, no provider key | User-pays credits |
 | **ElevenLabs** | The creator hands you a key and delivery matters | Their credits — ask first |
-| **Kokoro** | Local, Apache-2.0, 82M params, CPU-fast, 54 voices | `pip install kokoro soundfile` |
+| **Kokoro** | **Best offline choice.** Local, Apache-2.0, 82M params, CPU-fast, 54 voices | `pip install kokoro soundfile` (+ `espeak-ng`; CPU torch: `--index-url https://download.pytorch.org/whl/cpu`) |
 | **Piper** | Local, tiny, real-time on weak hardware | `pip install piper-tts` + a voice |
-| **edge-tts** | No key, good quality, needs network | `pipx install edge-tts` |
+| **edge-tts** | No key, good quality, needs network — **fails behind most proxies** (it speaks over a WebSocket) | `pipx install edge-tts` |
 | **system** | Last resort | Robotic — say so to the creator |
+
+### Kokoro — the voice that tested best
+
+On a proxied or offline host (a cloud sandbox, a CI runner) edge-tts and Puter may both be
+unreachable; Kokoro runs locally and sounds far better than Piper. Voices that worked:
+
+| Voice | Read |
+|---|---|
+| `am_michael` | male, US — the channel default: clear, confident, not salesy |
+| `am_fenrir` | male, US, deeper |
+| `bm_george` | male, UK |
+| `af_heart` | female, US — the highest-rated voice overall |
+
+`--speed 1.15` is what makes it sound *dynamic* rather than read-aloud; above ~1.25 the
+consonants smear. A creator who asked for "une voix plus dynamique" meant this plus the
+presence/compression chain `mk narrate` applies — not a different voice.
+
+Piper (`fr_FR-tom-medium`, `en_US-ryan-high`, …) is the fallback: fine, flatter. Spell
+brand names phonetically for it (`Guite-Heub`, `DipSik`) — it guesses English names in
+French rules.
 
 ### Puter — neural voices without a provider key
 
@@ -67,6 +87,23 @@ On keys: ask for a short-lived one, use it through the environment only, never p
 never write it to a file, and tell the creator to revoke it when the batch is done.
 
 ## 2. Generate
+
+**For a deck, use `mk narrate` — it is the whole voice pass in one command.** Put each line
+on the scene that carries it (`"say": "…"`), leave `say` off the scenes a line runs across,
+and `"say": ""` on a silent outro:
+
+```bash
+"$MK" narrate deck.json -o voice/vo.wav --voice am_michael --speed 1.15
+```
+
+It voices each line on its own (cached by text, so editing one line re-voices one line),
+trims the silence, adds presence and compression so the voice cuts through the bed,
+**stretches each group of scenes to hold its line plus a breath**, writes the new
+durations back into the deck, and lays the lines at their scene starts in one aligned
+wav. The cut always lands on the voice. Run it *before* `mk compose` and the render —
+the durations it writes are the ones they read.
+
+For a single file:
 
 ```bash
 "$MK" tts "Ce repo a quarante mille étoiles." -o voice/vo.wav --lang fr

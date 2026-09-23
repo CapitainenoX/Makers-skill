@@ -73,8 +73,16 @@ are never dead: `decor` bleeds shapes off the corners, drifting slowly.
 "decor": { "kind": "rays", "corners": ["top-left", "bottom-right"], "opacity": 0.1 }
 ```
 
-Set it deck-wide, then override per scene and move it around. Identical wallpaper on every
-scene is the repetition viewers feel without being able to name it.
+**Give every scene its own `decor` and never repeat a kind on two scenes in a row.** A
+creator's first note on a finished video was "les trucs sur les bordures, ça fait trop
+répétitif" — identical wallpaper on every scene is the repetition viewers feel without
+being able to name it. A deck-level `decor` draws under *every* scene, so leave it off
+unless you want exactly that.
+
+Nine families: corner shapes `rays` `arcs` `blobs` `orbit`, and full-edge treatments
+`frame` (corner brackets + dashed rule), `lines` (a band of sliding hairlines), `cross`
+(registration marks), `bars` (a barcode strip), plus `grid`. The edge ones read as print
+rather than wallpaper — they are what makes a monochrome deck look editorial.
 
 ## Scene types
 
@@ -127,11 +135,50 @@ first scene, scenes over ~3 s, three of the same scene type in a row, display li
 long to fit, a deck with no footage in it at all, fewer than four scene shapes across a
 long deck, a missing audio bed.
 
+## 3b. Black and white — the channel look that tested well
+
+```jsonc
+"theme": "dark", "brand": { "accent": "#FFFFFF" }
+```
+
+Near-black page, white type and marks, no colour at all. Pull logos in white
+(`mk logo get … --color FFFFFF`); a mark that only ships dark (a PNG wordmark) gets its
+luminance turned into alpha on white. Real product UI in its own dark mode sits inside
+the browser shell without a seam. Keep `==highlight==` for the CTA — in monochrome it is
+the only inverted block in the video, which is exactly why it lands.
+
+## 3c. Real footage of the tool — worth the ten minutes
+
+A site capture is second best: marketing pages have cookie banners, empty hero frames and
+nothing that *moves*. Install the tool, run it, and film a genuine session with
+Playwright — the recipe is in `references/footage.md`. Speed-ramp it (typing ×2.5, a
+streamed answer ×8) so a 30 s session becomes a 3 s beat, and say so if asked: the
+footage is real, the clock is not.
+
 ## 4. Sound — not optional
 
 A silent short is the most expensive mistake in this format, and an unrelated music bed
 is barely better: it signals the video was assembled rather than made. The renderer
 outputs silent video on purpose; sound is a separate, deterministic pass.
+
+The fast path, no keys, no licences — this is what the last two videos shipped with:
+
+```bash
+"$MK" narrate deck.json -o voice/vo.wav --voice am_michael --speed 1.15   # retimes the deck
+"$MK" compose -o assets/bed.wav --deck deck.json --prog dm --seed 11      # original bed
+"$MK" sfx gen --all                                                       # synthesised one-shots
+"$MK" remotion render deck.json -o out/video.mp4
+"$MK" mix out/video.mp4 -o out/final.mp4 --from-deck deck.json \
+     --voice voice/vo.wav --music assets/bed.wav --sfx-dir .maker/sfx
+```
+
+`mk compose` synthesises an original minimal-tech bed (kick, clap, hats, plucked bass,
+pad, and an arp that lifts the middle), sized to the deck, drums out when the outro
+starts. Change `--prog` (`am` `dm` `em` `cm` `fm`), `--bpm` and `--seed` per video — the
+same bed on two videos is the audio version of the same decor on every scene. Credit it
+as "original composition".
+
+With keys, recorded material is richer:
 
 ```bash
 "$MK" sound pack                                      # recorded one-shots (Freesound, CC0)

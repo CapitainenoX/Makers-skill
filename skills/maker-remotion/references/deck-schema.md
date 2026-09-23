@@ -26,6 +26,8 @@ full URL. Copy assets into `.maker/remotion/public/` before referencing them.
 | `zoom` | slow push on this scene as a fraction (deck default `0.035`). `0` holds it still |
 | `bg` | override the deck background for this scene |
 | `transition` | `{ "type": "cut" }` (default) or `{ "type": "fade", "duration": 0.3 }` |
+| `say` | the narration line this scene starts, for `mk narrate`. Scenes without it continue the line before; `""` is a silent scene. The renderer ignores it |
+| `decor` | this scene's border treatment — see below. Give every scene its own |
 
 A `fade` overlaps this scene onto the previous one — a true cross-dissolve, not a dip
 through the background. It also shortens the total, which `validate` reports.
