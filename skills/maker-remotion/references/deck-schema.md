@@ -68,12 +68,15 @@ letting it silently do nothing.
 ## `decor` — filling the top and bottom
 
 ```jsonc
-"decor": { "kind": "rays",              // rays | arcs | blobs | grid | none
+"decor": { "kind": "rays",              // rays | arcs | blobs | grid | orbit | frame | lines | cross | bars | none
            "corners": ["top-left", "bottom-right"],
            "opacity": 0.1, "scale": 0.8 }
 ```
 
-Set it on the deck for a default and override it per scene. **Leave it out entirely and
+`frame`, `lines`, `cross` and `bars` treat the whole edge (brackets, hairlines, registration
+marks, a barcode strip); `lines` and `bars` take their edge from the first corner.
+
+Set it on the deck for a layer under every scene, or per scene. **Leave it out entirely and
 the seed picks** the family and the corners per scene, so the border treatment differs
 between scenes and between videos without you choosing anything.
 

@@ -104,7 +104,9 @@ export const Deck: React.FC<DeckType> = (deck) => {
 
   return (
     <AbsoluteFill style={{ background: theme.bg }}>
-      <Decor spec={deck.decor} theme={theme} seed={seed} index={0} />
+      {/* A deck-wide layer only when the deck names one: left implicit it sat under
+          every scene, so the same corner shapes showed through the whole video. */}
+      {deck.decor ? <Decor spec={deck.decor} theme={theme} seed={seed} index={0} /> : null}
 
       {deck.scenes.map((scene, i) => {
         const place = places[i];
