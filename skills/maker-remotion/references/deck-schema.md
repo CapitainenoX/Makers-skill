@@ -13,6 +13,12 @@
 }
 ```
 
+**Landscape works with the same deck.** Set `"width": 1920, "height": 1080` and keep
+`baseSize` as it is: on a landscape canvas every scene lays out in a centred column about
+1.15x the height wide (`src/layout.ts`), and the type scales with that column, so a
+vertical deck and its 16:9 version read the same. Vertical is unchanged. For a long
+video, build one deck per chapter, render them separately, mix each, then concatenate.
+
 `audio.src` and any image `src` resolve through Remotion's `public/` folder, or may be a
 full URL. Copy assets into `.maker/remotion/public/` before referencing them.
 

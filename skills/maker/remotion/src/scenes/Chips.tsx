@@ -1,5 +1,6 @@
 import React from "react";
 import { useCurrentFrame, useVideoConfig } from "remotion";
+import { useLayoutWidth } from "../layout";
 import { Chip } from "../components/Chip";
 import { Stage } from "../components/Stage";
 import { TypeStack } from "../components/Type";
@@ -9,7 +10,8 @@ import type { SceneProps } from "./types";
 /** A row or grid of logo chips. The whole "works with everything" beat in one shape. */
 export const Chips: React.FC<SceneProps<"chips">> = ({ scene, theme, base, font }) => {
   const frame = useCurrentFrame();
-  const { fps, width } = useVideoConfig();
+  const { fps } = useVideoConfig();
+  const width = useLayoutWidth();
   const n = scene.items.length;
   const cols = scene.columns ?? (n <= 3 ? n : n === 4 ? 2 : 3);
   const size = width * (scene.size ?? (cols <= 2 ? 0.26 : cols === 3 ? 0.2 : 0.17));

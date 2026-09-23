@@ -1,5 +1,6 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
+import { useColumnInset } from "../layout";
 import { TypeStack } from "../components/Type";
 import { enter, rise, stagger } from "../motion";
 import { WEIGHTS } from "../theme";
@@ -10,6 +11,7 @@ import type { SceneProps } from "./types";
  *  simply printed. */
 export const Progress: React.FC<SceneProps<"progress">> = ({ scene, theme, base, font }) => {
   const frame = useCurrentFrame();
+  const inset = useColumnInset();
   const { fps } = useVideoConfig();
   const delay = scene.heading ? 7 : 0;
   return (
@@ -18,7 +20,7 @@ export const Progress: React.FC<SceneProps<"progress">> = ({ scene, theme, base,
         justifyContent: justify(scene.anchor),
         alignItems: "stretch",
         gap: base * 0.8,
-        padding: `${base * 1.6}px ${base * 0.8}px`,
+        padding: `${base * 1.6}px ${inset + base * 0.8}px`,
       }}
     >
       {scene.heading ? (

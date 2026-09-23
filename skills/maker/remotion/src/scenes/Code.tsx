@@ -1,5 +1,6 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
+import { useLayoutWidth } from "../layout";
 import { enter, rise, stagger } from "../motion";
 import { WEIGHTS } from "../theme";
 import type { SceneProps } from "./types";
@@ -9,7 +10,8 @@ const MONO = '"SF Mono", "JetBrains Mono", Menlo, Consolas, "DejaVu Sans Mono", 
 /** A terminal card whose lines type on one after another. Proof beats claims. */
 export const Code: React.FC<SceneProps<"code">> = ({ scene, theme, base, font }) => {
   const frame = useCurrentFrame();
-  const { fps, width } = useVideoConfig();
+  const { fps } = useVideoConfig();
+  const width = useLayoutWidth();
   const p = enter(frame, fps, 0, "snap");
   const prompt = scene.prompt ?? "$";
   return (

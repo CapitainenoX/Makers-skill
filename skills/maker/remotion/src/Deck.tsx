@@ -3,6 +3,7 @@ import {
   AbsoluteFill, Audio, Easing, Sequence, interpolate, staticFile,
   useCurrentFrame, useVideoConfig,
 } from "remotion";
+import { layoutWidth } from "./layout";
 import { seedOf, variantFor, variantStyle } from "./motion";
 import { DEFAULTS, layout, type Deck as DeckType, type Scene } from "./deck";
 import { THEMES } from "./theme";
@@ -92,13 +93,14 @@ const SceneFrame: React.FC<{
 };
 
 export const Deck: React.FC<DeckType> = (deck) => {
-  const { width, durationInFrames } = useVideoConfig();
+  const { width, height, durationInFrames } = useVideoConfig();
   const seed = seedOf(deck.seed);
   const theme = {
     ...THEMES[deck.theme ?? DEFAULTS.theme],
     ...(deck.brand?.accent ? { accent: deck.brand.accent } : {}),
   };
-  const base = width * (deck.baseSize ?? DEFAULTS.baseSize);
+  // type scales with the layout column, so one baseSize reads the same in 9:16 and 16:9
+  const base = layoutWidth(width, height) * (deck.baseSize ?? DEFAULTS.baseSize);
   const font = useDisplayFont(deck.brand?.font);
   const { places } = layout(deck);
 

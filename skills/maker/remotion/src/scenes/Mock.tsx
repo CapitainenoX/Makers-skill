@@ -1,5 +1,6 @@
 import React from "react";
 import { useCurrentFrame, useVideoConfig } from "remotion";
+import { useLayoutWidth } from "../layout";
 import { Stage } from "../components/Stage";
 import { Chip } from "../components/Chip";
 import { TypeStack } from "../components/Type";
@@ -12,7 +13,8 @@ import type { SceneProps } from "./types";
  *  it stays legible at phone size. */
 export const Mock: React.FC<SceneProps<"mock">> = ({ scene, theme, base, font }) => {
   const frame = useCurrentFrame();
-  const { fps, width } = useVideoConfig();
+  const { fps } = useVideoConfig();
+  const width = useLayoutWidth();
   const p = enter(frame, fps, 0, "snap");
   const W = width * 0.86;
   const kind = scene.kind ?? "prompt";
