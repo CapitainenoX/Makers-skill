@@ -47,12 +47,19 @@ def groups_of(scenes: list[dict]) -> list[tuple[str, list[int]]]:
     return out
 
 
+_PIPES: dict = {}   # one kokoro pipeline per language, loaded once per run
+
+
 def speak(text: str, raw: Path, engine: str, voice: str, speed: float) -> None:
     if engine == "kokoro":
+        import contextlib, sys
         import numpy as np, soundfile as sf
-        from kokoro import KPipeline
-        pipe = KPipeline(lang_code=voice[0])
-        chunks = [a for _, _, a in pipe(text, voice=voice, speed=speed)]
+        # kokoro and its model loader print to stdout; keep it clean for the JSON result
+        with contextlib.redirect_stdout(sys.stderr):
+            if voice[0] not in _PIPES:
+                from kokoro import KPipeline
+                _PIPES[voice[0]] = KPipeline(lang_code=voice[0])
+            chunks = [a for _, _, a in _PIPES[voice[0]](text, voice=voice, speed=speed)]
         if not chunks:
             die(f"kokoro produced no audio for: {text!r}")
         sf.write(str(raw), np.concatenate([getattr(c, "numpy", lambda: c)() for c in chunks]), 24000)

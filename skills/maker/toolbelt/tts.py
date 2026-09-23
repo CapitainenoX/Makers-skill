@@ -68,9 +68,12 @@ def say_elevenlabs(text: str, out: Path, voice: str, model: str) -> Path:
 def say_kokoro(text: str, out: Path, voice: str, speed: float = 1.0) -> Path:
     import soundfile as sf  # noqa
     from kokoro import KPipeline
+    import contextlib
     lang = (voice or "am_michael")[0]
-    pipe = KPipeline(lang_code=lang)
-    chunks = [audio for _, _, audio in pipe(text, voice=voice or "am_michael", speed=speed)]
+    # kokoro's loader prints to stdout, which would corrupt the JSON this command emits
+    with contextlib.redirect_stdout(sys.stderr):
+        pipe = KPipeline(lang_code=lang)
+        chunks = [audio for _, _, audio in pipe(text, voice=voice or "am_michael", speed=speed)]
     if not chunks:
         die("kokoro produced no audio")
     import numpy as np
