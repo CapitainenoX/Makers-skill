@@ -1,5 +1,6 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
+import { useColumnInset } from "../layout";
 import { TypeStack } from "../components/Type";
 import { Glyph } from "../components/Glyph";
 import { enter, rise } from "../motion";
@@ -10,6 +11,7 @@ import type { SceneProps } from "./types";
 /** The last frame should send the viewer somewhere, not just stop. */
 export const Outro: React.FC<SceneProps<"outro">> = ({ scene, theme, base, font }) => {
   const frame = useCurrentFrame();
+  const inset = useColumnInset();
   const { fps } = useVideoConfig();
   const p = enter(frame, fps, 8, "pop");
   return (
@@ -18,7 +20,7 @@ export const Outro: React.FC<SceneProps<"outro">> = ({ scene, theme, base, font 
         justifyContent: justify(scene.anchor),
         alignItems: "center",
         gap: base * 0.8,
-        padding: `${base * 1.6}px ${base * 0.8}px`,
+        padding: `${base * 1.6}px ${inset + base * 0.8}px`,
       }}
     >
       <TypeStack lines={scene.lines} theme={theme} base={base} font={font} />

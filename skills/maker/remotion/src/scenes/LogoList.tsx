@@ -1,5 +1,6 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
+import { useColumnInset } from "../layout";
 import { TypeStack, resolveColor } from "../components/Type";
 import { Glyph } from "../components/Glyph";
 import { enter, rise, stagger } from "../motion";
@@ -11,6 +12,7 @@ import type { SceneProps } from "./types";
  *  makes it read as a list being revealed rather than a table appearing. */
 export const LogoList: React.FC<SceneProps<"logoList">> = ({ scene, theme, base, font }) => {
   const frame = useCurrentFrame();
+  const inset = useColumnInset();
   const { fps } = useVideoConfig();
   const headDelay = 0;
   const rowsDelay = scene.heading ? 7 : 0;
@@ -20,7 +22,7 @@ export const LogoList: React.FC<SceneProps<"logoList">> = ({ scene, theme, base,
         justifyContent: justify(scene.anchor),
         alignItems: "center",
         gap: base * 0.85,
-        padding: `${base * 1.6}px ${base * 0.85}px`,
+        padding: `${base * 1.6}px ${inset + base * 0.85}px`,
       }}
     >
       {scene.heading ? (

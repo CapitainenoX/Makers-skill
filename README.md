@@ -87,8 +87,12 @@ lignes empilées :
 "rich": "every **AI assistant** you have ever used **works** this way"
 ```
 
-Le bloc est **centré**, les bords haut/bas remplis par un `decor` qui déborde et dérive.
+Le bloc est **centré**, les bords haut/bas remplis par un `decor` qui déborde et dérive —
+neuf familles (`rays` `arcs` `blobs` `orbit` `frame` `lines` `cross` `bars` `grid`), une
+différente par scène, et le lint prévient quand deux scènes d'affilée ont la même.
 Le style par défaut est **noir sur blanc** ; la couleur s'active avec `brand.accent`.
+L'inverse — **blanc sur noir** (`"theme": "dark"`, accent `#FFFFFF`) — est le format de
+chaîne du template `bw-tool-short`.
 Chaque scène entre par une direction différente (`variant` tourne automatiquement).
 Les surlignages sont **animés** : le texte arrive, puis le marqueur le traverse.
 La police (Inter) est **embarquée**, jamais tirée d'un CDN au rendu.
@@ -100,6 +104,8 @@ mk logo get github docker node --color 111111   # marques réelles (Simple Icons
 mk sound pack                                   # one-shots enregistrés (Freesound, CC0) + crédits
 mk sound music "minimal tech ambient loop"      # un lit musical, licence tracée
 mk sfx gen --all                                # repli synthétisé, aucune clé d'API
+mk narrate deck.json -o voice/vo.wav            # une phrase par scène ("say"), deck recalé sur la voix
+mk compose -o bed.wav --deck deck.json          # musique originale synthétisée, aucun droit
 mk tts "<le script>" -o voice/vo.wav
 mk mix out/video.mp4 -o out/final.mp4 --from-deck deck.json --voice voice/vo.wav --music bed.mp3
 ```

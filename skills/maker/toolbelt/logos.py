@@ -45,6 +45,18 @@ def fetch(url: str, timeout: int = 30) -> bytes:
         return r.read(2 * 1024 * 1024)
 
 
+def has_fill(svg: bytes, hexcol: str) -> bool:
+    return f'fill="#{hexcol.lstrip("#").upper()}"'.encode() in svg.upper()
+
+
+def recolour(svg: bytes, hexcol: str) -> bytes:
+    """Give a single-colour Simple Icons mark one fill, set on the root <svg>."""
+    import re
+    fill = f'fill="#{hexcol.lstrip("#").upper()}"'.encode()
+    svg = re.sub(rb'<svg([^>]*?)\sfill="[^"]*"', rb"<svg\1", svg, count=1)
+    return svg.replace(b"<svg", b"<svg " + fill, 1)
+
+
 def project_public(explicit: str | None) -> Path:
     base = safe_path(explicit, write=True) if explicit else safe_path(home() / "remotion", write=True)
     d = base / "public" / "logos"
@@ -64,6 +76,8 @@ def cmd_get(a):
         slug = slugify_brand(name)
         out = dest / f"{slug}.svg"
         if out.exists() and not a.force:
+            if a.color and not has_fill(out.read_bytes(), a.color):
+                out.write_bytes(recolour(out.read_bytes(), a.color))   # cached in another colour
             got.append({"name": name, "slug": slug, "path": f"logos/{slug}.svg", "cached": True})
             continue
         # The recolouring endpoint covers fewer brands than the package itself, so a
@@ -83,6 +97,10 @@ def cmd_get(a):
         if b"<svg" not in data[:400]:
             missing.append({"name": name, "slug": slug, "error": "not an SVG"})
             continue
+        # The recolouring endpoint silently lacks some brands (Slack, OpenAI); the plain
+        # mark it falls back to is black, invisible on a dark deck. Colour it here instead.
+        if a.color and not has_fill(data, a.color):
+            data = recolour(data, a.color)
         out.write_bytes(data)
         index[slug] = {"name": name, "fetched": True}
         got.append({"name": name, "slug": slug, "path": f"logos/{slug}.svg", "cached": False})

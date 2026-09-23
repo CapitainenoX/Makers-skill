@@ -1,5 +1,6 @@
 import React from "react";
 import { useCurrentFrame, useVideoConfig } from "remotion";
+import { useLayoutWidth } from "../layout";
 import { Chip } from "../components/Chip";
 import { Stage } from "../components/Stage";
 import { TypeStack } from "../components/Type";
@@ -11,7 +12,8 @@ import type { SceneProps } from "./types";
  *  each other. */
 export const Diagram: React.FC<SceneProps<"diagram">> = ({ scene, theme, base, font }) => {
   const frame = useCurrentFrame();
-  const { fps, width } = useVideoConfig();
+  const { fps } = useVideoConfig();
+  const width = useLayoutWidth();
   const nodes = scene.nodes;
   const n = nodes.length;
   const layout = scene.layout ?? (n === 5 ? "cross" : n <= 3 ? "fan" : "grid");

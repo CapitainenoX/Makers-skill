@@ -1,5 +1,6 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
+import { useColumnInset } from "../layout";
 import { TypeStack } from "../components/Type";
 import { enter, rise } from "../motion";
 import { WEIGHTS } from "../theme";
@@ -10,6 +11,7 @@ import type { SceneProps } from "./types";
  *  Two shadows, not one: a wide soft one for depth, a tight one for contact. */
 export const Pill: React.FC<SceneProps<"pill">> = ({ scene, theme, base, font }) => {
   const frame = useCurrentFrame();
+  const inset = useColumnInset();
   const { fps } = useVideoConfig();
   const p = enter(frame, fps, 0, "pop");
   return (
@@ -18,7 +20,7 @@ export const Pill: React.FC<SceneProps<"pill">> = ({ scene, theme, base, font })
         justifyContent: justify(scene.anchor),
         alignItems: "center",
         gap: base * 0.9,
-        padding: `${base * 1.6}px ${base * 0.8}px`,
+        padding: `${base * 1.6}px ${inset + base * 0.8}px`,
       }}
     >
       <div

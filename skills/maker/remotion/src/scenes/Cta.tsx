@@ -1,5 +1,6 @@
 import React from "react";
 import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { useLayoutWidth } from "../layout";
 import { Stage } from "../components/Stage";
 import { Glyph } from "../components/Glyph";
 import { enter, rise, stagger } from "../motion";
@@ -19,7 +20,8 @@ const DEFAULTS: Action[] = [
  *  — the pulse is what the eye actually follows. */
 export const Cta: React.FC<SceneProps<"cta">> = ({ scene, theme, base, font }) => {
   const frame = useCurrentFrame();
-  const { fps, width } = useVideoConfig();
+  const { fps } = useVideoConfig();
+  const width = useLayoutWidth();
   const items: Action[] = scene.actions?.length ? scene.actions : DEFAULTS;
   const size = width * (scene.size ?? 0.19);
 

@@ -313,6 +313,16 @@ def lint(deck: dict) -> tuple[list[str], list[str]]:
     if len(scenes) >= 6 and len(kinds) < 4:
         warns.append(f"only {len(kinds)} scene types across {len(scenes)} scenes — vary the "
                      f"shapes or the back half will feel like the front half")
+    # The border treatment: one kind on two scenes in a row is the repetition a creator
+    # flagged first ("les bordures, ça fait trop répétitif").
+    dk = [(s.get("decor") or deck.get("decor") or {}).get("kind") for s in scenes]
+    same = [i for i in range(1, len(dk)) if dk[i] and dk[i] != "none" and dk[i] == dk[i - 1]]
+    if same:
+        warns.append(f"scenes {', '.join(f'{i - 1}-{i}' for i in same)} share a `{dk[same[0]]}` decor "
+                     f"in a row — give each scene its own (rays arcs blobs orbit frame lines cross bars grid)")
+    if deck.get("decor"):
+        warns.append("deck-level `decor` draws under every scene — set it per scene instead "
+                     "unless one constant border is the point")
     if not deck.get("audio"):
         warns.append("no audio in the deck — a silent short is the most expensive mistake "
                      "in this format. `mk mix <video> -o out.mp4 --from-deck <deck> "

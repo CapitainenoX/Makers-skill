@@ -1,5 +1,6 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
+import { useColumnInset } from "../layout";
 import { enter, rise, stagger } from "../motion";
 import { WEIGHTS } from "../theme";
 import type { SceneProps } from "./types";
@@ -8,6 +9,7 @@ import type { SceneProps } from "./types";
  *  and carries the accent, so the eye lands where the argument does. */
 export const Compare: React.FC<SceneProps<"compare">> = ({ scene, theme, base, font }) => {
   const frame = useCurrentFrame();
+  const inset = useColumnInset();
   const { fps } = useVideoConfig();
 
   const col = (side: "left" | "right", delay: number) => {
@@ -65,7 +67,7 @@ export const Compare: React.FC<SceneProps<"compare">> = ({ scene, theme, base, f
         alignItems: "stretch",
         flexDirection: "column",
         gap: base * 0.4,
-        padding: `${base * 1.6}px ${base * 0.7}px`,
+        padding: `${base * 1.6}px ${inset + base * 0.7}px`,
       }}
     >
       {col("left", 0)}

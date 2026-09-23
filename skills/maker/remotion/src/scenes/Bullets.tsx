@@ -1,5 +1,6 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
+import { useColumnInset } from "../layout";
 import { TypeStack } from "../components/Type";
 import { Glyph } from "../components/Glyph";
 import { enter, rise, stagger } from "../motion";
@@ -10,6 +11,7 @@ import type { SceneProps } from "./types";
 /** Left-aligned points on raised chips. Use for "what you get" beats. */
 export const Bullets: React.FC<SceneProps<"bullets">> = ({ scene, theme, base, font }) => {
   const frame = useCurrentFrame();
+  const inset = useColumnInset();
   const { fps } = useVideoConfig();
   const delay = scene.heading ? 7 : 0;
   return (
@@ -18,7 +20,7 @@ export const Bullets: React.FC<SceneProps<"bullets">> = ({ scene, theme, base, f
         justifyContent: justify(scene.anchor),
         alignItems: "center",
         gap: base * 0.8,
-        padding: `${base * 1.6}px ${base * 0.7}px`,
+        padding: `${base * 1.6}px ${inset + base * 0.7}px`,
       }}
     >
       {scene.heading ? (

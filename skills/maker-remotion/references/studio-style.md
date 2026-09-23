@@ -21,6 +21,12 @@ one number.
 A warmer paper (`#F4F3F1`) is a legitimate variation, but set it per deck rather than
 making it the house default.
 
+**Inverted — white on black.** `"theme": "dark"` with `brand.accent` `#FFFFFF` is the same
+restraint turned over, and it is the look a channel about developer tools settled on:
+white marks, white type, surfaces a step above the page, and one inverted highlight for
+the ask. Elevation still does the separating; the edge `decor` families (`frame`,
+`cross`, `lines`, `bars`) replace the soft corner shapes, which read as haze on black.
+
 **The sentence flows; the emphasis is inside it.** This is the single most-copied and
 most-misunderstood part of the look. It is *not* a stack of lines with one weight each.
 It is one sentence that wraps naturally, with individual words pulled forward:

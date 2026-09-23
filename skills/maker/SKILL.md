@@ -96,6 +96,18 @@ redoing them.
 | **First** | 20–40 min | market study, `mk logo get`, `mk sfx gen --all`, style file, one full render |
 | **Every next** | **~5 min** | script → deck → render → mix → QC, reusing memory and library |
 
+The no-key pipeline for a deck video, in order — each step reads what the one before wrote:
+
+```bash
+"$MK" narrate deck.json -o voice/vo.wav --voice am_michael --speed 1.15   # voice + retime
+"$MK" remotion validate deck.json && "$MK" remotion sheet deck.json -o out/sheet.png
+"$MK" compose -o assets/bed.wav --deck deck.json --prog dm --seed 11      # original bed
+"$MK" remotion render deck.json -o out/video.mp4
+"$MK" mix out/video.mp4 -o out/final.mp4 --from-deck deck.json \
+     --voice voice/vo.wav --music assets/bed.wav --sfx-dir .maker/sfx
+"$MK" qc out/final.mp4 --target shorts --graphics
+```
+
 What makes the second run fast, in order of value:
 
 1. `mk mem show` — the market, style and patterns are already written. Do not re-study.
@@ -121,13 +133,23 @@ already in `.maker/`. Stop and read it.
    payoff is still warm. One action, not four.
 6. **Loudness is a spec, not taste.** −14 LUFS, true peak under −1 dBTP. `mk qc` enforces it.
 7. **Look before you judge.** Render a preview, open the contact sheet as an image, then decide.
-   Never claim a video is good without having seen frames of it.
+   Never claim a video is good without having seen frames of it. The same goes for sound:
+   when a video is re-voiced (a translation, a new voice), confirm the final file carries
+   the *new* narration — compare its loudness envelope against `vo.wav` — before calling
+   it done. A shipped English video once carried the French voice.
 8. **Memory wins.** A ruling in `.maker/memory/feedback.md` or a pattern in `patterns.md`
    overrides your own preference and overrides this file. Read both before phase 2, every time.
 9. **Real marks, never redrawn.** `mk logo get` fetches the brand's own logo. An
-   approximation is instantly wrong to the people who know the product.
+   approximation is instantly wrong to the people who know the product. Not on Simple
+   Icons? Take it from the product's own site header — and check it is theirs, not the
+   docs framework's default logo.
+9b. **Real footage beats site captures.** When the tool runs here, install it and film a
+   real session (`maker-remotion/references/footage.md`). Never put a mocked answer on
+   screen as if the product produced it.
 10. **Rights.** Say where every asset came from. Flag copyrighted music and user-uploaded
-   meme sounds before a monetised upload. Never fabricate a licence.
+   meme sounds before a monetised upload. Never fabricate a licence — and never assume
+   one: check the project's actual licence before putting "MIT" on screen (Open WebUI
+   ships its own licence; n8n is fair-code, not open source).
 11. **Consent.** Do not put a real person's face or voice into content that implies they said
    or did something they did not.
 

@@ -1,5 +1,6 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
+import { useColumnInset, useLayoutWidth } from "../layout";
 import { TypeStack } from "../components/Type";
 import { Device } from "../components/Device";
 import { enter, rise } from "../motion";
@@ -11,7 +12,9 @@ import type { SceneProps } from "./types";
  *  a cursor: the mark lands where the eye should already be going. */
 export const Annotate: React.FC<SceneProps<"annotate">> = ({ scene, theme, base, font }) => {
   const frame = useCurrentFrame();
-  const { fps, width } = useVideoConfig();
+  const inset = useColumnInset();
+  const { fps } = useVideoConfig();
+  const width = useLayoutWidth();
   const kind = scene.frame ?? "browser";
   const w = width * (scene.scale ?? (kind === "phone" ? 0.46 : 0.84));
   const p = enter(frame, fps, scene.lines ? 4 : 0, "snap");
@@ -22,7 +25,7 @@ export const Annotate: React.FC<SceneProps<"annotate">> = ({ scene, theme, base,
         justifyContent: justify(scene.anchor),
         alignItems: "center",
         gap: base * 0.7,
-        padding: `${base * 1.6}px ${base * 0.8}px`,
+        padding: `${base * 1.6}px ${inset + base * 0.8}px`,
       }}
     >
       {scene.lines ? (

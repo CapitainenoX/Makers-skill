@@ -13,6 +13,12 @@
 }
 ```
 
+**Landscape works with the same deck.** Set `"width": 1920, "height": 1080` and keep
+`baseSize` as it is: on a landscape canvas every scene lays out in a centred column about
+1.15x the height wide (`src/layout.ts`), and the type scales with that column, so a
+vertical deck and its 16:9 version read the same. Vertical is unchanged. For a long
+video, build one deck per chapter, render them separately, mix each, then concatenate.
+
 `audio.src` and any image `src` resolve through Remotion's `public/` folder, or may be a
 full URL. Copy assets into `.maker/remotion/public/` before referencing them.
 
@@ -26,6 +32,8 @@ full URL. Copy assets into `.maker/remotion/public/` before referencing them.
 | `zoom` | slow push on this scene as a fraction (deck default `0.035`). `0` holds it still |
 | `bg` | override the deck background for this scene |
 | `transition` | `{ "type": "cut" }` (default) or `{ "type": "fade", "duration": 0.3 }` |
+| `say` | the narration line this scene starts, for `mk narrate`. Scenes without it continue the line before; `""` is a silent scene. The renderer ignores it |
+| `decor` | this scene's border treatment — see below. Give every scene its own |
 
 A `fade` overlaps this scene onto the previous one — a true cross-dissolve, not a dip
 through the background. It also shortens the total, which `validate` reports.
@@ -68,12 +76,15 @@ letting it silently do nothing.
 ## `decor` — filling the top and bottom
 
 ```jsonc
-"decor": { "kind": "rays",              // rays | arcs | blobs | grid | none
+"decor": { "kind": "rays",              // rays | arcs | blobs | grid | orbit | frame | lines | cross | bars | none
            "corners": ["top-left", "bottom-right"],
            "opacity": 0.1, "scale": 0.8 }
 ```
 
-Set it on the deck for a default and override it per scene. **Leave it out entirely and
+`frame`, `lines`, `cross` and `bars` treat the whole edge (brackets, hairlines, registration
+marks, a barcode strip); `lines` and `bars` take their edge from the first corner.
+
+Set it on the deck for a layer under every scene, or per scene. **Leave it out entirely and
 the seed picks** the family and the corners per scene, so the border treatment differs
 between scenes and between videos without you choosing anything.
 

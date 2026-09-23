@@ -9,6 +9,7 @@ Copy one, replace every `REPLACE`, then `mk remotion validate` before rendering.
 | `footage-short.json` | **the usual one** — the creator's screen recordings, framed in mockups |
 | `studio-short.json` | the reference grammar: chips, diagram, flow, mock + flowing captions |
 | `makers-skill.json` | a finished 11-scene short with real logos, a CTA and per-scene decor |
+| `bw-tool-short.json` | **the channel format**: black and white, a different `decor` on every scene, `say` lines for `mk narrate`, real-footage beats |
 
 `footage-short.json` is the template to reach for when rushes exist. Put the clips in
 `public/shots/`, then `mk remotion validate` measures each one and tells you whether the
@@ -18,4 +19,11 @@ scene will freeze before you spend minutes on a render.
 mk remotion deck .maker/projects/<slug>/deck.json --template tool-short
 mk remotion validate .maker/projects/<slug>/deck.json
 mk remotion sheet .maker/projects/<slug>/deck.json -o out/sheet.png
+```
+
+For `bw-tool-short.json` the voice drives the timing — write the `say` lines, then:
+
+```bash
+mk narrate deck.json -o voice/vo.wav --voice am_michael --speed 1.15   # rewrites the durations
+mk compose -o assets/bed.wav --deck deck.json --prog dm --seed 11
 ```

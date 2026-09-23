@@ -3,9 +3,11 @@
 
 Order of preference, best-quality-that-is-actually-available first:
   1. ELEVENLABS_API_KEY  — best delivery; only when the creator hands over a key
-  2. kokoro              — local, Apache-2.0, 82M params, CPU-fast, 54 voices
+  2. kokoro              — local, Apache-2.0, 82M params, CPU-fast, 54 voices;
+                           the best offline choice (am_michael for a male English read)
   3. piper               — local, tiny, real-time even on a Pi
-  4. edge-tts            — free, no key, needs network (unofficial endpoint)
+  4. edge-tts            — free, no key, needs network (unofficial endpoint); it speaks
+                           over a WebSocket, so it fails behind most corporate/agent proxies
   5. say / espeak-ng     — last resort, robotic; flag it to the creator
 """
 from __future__ import annotations
@@ -63,12 +65,15 @@ def say_elevenlabs(text: str, out: Path, voice: str, model: str) -> Path:
     return out
 
 
-def say_kokoro(text: str, out: Path, voice: str) -> Path:
+def say_kokoro(text: str, out: Path, voice: str, speed: float = 1.0) -> Path:
     import soundfile as sf  # noqa
     from kokoro import KPipeline
-    lang = (voice or "af_heart")[0]
-    pipe = KPipeline(lang_code=lang)
-    chunks = [audio for _, _, audio in pipe(text, voice=voice or "af_heart")]
+    import contextlib
+    lang = (voice or "am_michael")[0]
+    # kokoro's loader prints to stdout, which would corrupt the JSON this command emits
+    with contextlib.redirect_stdout(sys.stderr):
+        pipe = KPipeline(lang_code=lang)
+        chunks = [audio for _, _, audio in pipe(text, voice=voice or "am_michael", speed=speed)]
     if not chunks:
         die("kokoro produced no audio")
     import numpy as np
@@ -84,6 +89,8 @@ def main():
     ap.add_argument("--engine", default="auto", choices=["auto", *ENGINES])
     ap.add_argument("--lang", default="fr")
     ap.add_argument("--rate", default="+0%", help="edge-tts speaking rate, e.g. +8%%")
+    ap.add_argument("--speed", type=float, default=1.0,
+                    help="kokoro/piper pace; 1.1–1.2 reads as energetic")
     ap.add_argument("--model", default="eleven_multilingual_v2")
     ap.add_argument("--lufs", type=float, default=-16.0)
     ap.add_argument("--list", action="store_true")
@@ -129,13 +136,16 @@ def main():
             if eng == "elevenlabs":
                 say_elevenlabs(text, raw, a.voice, a.model)
             elif eng == "kokoro":
-                say_kokoro(text, raw.with_suffix(".wav"), a.voice); raw = raw.with_suffix(".wav")
+                say_kokoro(text, raw.with_suffix(".wav"), a.voice, a.speed); raw = raw.with_suffix(".wav")
             elif eng == "piper":
                 model = a.voice or os.environ.get("PIPER_VOICE", "")
                 if not model:
                     raise RuntimeError("piper needs --voice /path/to/voice.onnx")
-                p = run(["piper", "--model", model, "--output_file", str(raw.with_suffix(".wav"))],
-                        timeout=600, check=False)
+                # piper reads the text on stdin; without it the call produced nothing
+                import subprocess
+                p = subprocess.run(["piper", "--model", model, "--length_scale", f"{1 / a.speed:.3f}",
+                                    "--output_file", str(raw.with_suffix(".wav"))],
+                                   input=text, text=True, capture_output=True, timeout=600)
                 raw = raw.with_suffix(".wav")
                 if not raw.exists():
                     raise RuntimeError(p.stderr or "piper produced nothing")

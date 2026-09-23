@@ -1,0 +1,359 @@
+{
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "theme": "dark",
+  "baseSize": 0.058,
+  "brand": {
+    "accent": "#FFFFFF"
+  },
+  "seed": "REPLACE-slug",
+  "zoom": 0.04,
+  "scenes": [
+    {
+      "type": "textStack",
+      "duration": 1.96,
+      "reveal": "word",
+      "anim": "snap",
+      "decor": {
+        "kind": "cross",
+        "opacity": 0.05
+      },
+      "lines": [
+        {
+          "t": "REPLACE small",
+          "w": "medium",
+          "s": 0.8,
+          "c": "muted"
+        },
+        {
+          "t": "REPLACE hook?",
+          "w": "black",
+          "s": 1.55
+        }
+      ],
+      "say": "REPLACE the hook question?"
+    },
+    {
+      "type": "chips",
+      "duration": 1.81,
+      "size": 0.26,
+      "decor": {
+        "kind": "orbit",
+        "corners": [
+          "top-left",
+          "bottom-right"
+        ],
+        "opacity": 0.06
+      },
+      "items": [
+        {
+          "icon": "logos/REPLACE.svg",
+          "accent": true
+        }
+      ],
+      "rich": "**REPLACE** does the thing",
+      "say": "REPLACE names the product. And the promise."
+    },
+    {
+      "type": "textStack",
+      "duration": 1.51,
+      "variant": "scale",
+      "decor": {
+        "kind": "bars",
+        "corners": [
+          "bottom-left"
+        ],
+        "opacity": 0.06
+      },
+      "lines": [
+        {
+          "t": "REPLACE",
+          "w": "medium",
+          "s": 0.8,
+          "c": "muted"
+        },
+        {
+          "t": "REPLACE.",
+          "w": "black",
+          "s": 1.7
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "duration": 3.29,
+      "value": "REPLACE",
+      "label": "GitHub stars",
+      "sub": "REPLACE",
+      "countUp": true,
+      "decor": {
+        "kind": "frame",
+        "opacity": 0.05
+      },
+      "say": "REPLACE the number, spelled out."
+    },
+    {
+      "type": "code",
+      "duration": 2.52,
+      "title": "terminal",
+      "prompt": "$",
+      "decor": {
+        "kind": "lines",
+        "corners": [
+          "top-left"
+        ],
+        "opacity": 0.06
+      },
+      "lines": [
+        "$ REPLACE install",
+        "  REPLACE output",
+        "$ REPLACE run",
+        "  → REPLACE"
+      ],
+      "say": "REPLACE how fast it is to start."
+    },
+    {
+      "type": "media",
+      "duration": 2.45,
+      "frame": "browser",
+      "scale": 0.9,
+      "float": 6,
+      "tilt": 3,
+      "decor": {
+        "kind": "arcs",
+        "corners": [
+          "top-right",
+          "bottom-left"
+        ],
+        "opacity": 0.06
+      },
+      "media": {
+        "src": "shots/REPLACE.mp4",
+        "in": 0,
+        "out": 3,
+        "speed": 1.0
+      },
+      "rich": "REPLACE **the demo**",
+      "say": "REPLACE over the real footage."
+    },
+    {
+      "type": "diagram",
+      "duration": 2.79,
+      "layout": "fan",
+      "connector": "dashed",
+      "decor": {
+        "kind": "grid",
+        "opacity": 0.07
+      },
+      "hub": {
+        "icon": "logos/REPLACE.svg",
+        "accent": true
+      },
+      "nodes": [
+        {
+          "icon": "logos/REPLACE.svg",
+          "label": "REPLACE"
+        },
+        {
+          "icon": "logos/REPLACE.svg",
+          "label": "REPLACE"
+        },
+        {
+          "icon": "logos/REPLACE.svg",
+          "label": "REPLACE"
+        },
+        {
+          "icon": "logos/REPLACE.svg",
+          "label": "REPLACE"
+        }
+      ],
+      "rich": "**REPLACE**, one interface",
+      "say": "REPLACE what it connects to."
+    },
+    {
+      "type": "bullets",
+      "duration": 3.15,
+      "decor": {
+        "kind": "cross",
+        "opacity": 0.05
+      },
+      "heading": [
+        {
+          "t": "it can",
+          "w": "medium",
+          "s": 0.8,
+          "c": "muted"
+        }
+      ],
+      "items": [
+        {
+          "icon": "folder",
+          "label": "REPLACE",
+          "sub": "REPLACE"
+        },
+        {
+          "icon": "cloud",
+          "label": "REPLACE",
+          "sub": "REPLACE"
+        },
+        {
+          "icon": "chat",
+          "label": "REPLACE",
+          "sub": "REPLACE"
+        }
+      ],
+      "say": "REPLACE three things it does."
+    },
+    {
+      "type": "mock",
+      "duration": 1.99,
+      "kind": "prompt",
+      "decor": {
+        "kind": "rays",
+        "corners": [
+          "bottom-right"
+        ],
+        "opacity": 0.05
+      },
+      "text": "REPLACE a real prompt.",
+      "badge": "REPLACE",
+      "meta": "REPLACE",
+      "chip": {
+        "icon": "lock",
+        "accent": true
+      },
+      "rich": "REPLACE the **privacy** point",
+      "say": "REPLACE the reassurance."
+    },
+    {
+      "type": "compare",
+      "duration": 2.0,
+      "decor": {
+        "kind": "frame",
+        "opacity": 0.05
+      },
+      "left": {
+        "label": "REPLACE paid option",
+        "items": [
+          "REPLACE",
+          "REPLACE",
+          "REPLACE"
+        ]
+      },
+      "right": {
+        "label": "REPLACE",
+        "items": [
+          "Free",
+          "REPLACE",
+          "REPLACE"
+        ]
+      },
+      "say": "REPLACE the contrast, short."
+    },
+    {
+      "type": "marquee",
+      "duration": 2.93,
+      "rows": 2,
+      "speed": 90,
+      "decor": {
+        "kind": "lines",
+        "corners": [
+          "bottom-right"
+        ],
+        "opacity": 0.06
+      },
+      "lines": [
+        {
+          "t": "and a lot",
+          "w": "medium",
+          "s": 0.8,
+          "c": "muted"
+        },
+        {
+          "t": "more",
+          "w": "black",
+          "s": 2.0
+        }
+      ],
+      "items": [
+        "REPLACE",
+        "REPLACE",
+        "REPLACE",
+        "REPLACE",
+        "REPLACE",
+        "REPLACE"
+      ],
+      "say": "REPLACE plus the long tail of features."
+    },
+    {
+      "type": "media",
+      "duration": 1.46,
+      "frame": "browser",
+      "scale": 0.9,
+      "float": 6,
+      "tilt": -3,
+      "decor": {
+        "kind": "orbit",
+        "corners": [
+          "top-right"
+        ],
+        "opacity": 0.06
+      },
+      "media": {
+        "src": "shots/REPLACE.mp4",
+        "in": 0.3,
+        "out": 2.3
+      },
+      "rich": "REPLACE **who it is for**",
+      "say": "REPLACE who it is for."
+    },
+    {
+      "type": "cta",
+      "duration": 2.8,
+      "decor": {
+        "kind": "blobs",
+        "corners": [
+          "top-left",
+          "bottom-right"
+        ],
+        "opacity": 0.08
+      },
+      "actions": [
+        {
+          "icon": "bell",
+          "label": "Follow",
+          "accent": true
+        }
+      ],
+      "rich": "a new ==open source== project every week",
+      "say": "Follow for a new open source project every week!"
+    },
+    {
+      "type": "outro",
+      "duration": 2.0,
+      "decor": {
+        "kind": "bars",
+        "corners": [
+          "top-left"
+        ],
+        "opacity": 0.06
+      },
+      "lines": [
+        {
+          "t": "try it at",
+          "w": "medium",
+          "s": 0.8,
+          "c": "muted"
+        },
+        {
+          "t": "REPLACE.com",
+          "w": "black",
+          "s": 1.5
+        }
+      ],
+      "handle": "github.com/REPLACE/REPLACE",
+      "say": ""
+    }
+  ]
+}

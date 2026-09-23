@@ -1,5 +1,6 @@
 import React from "react";
 import { useCurrentFrame, useVideoConfig } from "remotion";
+import { useLayoutWidth } from "../layout";
 import { Stage } from "../components/Stage";
 import { Glyph } from "../components/Glyph";
 import { TypeStack } from "../components/Type";
@@ -11,7 +12,8 @@ import type { SceneProps } from "./types";
  *  what turns a list into a mechanism. */
 export const Flow: React.FC<SceneProps<"flow">> = ({ scene, theme, base, font }) => {
   const frame = useCurrentFrame();
-  const { fps, width } = useVideoConfig();
+  const { fps } = useVideoConfig();
+  const width = useLayoutWidth();
   const card = enter(frame, fps, 0, "snap");
   const W = width * 0.8;
 

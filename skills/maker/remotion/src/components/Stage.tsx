@@ -1,5 +1,6 @@
 import React from "react";
-import { AbsoluteFill } from "remotion";
+import { AbsoluteFill, useVideoConfig } from "remotion";
+import { useLayoutWidth } from "../layout";
 import { Rich } from "./Rich";
 import { justify, type Scene } from "../deck";
 import type { Theme } from "../theme";
@@ -13,13 +14,17 @@ export const Stage: React.FC<{
   font: string;
   gap?: number;
   children: React.ReactNode;
-}> = ({ scene, theme, base, font, gap = 0.95, children }) => (
+}> = ({ scene, theme, base, font, gap = 0.95, children }) => {
+  // keep full-width children (lists, comparisons) inside the layout column on landscape
+  const { width } = useVideoConfig();
+  const side = (width - useLayoutWidth()) / 2 + base * 0.7;
+  return (
   <AbsoluteFill
     style={{
       justifyContent: justify(scene.anchor ?? "center"),
       alignItems: "center",
       gap: base * gap,
-      padding: `${base * 1.3}px ${base * 0.7}px`,
+      padding: `${base * 1.3}px ${side}px`,
     }}
   >
     {children}
@@ -34,4 +39,5 @@ export const Stage: React.FC<{
       />
     ) : null}
   </AbsoluteFill>
-);
+  );
+};

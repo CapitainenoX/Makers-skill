@@ -1,5 +1,6 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
+import { useColumnInset, useLayoutWidth } from "../layout";
 import { TypeStack } from "../components/Type";
 import { Media as MediaEl } from "../components/Media";
 import { Device, useFloat } from "../components/Device";
@@ -12,7 +13,9 @@ import type { SceneProps } from "./types";
  *  This is how a rush stops looking like a rush. */
 export const MediaScene: React.FC<SceneProps<"media">> = ({ scene, theme, base, font }) => {
   const frame = useCurrentFrame();
-  const { fps, width } = useVideoConfig();
+  const inset = useColumnInset();
+  const { fps } = useVideoConfig();
+  const width = useLayoutWidth();
   const p = enter(frame, fps, scene.lines ? 4 : 0, "snap");
   const drift = useFloat(scene.float ?? 0, scene.tilt ?? 0);
   const kind = scene.frame ?? "card";
@@ -61,7 +64,7 @@ export const MediaScene: React.FC<SceneProps<"media">> = ({ scene, theme, base, 
         alignItems: "center",
         flexDirection: top ? "column" : "column-reverse",
         gap: base * 0.7,
-        padding: `${base * 1.6}px ${base * 0.8}px`,
+        padding: `${base * 1.6}px ${inset + base * 0.8}px`,
       }}
     >
       {scene.lines ? (

@@ -1,5 +1,6 @@
 import React from "react";
 import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
+import { useColumnInset, useLayoutWidth } from "../layout";
 import { TypeStack } from "../components/Type";
 import { enter, rise } from "../motion";
 import { Device, useFloat } from "../components/Device";
@@ -12,7 +13,9 @@ import type { SceneProps } from "./types";
  *  looking pasted onto the page. */
 export const Card: React.FC<SceneProps<"card">> = ({ scene, theme, base, font }) => {
   const frame = useCurrentFrame();
-  const { fps, width } = useVideoConfig();
+  const inset = useColumnInset();
+  const { fps } = useVideoConfig();
+  const width = useLayoutWidth();
   const p = enter(frame, fps, scene.lines ? 5 : 0, "snap");
   const g = scene.gradient ?? ["#A9A6D8", "#8FB4DE"];
   const drift = useFloat(scene.float ?? 0, scene.tilt ?? 0);
@@ -36,7 +39,7 @@ export const Card: React.FC<SceneProps<"card">> = ({ scene, theme, base, font })
         justifyContent: justify(scene.anchor),
         alignItems: "center",
         gap: base * 0.7,
-        padding: `${base * 1.6}px ${base * 0.8}px`,
+        padding: `${base * 1.6}px ${inset + base * 0.8}px`,
       }}
     >
       {scene.lines ? (
