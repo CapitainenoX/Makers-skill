@@ -3,7 +3,10 @@
 ```jsonc
 {
   "width": 1080, "height": 1920, "fps": 30,
-  "theme": "light",                       // light | paper | dark | ink
+  "style": "mono",                        // mono (default, strict black & white) | color
+  "hud": true,                            // scene counter + handle + progress bar (mono default)
+  "ghost": true,                          // giant outlined keyword behind scenes (mono default)
+  "theme": "light",                       // light | paper | dark | ink  (mono: light or dark)
   "typeset": "studio",                    // studio | editorial | impact | tech | playful
   "baseSize": 0.058,                      // type scale as a fraction of width
   "brand": { "accent": "#D97757", "font": "", "watermark": "yourhandle" },
@@ -52,6 +55,8 @@ full URL. Copy assets into `.maker/remotion/public/` before referencing them.
 | `backdrop` | override the deck backdrop for this scene |
 | `transition` | how this scene arrives — see below. Omit it and the harness picks |
 | `textFx` | `rise` `mask` `blur` `pop` `slide` `type` — how the words arrive. Omit it and it rotates within the motion language |
+| `invert` | the negative of the deck: black page, white ink. Omitted, `mk remotion` inverts big-type beats on a rhythm in the mono style |
+| `ghost` | the outlined keyword behind the scene, or `false`. Default: the first bold word, else the label / value / title |
 | `captionAt` | `below` (default) or `above` — flips the visual/caption order, a cheap way to change a scene's silhouette |
 | `layers` | complementary elements over the scene — see below |
 

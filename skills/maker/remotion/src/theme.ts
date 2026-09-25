@@ -72,9 +72,31 @@ export const THEMES: Record<ThemeName, BaseTheme> = {
   },
 };
 
-export const buildTheme = (name: ThemeName | undefined, accent?: string): Theme => {
-  const base = THEMES[name ?? "light"] ?? THEMES.light;
-  const acc = accent || base.accent;
+/** The black-and-white look: pure white paper, pure black ink, greys in between, and
+ *  its negative for inverted scenes. No accent colour at all — emphasis comes from
+ *  weight, size, the serif, the marker box and inversion. */
+export const MONO: Record<"light" | "dark", BaseTheme> = {
+  light: {
+    bg: "#FFFFFF", surface: "#FFFFFF", text: "#0A0A0A", muted: "#6E6E6E", accent: "#0A0A0A",
+    shadowStrong: "0 26px 64px rgba(0,0,0,0.16)",
+    shadowSoft: "0 1px 3px rgba(0,0,0,0.10), 0 0 0 1px rgba(0,0,0,0.06)",
+  },
+  dark: {
+    bg: "#0A0A0A", surface: "#171717", text: "#FAFAFA", muted: "#9A9A9A", accent: "#FAFAFA",
+    shadowStrong: "0 28px 70px rgba(0,0,0,0.6)",
+    shadowSoft: "0 1px 3px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.10)",
+  },
+};
+
+export const buildTheme = (name: ThemeName | undefined, accent?: string, mono = false,
+                           invert = false): Theme => {
+  const dark0 = name === "dark" || name === "ink";
+  const base = mono
+    ? MONO[dark0 !== invert ? "dark" : "light"]
+    : invert
+      ? THEMES[isDark(THEMES[name ?? "light"]?.bg) ? "light" : "dark"]
+      : THEMES[name ?? "light"] ?? THEMES.light;
+  const acc = mono ? base.text : accent || base.accent;
   const dark = isDark(base.bg);
   // An accent that equals the page (black on a black theme, white on white) is not an
   // accent at all; fall back to the ink so emphasis never disappears.

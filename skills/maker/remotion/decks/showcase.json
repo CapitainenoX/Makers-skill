@@ -2,7 +2,6 @@
   "seed": "showcase",
   "theme": "light",
   "brand": {
-    "accent": "#D97757",
     "watermark": "github.com/you/repo"
   },
   "motion": {

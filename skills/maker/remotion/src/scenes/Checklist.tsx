@@ -25,7 +25,7 @@ export const Checklist: React.FC<SceneProps<"checklist">> = ({ scene }) => {
           const tick = interpolate(frame, [d + 6, d + 6 + Math.round(fps * 0.22)], [0, 1], {
             extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) });
           const ok = it.done !== false;
-          const color = ok ? theme.accent : "#E5484D";
+          const color = ok ? theme.accent : kit.mono ? theme.muted : "#E5484D";
           return (
             <div key={i} style={{ ...arrive(d, base * 0.5, "snap"), display: "flex", alignItems: "center",
               gap: base * 0.36 }}>

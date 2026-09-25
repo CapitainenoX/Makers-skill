@@ -16,7 +16,7 @@ export const Code: React.FC<SceneProps<"code">> = ({ scene }) => {
   const { kit, fps, frame, arrive } = useAnim();
   const { theme, fonts, base } = kit;
   const prompt = scene.prompt ?? "$";
-  const bg = theme.dark ? "#050506" : "#15161A";
+  const bg = theme.dark ? "#1A1A1A" : "#141414";
   const fg = "#EDEDE9";
   const dim = "rgba(237,237,233,0.6)";
   const typing = scene.typing !== false;
@@ -38,11 +38,11 @@ export const Code: React.FC<SceneProps<"code">> = ({ scene }) => {
       gap: base * 0.8, padding: `${base * 1.4}px ${base * 0.7}px` }}>
       <div style={{ ...arrive(0, base * 0.8, "snap", { from: 0.94 }), width: width * 0.9,
         borderRadius: base * 0.42, background: bg, overflow: "hidden",
-        boxShadow: `${theme.shadowStrong}, 0 0 0 1px rgba(255,255,255,0.06)` }}>
+        boxShadow: `${theme.shadowStrong}, 0 0 0 1px rgba(255,255,255,${theme.dark ? 0.16 : 0.06})` }}>
         <div style={{ display: "flex", alignItems: "center", gap: base * 0.16,
           padding: `${base * 0.3}px ${base * 0.36}px`, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
-          {["#FF5F57", "#FEBC2E", "#28C840"].map((c) => (
-            <span key={c} style={{ width: base * 0.17, height: base * 0.17, borderRadius: 999, background: c }} />
+          {(kit.mono ? ["#5A5A5A", "#5A5A5A", "#5A5A5A"] : ["#FF5F57", "#FEBC2E", "#28C840"]).map((c, k) => (
+            <span key={k} style={{ width: base * 0.17, height: base * 0.17, borderRadius: 999, background: c }} />
           ))}
           {scene.title ? (
             <span style={{ marginLeft: base * 0.2, fontFamily: fonts.mono, fontSize: base * 0.28,
@@ -59,12 +59,12 @@ export const Code: React.FC<SceneProps<"code">> = ({ scene }) => {
             const typingNow = isCmd && frame < start + len;
             const isLast = i === plan.length - 1 || frame < plan[i + 1].start;
             return (
-              <div key={i} style={{ fontFamily: fonts.mono, fontSize: base * 0.5, lineHeight: 1.4,
+              <div key={i} style={{ fontFamily: fonts.mono, fontSize: base * (scene.lines.length <= 3 ? 0.6 : 0.5), lineHeight: 1.4,
                 color: isCmd ? fg : dim, whiteSpace: "pre-wrap", wordBreak: "break-word",
                 opacity: isCmd ? 1 : Math.min(1, (frame - start) / 4) }}>
                 {isCmd ? (
                   <>
-                    <span style={{ color: theme.accent === theme.text ? "#7EE787" : theme.accent }}>{prompt}</span>
+                    <span style={{ color: kit.mono || theme.accent === theme.text ? (kit.mono ? "#8A8A8A" : "#7EE787") : theme.accent }}>{prompt}</span>
                     {shown.slice(prompt.length)}
                   </>
                 ) : shown}

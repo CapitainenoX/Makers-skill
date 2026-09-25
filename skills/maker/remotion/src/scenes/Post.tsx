@@ -80,7 +80,7 @@ export const Post: React.FC<SceneProps<"post">> = ({ scene }) => {
           paddingTop: base * 0.3 }}>
           {metric("comment", scene.replies, theme.muted)}
           {metric("share", scene.reposts, theme.muted)}
-          {metric("heart", scene.likes, liked ? "#E5484D" : theme.muted, heart)}
+          {metric("heart", scene.likes, liked ? (kit.mono ? theme.text : "#E5484D") : theme.muted, heart)}
         </div>
       </div>
       <RichCaption scene={scene} />

@@ -24,6 +24,8 @@ export type KitValue = {
   textFx: TextFx;
   /** logo colouring policy for the deck */
   logos: "auto" | "brand" | "mono";
+  /** black-and-white style: no colour anywhere, emphasis by weight and inversion */
+  mono: boolean;
 };
 
 export const Kit = React.createContext<KitValue>({
@@ -35,6 +37,7 @@ export const Kit = React.createContext<KitValue>({
   language: "clean",
   textFx: "rise",
   logos: "auto",
+  mono: true,
 });
 
 export const useKit = () => useContext(Kit);

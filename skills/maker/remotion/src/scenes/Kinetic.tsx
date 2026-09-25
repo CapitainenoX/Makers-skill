@@ -42,8 +42,10 @@ export const Kinetic: React.FC<SceneProps<"kinetic">> = ({ scene, durationInFram
               textTransform: !serif && fonts.displayUpper ? "uppercase" : "none",
               fontSize: serif ? size * 1.08 : size,
               letterSpacing: serif ? "-0.02em" : `${fonts.displayTracking}em`,
-              color: t.em === "accent" ? theme.accentInk
+              color: t.em === "accent" ? (kit.mono ? theme.bg : theme.accentInk)
                 : t.em === "plain" && hasBold ? theme.muted : theme.text,
+              ...(t.em === "accent" && kit.mono ? { background: theme.text, padding: "0 0.08em",
+                boxDecorationBreak: "clone" as const } : {}),
             }}>{t.text}</span>
           </React.Fragment>
         );

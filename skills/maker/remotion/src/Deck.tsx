@@ -10,6 +10,9 @@ import { useFonts } from "./components/Fonts";
 import { Decor } from "./components/Decor";
 import { Backdrop } from "./components/Backdrop";
 import { Watermark } from "./components/Watermark";
+import { Ghost } from "./components/Ghost";
+import { Hud } from "./components/Hud";
+import { parse } from "./text";
 import { MotionBlurDefs } from "./components/MotionBlur";
 import { Layers } from "./components/Layers";
 import { Kit, TEXT_FX, useKit, type KitValue, type MotionLanguage } from "./kit";
@@ -32,12 +35,13 @@ const SceneFrame: React.FC<{
   isLast: boolean;
   deckDecor: DeckType["decor"];
   deckBackdrop: DeckType["backdrop"];
+  ghost?: string;
   children: React.ReactNode;
 }> = ({ scene, index, seed, zoom, frames, inT, inFrames, outT, outFrames, isLast,
-        deckDecor, deckBackdrop, children }) => {
+        deckDecor, deckBackdrop, ghost, children }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
-  const { theme, blur } = useKit();
+  const { theme, blur, mono } = useKit();
 
   // Alternating push-in and pull-out across the deck, so the drift itself is not monotone.
   // A pull-out starts slightly in and settles at 1 — the frame never shrinks below its
@@ -78,7 +82,10 @@ const SceneFrame: React.FC<{
     <AbsoluteFill>
       <AbsoluteFill style={{ ...phase, opacity: phaseOpacity * fadeOut, overflow: "hidden" }}>
         <Backdrop kind={scene.backdrop ?? deckBackdrop} bg={scene.bg ?? theme.bg} index={index} />
-        <Decor spec={scene.decor ?? deckDecor} theme={theme} seed={seed} index={index + 1} />
+        {scene.decor || deckDecor || !mono
+          ? <Decor spec={scene.decor ?? deckDecor} theme={theme} seed={seed} index={index + 1} />
+          : null}
+        <Ghost text={ghost} index={index + seed} />
         <AbsoluteFill
           style={{
             opacity: v.opacity as number,
@@ -97,10 +104,37 @@ const SceneFrame: React.FC<{
   );
 };
 
+/** The word a scene is about, for its ghost: an explicit `ghost`, else the first bold
+ *  word of its sentence, else its label / value / title. Scenes that are already big
+ *  type, or already full of images, get none. */
+const NO_GHOST = new Set(["kinetic", "chapter", "split", "gallery", "tiles", "beforeAfter", "focus"]);
+const ghostFor = (scene: Scene, on: boolean): string | undefined => {
+  if (scene.ghost === false) return undefined;
+  if (typeof scene.ghost === "string") return scene.ghost;
+  if (!on || NO_GHOST.has(scene.type)) return undefined;
+  if (scene.type === "media" && (scene.frame ?? "card") === "full") return undefined;
+  const any = scene as Record<string, unknown>;
+  if (scene.type === "stat") return String(scene.value);
+  const bold = scene.rich ? parse(scene.rich).find((t) => t.em === "bold" || t.em === "accent" || t.em === "mark") : undefined;
+  if (bold) return bold.text.replace(/[^\p{L}\p{N}]/gu, "");
+  for (const k of ["label", "title", "value"]) {
+    if (typeof any[k] === "string" && (any[k] as string).length <= 14) return any[k] as string;
+  }
+  // a heading's last word ("il fait tout" -> "tout")
+  const head = (any.heading ?? any.lines) as { t?: string }[] | undefined;
+  const t = Array.isArray(head) ? head.map((l) => l?.t).filter(Boolean).pop() : undefined;
+  return t ? String(t).split(/\s+/).pop() : undefined;
+};
+
 export const Deck: React.FC<DeckType> = (deck) => {
   const { width, durationInFrames, fps } = useVideoConfig();
   const seed = seedOf(deck.seed);
-  const theme = buildTheme(deck.theme ?? DEFAULTS.theme, deck.brand?.accent);
+  // Black and white is the house style; `style: "color"` opts into the accent.
+  const mono = (deck.style ?? "mono") === "mono";
+  const theme = buildTheme(deck.theme ?? DEFAULTS.theme, deck.brand?.accent, mono);
+  const inverted = deck.scenes.map((s) => !!s.invert);
+  const themeFor = (i: number) => inverted[i]
+    ? buildTheme(deck.theme ?? DEFAULTS.theme, deck.brand?.accent, mono, true) : theme;
   const { fonts, ready } = useFonts(deck.typeset, deck.brand?.font);
   const base = width * (deck.baseSize ?? DEFAULTS.baseSize);
   const language = deck.motion?.language ?? LANGUAGES[seed % LANGUAGES.length];
@@ -108,7 +142,8 @@ export const Deck: React.FC<DeckType> = (deck) => {
     theme, fonts, base, seed, language,
     blur: deck.motion?.blur ?? 1,
     textFx: "rise",
-    logos: deck.logos ?? "auto",
+    logos: deck.logos ?? (mono ? "mono" : "auto"),
+    mono,
   };
   const { places } = layout(deck);
 
@@ -126,8 +161,10 @@ export const Deck: React.FC<DeckType> = (deck) => {
           const Renderer = RENDERERS[scene.type] as React.FC<any> | undefined;
           if (!Renderer) return null;
           const fxList = TEXT_FX[language];
+          const sceneTheme = themeFor(i);
           const sceneKit: KitValue = {
             ...kit,
+            theme: sceneTheme,
             textFx: scene.textFx ?? fxList[(i + seed) % fxList.length],
           };
           return (
@@ -147,10 +184,11 @@ export const Deck: React.FC<DeckType> = (deck) => {
                   isLast={i === deck.scenes.length - 1}
                   deckDecor={deck.decor}
                   deckBackdrop={deck.backdrop}
+                  ghost={ghostFor(scene, deck.ghost ?? mono)}
                 >
                   <Renderer
                     scene={scene}
-                    theme={theme}
+                    theme={sceneTheme}
                     base={base}
                     font={fonts.body}
                     fonts={fonts}
@@ -162,7 +200,9 @@ export const Deck: React.FC<DeckType> = (deck) => {
           );
         })}
 
-        <Watermark text={deck.brand?.watermark} theme={theme} base={base} font={fonts.mono} />
+        {deck.hud ?? mono
+          ? <Hud places={places} inverted={inverted} handle={deck.brand?.watermark} />
+          : <Watermark text={deck.brand?.watermark} theme={theme} base={base} font={fonts.mono} />}
 
         {deck.audio?.src ? (
           <Audio

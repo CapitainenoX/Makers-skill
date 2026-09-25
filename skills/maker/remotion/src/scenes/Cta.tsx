@@ -23,7 +23,7 @@ export const Cta: React.FC<SceneProps<"cta">> = ({ scene }) => {
   const { kit, fps, frame, arrive } = useAnim();
   const { theme, fonts } = kit;
   const items: Action[] = scene.actions?.length ? scene.actions : DEFAULTS;
-  const size = width * (scene.size ?? 0.19);
+  const size = width * (scene.size ?? (items.length === 1 ? 0.3 : 0.19));
 
   return (
     <Stage scene={scene}>

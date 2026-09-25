@@ -5,7 +5,6 @@
   "theme": "light",
   "baseSize": 0.058,
   "brand": {
-    "accent": "#D97757",
     "watermark": "REPLACE-handle"
   },
   "decor": {

@@ -17,7 +17,9 @@ export const Card: React.FC<SceneProps<"card">> = ({ scene }) => {
   const { kit, arrive } = useAnim();
   const { theme, base } = kit;
   const tintBase = theme.accent === theme.text ? "#8FA3DE" : theme.accent;
-  const g = scene.gradient ?? [mix(tintBase, "#FFFFFF", 0.35), mix(tintBase, "#8FB4DE", 0.55)];
+  const g = scene.gradient ?? (kit.mono
+    ? (theme.dark ? ["#2A2A2A", "#111111"] : ["#F2F2F2", "#CFCFCF"])
+    : [mix(tintBase, "#FFFFFF", 0.35), mix(tintBase, "#8FB4DE", 0.55)]);
   const drift = useFloat(scene.float ?? 0, scene.tilt ?? 0);
   const media = scene.media ?? scene.src;
   const cardW = width * 0.72;

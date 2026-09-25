@@ -92,6 +92,27 @@ THEMES = {
 }
 
 
+def is_mono(deck: dict) -> bool:
+    """Black and white is the house style; `style: "color"` opts out."""
+    return deck.get("style", "mono") == "mono"
+
+
+def _grey(c: str) -> bool:
+    rgb = parse_hex(c)
+    return bool(rgb) and max(rgb) - min(rgb) <= 10
+
+
+# Scenes that look best as a black slab in the black-and-white style: big type, one
+# number, the ask. Never footage (captures are light) and never two slabs in a row.
+INVERT_PREF = {"kinetic", "stat", "quote", "cta", "versus", "code", "orbit", "post"}
+NEVER_INVERT = {"chapter", "media", "tiles", "gallery", "focus", "beforeAfter", "card",
+                "annotate", "split"}
+# Transitions that blend the two scenes' pixels — grey mush across a black/white flip.
+SOFT_MOVES = {"fade", "blur", "zoom", "slide"}
+HARD_MOVES = ["wipe", "push", "iris", "whip", "blinds"]
+MONO_BACKDROPS = ["plain", "dots", "plain", "lines", "plain", "grain"]
+
+
 def seed_of(seed) -> int:
     """Same 32-bit string hash as motion.ts:seedOf."""
     if isinstance(seed, (int, float)):
@@ -119,12 +140,33 @@ def resolve(deck: dict) -> dict:
     motion = out.setdefault("motion", {})
     lang = language_of(out)
     motion["language"] = lang
+    if is_mono(out):
+        # Rhythm in black and white is inversion: a black slab every few scenes, on the
+        # beats that carry big type or one number, never twice in a row.
+        prev, since = False, 0
+        for i, s in enumerate(scenes):
+            if "invert" in s:
+                prev = bool(s["invert"])
+                since = 0 if prev else since + 1
+                continue
+            t = s.get("type")
+            want = t not in NEVER_INVERT and not prev and (
+                (t in INVERT_PREF and since >= 1) or since >= 3 or (i == 0 and t in INVERT_PREF))
+            s["invert"] = bool(want)
+            prev = s["invert"]
+            since = 0 if prev else since + 1
+        if not out.get("backdrop"):
+            seed0 = seed_of(out.get("seed"))
+            for i, s in enumerate(scenes):
+                if not s.get("backdrop") and not s.get("invert"):
+                    s["backdrop"] = MONO_BACKDROPS[(i + seed0) % len(MONO_BACKDROPS)]
     if motion.get("transitions", "auto") == "cut":
         return out
     seed = seed_of(out.get("seed"))
     pal = PALETTE[lang]
     flashes = sum(1 for s in scenes if (s.get("transition") or {}).get("type") == "flash")
     prev_type = None
+    recent: list[str] = []
     dirs = ["left", "up", "left", "right", "up", "down"]
     for i, s in enumerate(scenes):
         if i == 0:
@@ -150,13 +192,25 @@ def resolve(deck: dict) -> dict:
             k = (seed + i * 3) % len(pal)
             choice = pal[k]
             tries = 0
-            while (choice == prev_type or (choice == "flash" and flashes >= 2)
+            while (choice == prev_type or choice in recent or (choice == "flash" and flashes >= 2)
                    or (choice == "panel" and kind != "chapter" and lang != "graphic")) and tries < 6:
                 k = (k + 1) % len(pal)
                 choice = pal[k]
                 tries += 1
+        # Between a white scene and a black one, a dissolve averages them into grey
+        # mush. A polarity change takes a hard edge: the flip itself is the effect.
+        if is_mono(out) and bool(s.get("invert")) != bool(scenes[i - 1].get("invert")) \
+                and choice in SOFT_MOVES:
+            choice = None
+            for k in range(len(HARD_MOVES)):
+                c = HARD_MOVES[(seed + i + k) % len(HARD_MOVES)]
+                if c not in recent:
+                    choice = c
+                    break
+            choice = choice or "wipe"
         if choice == "flash":
             flashes += 1
+        recent = (recent + [choice])[-2:]
         tr = {"type": choice}
         if choice in ("push", "whip", "slide", "wipe", "blinds", "panel"):
             tr["dir"] = dirs[(seed + i) % len(dirs)]
@@ -293,8 +347,29 @@ def check(deck: dict, public: Path | None) -> tuple[list[str], list[str], list[s
         errors.append(f"theme {theme_name!r} unknown; use one of {sorted(THEMES)}")
         theme_name = "light"
     th = dict(THEMES[theme_name])
+    mono = is_mono(deck)
     accent = (deck.get("brand") or {}).get("accent")
-    if accent:
+    if mono:
+        th["accent"] = th["text"]
+        if accent:
+            warns.append(f"brand.accent {accent} is ignored: the deck is black and white "
+                         f"(style \"mono\", the default). Set \"style\": \"color\" to use it")
+        colours = []
+        for i, s in enumerate(scenes):
+            for ln in (s.get("lines") or []) + (s.get("heading") or []):
+                if isinstance(ln, dict) and parse_hex(ln.get("c") or "") and not _grey(ln["c"]):
+                    colours.append(f"scene {i} line colour {ln['c']}")
+            for l in s.get("layers") or []:
+                if isinstance(l, dict) and parse_hex(l.get("color") or "") and not _grey(l["color"]):
+                    colours.append(f"scene {i} layer colour {l['color']}")
+            if s.get("bg") and parse_hex(s["bg"]) and not _grey(s["bg"]):
+                colours.append(f"scene {i} bg {s['bg']}")
+            if s.get("gradient"):
+                colours.append(f"scene {i} gradient")
+        if colours:
+            warns.append("colour in a black-and-white deck — " + "; ".join(colours[:4]) +
+                         ". It breaks the style: remove it, or set \"style\": \"color\"")
+    elif accent:
         if not parse_hex(accent):
             errors.append(f"brand.accent {accent!r} is not a colour")
         else:
@@ -310,7 +385,7 @@ def check(deck: dict, public: Path | None) -> tuple[list[str], list[str], list[s
         errors.append(f"typeset {deck['typeset']!r} unknown; use one of {sorted(TYPESETS)}")
     if deck.get("backdrop") and deck["backdrop"] not in BACKDROPS:
         errors.append(f"backdrop {deck['backdrop']!r} unknown; use one of {sorted(BACKDROPS)}")
-    logos_policy = deck.get("logos", "auto")
+    logos_policy = deck.get("logos", "mono" if mono else "auto")
     dark = contrast("#ffffff", th["bg"]) > contrast("#000000", th["bg"])
 
     marks = 0
@@ -407,6 +482,8 @@ def check(deck: dict, public: Path | None) -> tuple[list[str], list[str], list[s
             if fill == "brand":
                 continue          # the chip takes the logo's colour; the mark is knocked out
             tint = spec.get("tint") or logos_policy
+            if tint == "mono":
+                continue          # drawn in the ink of whatever it sits on — always reads
             if tint not in ("auto", "brand", "mono", "accent") and parse_hex(tint):
                 c = contrast(tint, surface)
                 if c < 1.6:

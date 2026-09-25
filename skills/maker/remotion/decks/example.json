@@ -5,7 +5,6 @@
   "theme": "light",
   "baseSize": 0.052,
   "brand": {
-    "accent": "#D97757",
     "watermark": "maker-skill"
   },
   "scenes": [
@@ -126,10 +125,6 @@
         }
       ],
       "device": "phone",
-      "gradient": [
-        "#A9A6D8",
-        "#8FB4DE"
-      ],
       "anchor": "top"
     },
     {

@@ -153,6 +153,12 @@ type Base = {
   zoom?: number;
   /** complementary elements over the scene */
   layers?: Layer[];
+  /** the negative: black page, white ink (or the reverse on a dark deck). Left unset,
+   *  `mk remotion` inverts some scenes on a rhythm in the black-and-white style */
+  invert?: boolean;
+  /** the giant outlined word behind the scene; false for none. Defaults to the
+   *  scene's keyword in the black-and-white style */
+  ghost?: string | false;
 };
 
 export const justify = (a?: "top" | "center" | "bottom") =>
@@ -276,7 +282,15 @@ export type Deck = {
      *  "cut": every scene cuts unless it names a transition */
     transitions?: "auto" | "cut";
   };
-  /** how logo files are coloured: auto (brand colour unless unreadable) · brand · mono */
+  /** "mono" (default): strict black and white — no accent, logos in ink, inverted scenes
+   *  for rhythm. "color": the brand accent and logo colours come back */
+  style?: "mono" | "color";
+  /** the editorial frame: scene counter, handle, progress bar (default on in mono) */
+  hud?: boolean;
+  /** giant outlined keyword behind each scene (default on in mono) */
+  ghost?: boolean;
+  /** how logo files are coloured: auto (brand colour unless unreadable) · brand · mono.
+   *  Default mono in the black-and-white style */
   logos?: "auto" | "brand" | "mono";
   scenes: Scene[];
 };

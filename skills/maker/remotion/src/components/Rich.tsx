@@ -35,7 +35,7 @@ export const Rich: React.FC<{
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const { theme, fonts, base, blur, textFx } = useKit();
+  const { theme, fonts, base, blur, textFx, mono } = useKit();
   const effect = fx ?? textFx;
   const tokens = typeof text === "string" ? parse(text) : text;
   const px = base * size;
@@ -61,7 +61,7 @@ export const Rich: React.FC<{
       last.trail = (last.trail ?? "") + t.text;
       return;
     }
-    if ((t.em === "mark" || t.em === "under") && last && last.em === t.em) last.words.push(t.text);
+    if ((t.em === "mark" || t.em === "under" || (t.em === "accent" && mono)) && last && last.em === t.em) last.words.push(t.text);
     else groups.push({ words: [t.text], em: t.em, index: i });
   });
 
@@ -155,7 +155,9 @@ export const Rich: React.FC<{
           );
         }
 
-        if (g.em === "under") {
+        // In black and white an accent colour would be the ink itself — it becomes an
+        // underline instead, so the word is still singled out.
+        if (g.em === "under" || (g.em === "accent" && mono)) {
           // A hand-drawn stroke that draws itself under the words once they have landed.
           const drawStart = d + Math.round(fps * 0.18);
           const draw = interpolate(frame, [drawStart, drawStart + Math.round(fps * 0.34)], [0, 1], {

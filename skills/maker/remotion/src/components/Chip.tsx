@@ -22,9 +22,10 @@ export const Chip: React.FC<{
   fill?: ChipFill;
   tint?: Tint;
 }> = ({ icon, label, size, accent, shape = "circle", fill = "surface", tint }) => {
-  const { theme, fonts } = useKit();
+  const { theme, fonts, mono } = useKit();
+  if (mono && fill === "brand") fill = "ink";
   const file = !!icon && !isBuiltinGlyph(icon);
-  const info = useSvgInfo(file && fill === "brand" ? icon : undefined);
+  const info = useSvgInfo(file && fill === "brand" && !mono ? icon : undefined);
 
   let bg = theme.surface;
   let ink = accent ? theme.accent : theme.text;

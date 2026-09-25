@@ -53,6 +53,16 @@ then delete the rest.
 Then rewrite it from the beat sheet. Full schema, every scene type and every field:
 `references/deck-schema.md`. The house look and its rules: `references/studio-style.md`.
 
+## Black and white by default
+
+`style: "mono"` is the default: white paper, black ink, no colour anywhere — logos are
+drawn in the ink of their surface, accents become underlines or reversed words.
+Rhythm comes from **inversion**: some scenes flip to a black slab (chosen automatically,
+never twice in a row, always joined by a hard-edged transition). Each scene carries a
+**ghost** — its keyword, huge and outlined, drifting behind — and the video wears a
+**HUD** (scene counter, handle, progress bar). `validate` flags any colour that slips
+into a mono deck. `"style": "color"` opts out.
+
 ## The voice: one flowing sentence, emphasis inside it
 
 Before the scene list, the thing that actually defines this look. It is **not** a stack of

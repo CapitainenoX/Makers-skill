@@ -110,8 +110,11 @@ lignes empilées :
 "rich": "every **AI assistant** you have ever used **works** this way"
 ```
 
-Le bloc est **centré**, les bords haut/bas remplis par un `decor` qui déborde et dérive.
-Le style par défaut est **noir sur blanc** ; la couleur s'active avec `brand.accent`.
+Le bloc est **centré**. Le style par défaut est **noir et blanc strict** (`style: "mono"`) :
+aucune couleur, logos dessinés à l'encre, certaines scènes **inversées** en dalle noire
+pour le rythme (jamais deux d'affilée, toujours avec une transition à bord net), un
+**mot fantôme** géant en contour derrière chaque scène et un **HUD** éditorial (compteur,
+pseudo, barre de progression). `"style": "color"` remet l'accent et les couleurs de marque.
 Les marqueurs : `**gras**`, `__accent__`, `*serif italique*`, `~~souligné dessiné~~`,
 `==surligné==`, `[[logos/github.svg]]` (logo dans la phrase). Les mots entrent avec un
 effet qui tourne d'une scène à l'autre (masque, flou, pop, glissé, frappe).

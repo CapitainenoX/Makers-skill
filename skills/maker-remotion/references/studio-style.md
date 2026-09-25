@@ -12,8 +12,26 @@ designed. A deck that is nothing but type carries about 10 seconds — not 30.
 
 ## The rules that make it work
 
+**Black and white, strictly — the house style.** `style: "mono"` is the default: pure
+white paper, pure black ink, greys in between, and no colour anywhere — not in the
+accent, not in the logos (every mark is drawn in the ink of the surface it sits on), not
+in the decor. Emphasis comes from weight, size, the italic serif, the marker box, an
+underline, and **inversion**: every few scenes the frame flips to a black slab with white
+ink (`invert`, placed automatically on the big-type beats — kinetic, stat, quote, cta —
+never twice in a row). The flip itself is the rhythm; between a white and a black scene
+the harness only uses hard-edged transitions (wipe, push, iris, whip, blinds), because a
+dissolve averages the two into grey mush.
+
+Two things fill the frame instead of wallpaper: a **ghost** — the scene's keyword,
+outlined, three times the frame's width, drifting behind the block — and the **HUD**,
+an editorial frame with the scene counter, the handle and a hairline progress bar.
+Corner decor is off in this style.
+
+`"style": "color"` brings the accent, brand-coloured logos and corner decor back; every
+rule below still applies to it.
+
 **Black on white.** That is the default and it is deliberate: `#FFFFFF` background,
-near-black type, one accent that a deck opts into with `brand.accent`. White cards on a
+near-black type; in `style: "color"`, one accent that a deck opts into with `brand.accent`. White cards on a
 white page separate through elevation — a strong shadow and a hairline — not a tinted
 background. The restraint is the style; colour is what you add for one word, one icon,
 one number.
