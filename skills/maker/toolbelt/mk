@@ -101,12 +101,16 @@ case "$cmd" in
   doctor)           bash "$MK_DIR/doctor.sh" "$@" ;;
   init|state|clean) py workspace.py "$cmd" "$@" ;;
   mem|memory)       py memory.py "$@" ;;
-  fetch|music|sfx|gif|stock) py assets.py "$cmd" "$@" ;;
+  sfx)              # `sfx gen|list` synthesise locally; anything else searches online
+                    case "${1:-}" in
+                      gen|list) py sfx.py "$@" ;;
+                      *)        py assets.py sfx "$@" ;;
+                    esac ;;
+  fetch|music|gif|stock) py assets.py "$cmd" "$@" ;;
   probe|scan|transcribe)     py scan.py "$cmd" "$@" ;;
   assemble)         py edl.py "$@" ;;
   remotion)         py remotion.py "$@" ;;
   logo)             py logos.py "$@" ;;
-  sfx)              py sfx.py "$@" ;;
   sound)            py sound.py "$@" ;;
   puter)            py puter.py "$@" ;;
   mix)              py mix.py "$@" ;;

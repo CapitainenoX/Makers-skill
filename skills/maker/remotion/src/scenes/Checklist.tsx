@@ -19,7 +19,7 @@ export const Checklist: React.FC<SceneProps<"checklist">> = ({ scene }) => {
     <AbsoluteFill style={{ justifyContent: justify(scene.anchor), alignItems: "center", gap: base * 0.8,
       padding: `${base * 1.6}px ${base * 0.9}px` }}>
       {scene.heading ? <TypeStack lines={scene.heading} /> : null}
-      <div style={{ display: "flex", flexDirection: "column", gap: base * 0.6, width: "100%" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: base * 0.6, alignSelf: "center" }}>
         {scene.items.map((it, i) => {
           const d = d0 + stagger(i, fps, 150);
           const tick = interpolate(frame, [d + 6, d + 6 + Math.round(fps * 0.22)], [0, 1], {

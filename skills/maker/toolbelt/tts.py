@@ -43,9 +43,13 @@ def available() -> list[str]:
 
 def normalise(raw: Path, out: Path, lufs: float = -16.0) -> Path:
     """Every engine gets levelled the same way so mixes stay predictable."""
+    # the codec follows the extension: PCM into an .mp3 container is refused outright
+    codec = {".mp3": ["-c:a", "libmp3lame", "-b:a", "192k"], ".m4a": ["-c:a", "aac", "-b:a", "192k"],
+             ".ogg": ["-c:a", "libvorbis"], ".opus": ["-c:a", "libopus"]}.get(
+        out.suffix.lower(), ["-c:a", "pcm_s16le"])
     ffmpeg(["-i", str(raw), "-af", f"loudnorm=I={lufs}:TP=-1.5:LRA=9,"
             "aformat=sample_fmts=s16:sample_rates=48000:channel_layouts=mono",
-            "-c:a", "pcm_s16le", str(out)], quiet=True)
+            *codec, str(out)], quiet=True)
     return out
 
 

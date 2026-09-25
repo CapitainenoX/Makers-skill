@@ -36,7 +36,7 @@ export const Code: React.FC<SceneProps<"code">> = ({ scene }) => {
   return (
     <AbsoluteFill style={{ justifyContent: justify(scene.anchor), alignItems: "center",
       gap: base * 0.8, padding: `${base * 1.4}px ${base * 0.7}px` }}>
-      <div style={{ ...arrive(0, base * 0.8, "snap", { from: 0.94 }), width: width * 0.86,
+      <div style={{ ...arrive(0, base * 0.8, "snap", { from: 0.94 }), width: width * 0.9,
         borderRadius: base * 0.42, background: bg, overflow: "hidden",
         boxShadow: `${theme.shadowStrong}, 0 0 0 1px rgba(255,255,255,0.06)` }}>
         <div style={{ display: "flex", alignItems: "center", gap: base * 0.16,
@@ -59,7 +59,7 @@ export const Code: React.FC<SceneProps<"code">> = ({ scene }) => {
             const typingNow = isCmd && frame < start + len;
             const isLast = i === plan.length - 1 || frame < plan[i + 1].start;
             return (
-              <div key={i} style={{ fontFamily: fonts.mono, fontSize: base * 0.42, lineHeight: 1.45,
+              <div key={i} style={{ fontFamily: fonts.mono, fontSize: base * 0.5, lineHeight: 1.4,
                 color: isCmd ? fg : dim, whiteSpace: "pre-wrap", wordBreak: "break-word",
                 opacity: isCmd ? 1 : Math.min(1, (frame - start) / 4) }}>
                 {isCmd ? (

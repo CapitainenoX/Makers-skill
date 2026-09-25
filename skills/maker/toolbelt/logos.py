@@ -52,6 +52,9 @@ ALIASES = {
     "premiere": "adobepremierepro", "premiere pro": "adobepremierepro",
     "after effects": "adobeaftereffects", "photoshop": "adobephotoshop",
     "davinci": "davinciresolve", "resolve": "davinciresolve",
+    "vlc": "vlcmediaplayer", "obs": "obsstudio", "chrome": "googlechrome",
+    "gmail": "gmail", "gdrive": "googledrive", "capcut": "capcut",
+    "kdenlive": "kdenlive", "blender3d": "blender",
 }
 
 LIGHT_SURFACE = "#ffffff"
@@ -175,8 +178,11 @@ def suggest(name: str) -> list[str]:
     by_title = {str(it.get("title", "")).lower(): it.get("slug") for it in cat}
     hits = difflib.get_close_matches(name.lower(), list(by_title), n=4, cutoff=0.6)
     slugs = difflib.get_close_matches(slugify_brand(name), [it.get("slug", "") for it in cat], n=4, cutoff=0.7)
+    # "vlc" is a word of "VLC media player": a whole-word hit beats any fuzzy score
+    words = [it.get("slug") for it in cat
+             if re.search(rf"\b{re.escape(name.lower())}\b", str(it.get("title", "")).lower())]
     out: list[str] = []
-    for s in [by_title[h] for h in hits] + slugs:
+    for s in words[:3] + [by_title[h] for h in hits] + slugs:
         if s and s not in out:
             out.append(s)
     return out[:5]
