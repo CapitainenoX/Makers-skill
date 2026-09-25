@@ -56,31 +56,14 @@
       "rich": "but the **infrastructure** underneath all of it"
     },
     {
-      "type": "diagram",
-      "duration": 2.0,
-      "layout": "cross",
-      "hub": {
-        "icon": "gear"
-      },
-      "nodes": [
-        {
-          "icon": "sparkle",
-          "accent": true
-        },
-        {
-          "icon": "code"
-        },
-        {
-          "icon": "cube"
-        },
-        {
-          "icon": "rocket"
-        },
-        {
-          "icon": "cloud"
-        }
-      ],
-      "rich": "all are incredibly **powerful**"
+      "type": "kinetic",
+      "duration": 1.6,
+      "style": "stack",
+      "lines": [
+        "all of them",
+        "are *incredibly*",
+        "__powerful__"
+      ]
     },
     {
       "type": "flow",
@@ -115,12 +98,17 @@
       "duration": 1.8,
       "text": "Build me a landing page for a hair salon.",
       "badge": "Chat",
-      "meta": "Sonnet 5 · Medium",
+      "meta": "Sonnet 5 \u00b7 Medium",
       "chip": {
         "icon": "sparkle",
         "accent": true
       },
       "rich": "every time you send a **prompt** to an ==assistant=="
+    },
+    {
+      "type": "cta",
+      "duration": 1.8,
+      "rich": "follow for **part two**"
     }
   ]
 }

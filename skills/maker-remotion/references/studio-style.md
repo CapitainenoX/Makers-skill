@@ -62,8 +62,20 @@ is what a viewer feels at scene six without being able to name it.
 one for depth (`0 28px 70px rgba(18,18,15,0.14)`) and a tight one for contact. No borders,
 no gradients on text, no glow.
 
-**Italic for narration.** Lines that are the voice talking ("then you pick any model you
-want") go italic and muted. Lines that are the claim stay upright and black.
+**Italic serif for the voice.** Lines that are the voice talking ("then you pick any
+model you want") go into the italic serif (`i: true`, or `*word*` inside a sentence).
+Lines that are the claim stay upright, grotesque and black. That contrast — a heavy
+grotesque against a light italic serif — is the single cheapest way to look editorial.
+
+**One face per level of importance, never more.** Display for the hook and the numbers,
+body for sentences and labels, serif for the voice, mono for what a machine said (code,
+handles, dates, chart values). The `typeset` decides the four; the renderer assigns them
+by importance. Two display faces in one video is a ransom note.
+
+**Coherence is measured, not hoped for.** Every logo is checked against the chip it sits
+on and redrawn in the ink when its brand colour would vanish; the accent is darkened for
+text when it is too light to read; a chip labelled with one brand holding another's mark
+is flagged. Read `validate`'s `auto_corrected` list before you render.
 
 **Centre the block, fill the edges.** The composition — visual above, sentence below —
 is optically centred. The top and bottom are not left empty: shapes bleed off the corners
@@ -79,7 +91,13 @@ alternating in and out across the deck. A perfectly static frame reads as a slid
 or four percent of drift over two seconds reads as a camera.
 
 **Nothing holds still and nothing is busy.** One element enters per beat, springs into
-place, and stays. No particles, no background video. The one exception is the slow drift
+place, and stays. No particle storms, no background video. One or two complementary
+`layers` — a sticker, an arrow that draws itself, a cursor that clicks — land on their
+own beat after the main block, so the scene keeps moving without getting crowded.
+
+**Fast things smear.** Whips, pushes and anything that travels far in a few frames carry
+directional motion blur. It is the difference between motion that reads as speed and
+motion that reads as a dropped frame. The one exception is the slow drift
 on a framed object (`float: 8`, `tilt: 4`) — a few pixels of movement makes a card read
 as an object in a space rather than a rectangle on a slide.
 
@@ -93,7 +111,7 @@ is right for a card arriving and wrong for a counter: digits that run 1,240 → 
 |---|---|
 | Scene length | 1.4–2.4 s. Over 3 s a single card stops earning its place. |
 | First scene | ≤ 1.5 s, and the biggest type in the video |
-| Transitions | cuts, except a `fade` at a genuine chapter break |
+| Transitions | about half cut; the rest from one motion language, never the same twice in a row |
 | Entrance | `pop` spring, 0.18–0.25 s, with overshoot |
 | List stagger | 75–85 ms per row |
 | Total | 15–40 s |
@@ -109,6 +127,10 @@ is right for a card arriving and wrong for a counter: digits that run 1,240 → 
 
 Six beats, ~13 s. At least two of them must show something moving that is not type.
 Swap 3 and 4 depending on whether proof or breadth is the stronger argument here.
+
+For 20–40 s, add pattern interrupts every 8–10 s: a `kinetic` poster, a `chapter` wall,
+a `split` or `versus`, a `focus` push onto a capture, a `chart`. Change the **family**
+(type, list, logos, footage, number, ui…) at every cut, not just the type.
 
 ## Framing footage
 
@@ -140,7 +162,10 @@ zoom the OS to 125-150% *before recording*, or the UI will not read at phone siz
 ## What breaks it
 
 - More than five lines on screen at once.
-- Three of the same scene type in a row — it stops being an edit.
+- Three of the same scene type in a row — it stops being an edit. Three of the same
+  *silhouette* (chips → orbit → diagram) is the same mistake in disguise.
+- A logo in the wrong colour: black on a dark chip, yellow on white, or recoloured to
+  "match" when the brand colour was the only colour on screen.
 - A display line over ~26 characters: it wraps and the rhythm dies.
 - Stock photography. This look has no photographs in it, only screenshots in device shells.
 - A logo intro. There is no intro; the first frame is the claim.

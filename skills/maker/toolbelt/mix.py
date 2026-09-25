@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse, json, shutil
 from pathlib import Path
 
+import coherence
 import edl
 from _common import (die, emit, ffmpeg, ffprobe_json, home, read_json, run,
                      safe_path, slugify, which, write_json)
@@ -27,6 +28,18 @@ SCENE_SFX = {
     "stat": ("impact", -8), "compare": ("swoosh", -12), "bullets": ("click", -14),
     "code": ("click", -14), "pill": ("pop", -11), "logoList": ("pop", -12),
     "outro": ("impact", -9), "cta": ("impact", -8),
+    "kinetic": ("impact", -9), "chapter": ("impact", -8), "split": ("swipe", -12),
+    "versus": ("impact", -8), "steps": ("click", -13), "timeline": ("swoosh", -13),
+    "checklist": ("click", -13), "chart": ("swoosh", -12), "orbit": ("swoosh", -13),
+    "gallery": ("pop", -11), "focus": ("whoosh", -11), "beforeAfter": ("swipe", -11),
+    "notify": ("pop", -11), "post": ("pop", -12),
+}
+# A moving transition wants the sound of its movement, whatever scene it lands on.
+TRANSITION_SFX = {
+    "whip": ("whoosh", -9), "push": ("swoosh", -12), "slide": ("swoosh", -12),
+    "zoom": ("whoosh", -10), "panel": ("swipe", -10), "wipe": ("swipe", -12),
+    "blinds": ("swipe", -12), "iris": ("swoosh", -13), "flash": ("impact", -8),
+    "blur": ("swoosh", -14), "fade": ("swoosh", -15),
 }
 
 
@@ -100,19 +113,10 @@ def duration_of(path: Path) -> float:
         return 0.0
 
 
-def scene_starts(deck: dict) -> list[tuple[float, str]]:
-    """(start seconds, scene type) honouring fade overlaps, as the renderer lays them out."""
-    fps = deck.get("fps", 30)
-    at, out = 0, []
-    for i, s in enumerate(deck.get("scenes", [])):
-        f = max(1, round(float(s.get("duration", 2)) * fps))
-        tr = s.get("transition") or {}
-        ov = min(round(float(tr.get("duration", 0.3)) * fps), f - 1, at) \
-            if i and tr.get("type") == "fade" else 0
-        start = max(0, at - ov)
-        at = start + f
-        out.append((start / fps, str(s.get("type", ""))))
-    return out
+def scene_starts(deck: dict) -> list[tuple[float, str, str]]:
+    """(start seconds, scene type, transition) as the renderer lays them out: the deck is
+    resolved first, so an automatic whip gets its whoosh."""
+    return coherence.scene_starts(coherence.resolve(deck))
 
 
 def resolve_sfx(name: str, sfx_dir: Path) -> tuple[Path, str]:
@@ -133,8 +137,8 @@ def resolve_sfx(name: str, sfx_dir: Path) -> tuple[Path, str]:
 def auto_sfx(deck: dict, sfx_dir: Path, lead: float = 0.06) -> list[dict]:
     """One one-shot per cut, landing `lead` seconds early — the ear leads the eye."""
     tracks = []
-    for i, (t, kind) in enumerate(scene_starts(deck)):
-        name, gain = SCENE_SFX.get(kind, ("swoosh", -13))
+    for i, (t, kind, move) in enumerate(scene_starts(deck)):
+        name, gain = TRANSITION_SFX.get(move) or SCENE_SFX.get(kind, ("swoosh", -13))
         src, origin = resolve_sfx(name, sfx_dir)
         tracks.append({"type": "sfx", "src": str(src), "origin": origin,
                        "start": max(0.0, t - (lead if i else 0.0)), "gain": gain})

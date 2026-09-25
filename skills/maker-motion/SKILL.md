@@ -102,6 +102,10 @@ Every non-cut must answer "what does this say?":
 | `zoom` | Going deeper into the same subject. |
 | `black` | A hard chapter wall. |
 
+In `maker-remotion` these are real, with directional motion blur on anything fast:
+`cut` `fade` `slide` `push` `whip` `zoom` `blur` `wipe` `iris` `panel` `flash` `blinds`,
+chosen automatically from one motion language per video when the deck leaves them out.
+
 Match-cutting beats any transition: end one shot on a shape and start the next on the same
 shape in the same place. It is free and it looks expensive.
 

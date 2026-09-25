@@ -15,20 +15,10 @@ from pathlib import Path
 
 from _common import (die, emit, ffmpeg, ffprobe_json, home, read_json, run,
                      safe_path, slugify, which, write_json)
+import coherence
+from coherence import SCENE_TYPES, scene_icons, scene_media as _scene_media
 
 TEMPLATE = Path(__file__).resolve().parent.parent / "remotion"
-SCENE_TYPES = {"textStack", "pill", "logoList", "card", "bullets", "stat",
-               "code", "compare", "outro", "media", "tiles", "annotate",
-               "marquee", "quote", "progress", "chips", "diagram", "flow", "mock", "cta"}
-# scenes that can carry footage…
-MEDIA_SCENES = {"card", "media", "tiles", "annotate"}
-# …and the subset that is pointless without it. A `card` with an empty device shell is a
-# deliberate, good-looking choice; an `annotate` with nothing to annotate is not.
-MEDIA_REQUIRED = {"media", "annotate", "tiles"}
-# scenes that actually render the flowing `rich` caption. Setting it elsewhere would do
-# nothing at all, which is worse than an error.
-RICH_SCENES = {"textStack", "chips", "diagram", "flow", "mock", "card", "media",
-               "tiles", "cta"}
 
 # Chromium lookup: reuse whatever the host already has before downloading 150 MB.
 BROWSER_HINTS = [
@@ -143,41 +133,7 @@ def cmd_deck(a):
 # -------------------------------------------------------------------- validate
 def scene_media(s: dict) -> list[tuple[str, dict]]:
     """Every media reference in a scene, normalised to (label, spec)."""
-    out = []
-    def norm(m):
-        return {"src": m} if isinstance(m, str) else (m if isinstance(m, dict) else None)
-    for key in ("media", "src"):
-        m = norm(s.get(key))
-        if m and m.get("src"):
-            out.append((s.get("type", "?"), m))
-    for it in (s.get("items") or []):
-        if isinstance(it, dict):
-            m = norm(it.get("media"))
-            if m and m.get("src"):
-                out.append((s.get("type", "?"), m))
-    return out
-
-
-def scene_icons(s: dict) -> list[str]:
-    """Every icon in a scene that names a file rather than a built-in glyph.
-
-    A glyph is a bare word (`gear`, `sparkle`); anything with a slash or a dot is a path
-    into public/. Missing ones used to sail through validate and then kill the render
-    with a 404 that named a URL, not a fix."""
-    found: list[str] = []
-
-    def take(v):
-        if isinstance(v, str) and ("/" in v or "." in v) and not v.startswith("http"):
-            found.append(v)
-
-    for key in ("hub", "chip"):
-        if isinstance(s.get(key), dict):
-            take(s[key].get("icon"))
-    for key in ("items", "nodes", "steps"):
-        for it in (s.get(key) or []):
-            if isinstance(it, dict):
-                take(it.get("icon"))
-    return found
+    return [(s.get("type", "?"), m) for m in _scene_media(s)]
 
 
 def probe_media(deck: dict, project: Path) -> tuple[list[str], list[str], list[dict]]:
@@ -186,11 +142,6 @@ def probe_media(deck: dict, project: Path) -> tuple[list[str], list[str], list[d
     errors, warns, report = [], [], []
     public = project / "public"
     for i, sc in enumerate(deck.get("scenes") or []):
-        for icon in scene_icons(sc):
-            if not (public / icon).exists():
-                slug = Path(icon).stem
-                errors.append(f"scene {i}: icon not found — {icon}. "
-                              f"Fetch it: mk logo get {slug}")
         for _, m in scene_media(sc):
             src = str(m["src"])
             if src.startswith(("http://", "https://", "data:")):
@@ -261,11 +212,6 @@ def lint(deck: dict) -> tuple[list[str], list[str]]:
         d = float(s.get("duration", 2))
         if d > 3.5 and vertical:
             warns.append(f"scene {i} ({t}) runs {d}s — over ~3s a single card stops earning its place")
-        if s.get("rich") and t not in RICH_SCENES:
-            errors.append(f"scene {i} ({t}): `rich` is not rendered by this scene type. "
-                          f"Use one of {sorted(RICH_SCENES)}, or put the text in `lines`")
-        if t in MEDIA_REQUIRED and not (s.get("media") or s.get("src") or s.get("items")):
-            errors.append(f"scene {i} ({t}): needs a `media` source")
         if t == "tiles":
             n = len(s.get("items") or [])
             if n < 2:
@@ -280,7 +226,8 @@ def lint(deck: dict) -> tuple[list[str], list[str]]:
             if not isinstance(ln, dict):
                 continue                      # `code` scenes hold plain strings
             if float(ln.get("s", 1)) >= 1.4 and len(str(ln.get("t", ""))) > 26:
-                warns.append(f"scene {i}: \"{str(ln['t'])[:30]}…\" is long for a display line — it will wrap")
+                warns.append(f"scene {i}: \"{str(ln['t'])[:30]}…\" is long for a display line — it "
+                             f"will be shrunk to fit the width; shorter reads bigger")
 
     if vertical and total > 60:
         warns.append(f"{total:.1f}s exceeds the 60s Shorts limit")
@@ -306,7 +253,7 @@ def lint(deck: dict) -> tuple[list[str], list[str]]:
     kinds = {s.get("type") for s in scenes}
     if len(kinds) == 1:
         warns.append("every scene is the same type — that is a slideshow, not an edit")
-    has_media = any(scene_media(s) for s in scenes)
+    has_media = any(_scene_media(s) for s in scenes)
     if len(scenes) >= 5 and not has_media:
         warns.append("no scene shows any footage or screenshot — type alone carries a 10s "
                      "video, not a 30s one. Put a screen recording in a card/media/tiles scene")
@@ -325,42 +272,75 @@ def lint(deck: dict) -> tuple[list[str], list[str]]:
     if len(scenes) >= 6 and len([v for v in variants if v]) == 0 and len(kinds) < 5:
         warns.append("few scene shapes and no entrance variation — set `variant` on a few "
                      "scenes, or mix in more types; repetition is what viewers feel")
+    if len(scenes) > 8 and not kinds & {"kinetic", "chapter", "split", "versus", "focus",
+                                         "beforeAfter", "chart", "timeline"}:
+        warns.append("no pattern interrupt — past eight scenes, drop in a `kinetic`, `chapter`, "
+                     "`split`, `versus`, `focus` or `chart` so the back half does not feel like "
+                     "the front half")
     return errors, warns
+
+
+def full_lint(deck: dict, project: Path | None) -> tuple[list[str], list[str], list[str]]:
+    """Pacing lint + coherence check + media probe, in one place."""
+    errors, warns = lint(deck)
+    public = (project / "public") if project else None
+    cerr, cwarn, fixes = coherence.check(deck, public if public and public.exists() else None)
+    errors += cerr
+    warns += cwarn
+    if project and which("ffprobe"):
+        merrors, mwarns, _ = probe_media(deck, project)
+        errors += merrors
+        warns += mwarns
+    return errors, warns, fixes
+
+
+def resolved_props(deck_path: Path) -> Path:
+    """Write the resolved deck (transitions filled in) next to the render cache and return
+    its path: stills, sheets, renders and `mk mix` all read the same decisions."""
+    deck = read_json(deck_path, {})
+    out = safe_path(home() / "cache" / "decks" / f"{slugify(deck_path.stem) or 'deck'}.resolved.json",
+                    write=True)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    write_json(out, coherence.resolve(deck))
+    return out
 
 
 def cmd_validate(a):
     deck = read_json(safe_path(a.deck, must_exist=True), None)
     if not isinstance(deck, dict):
         die("deck must be a JSON object")
+    project = project_dir(a.dir)
     errors, warns = lint(deck)
+    public = project / "public"
+    cerr, cwarn, fixes = coherence.check(deck, public if public.exists() else None)
+    errors += cerr
+    warns += cwarn
     media_report: list[dict] = []
     if which("ffprobe"):
-        merrors, mwarns, media_report = probe_media(deck, project_dir(a.dir))
+        merrors, mwarns, media_report = probe_media(deck, project)
         errors += merrors
         warns += mwarns
     fps = deck.get("fps", 30)
     total = sum(float(s.get("duration", 2)) for s in deck.get("scenes", []))
+    resolved = coherence.resolve(deck)
+    plan = [f"{i} {s.get('type')} ← {(s.get('transition') or {}).get('type', 'cut')}"
+            + (f" {s['transition']['dir']}" if (s.get("transition") or {}).get("dir") else "")
+            for i, s in enumerate(resolved.get("scenes", []))]
     emit({"ok": not errors, "scenes": len(deck.get("scenes", [])),
           "duration_s": round(total, 2), "frames": int(total * fps),
           "canvas": f"{deck.get('width',1080)}x{deck.get('height',1920)}@{fps}",
+          "motion": resolved["motion"]["language"], "transitions": plan,
           "media": media_report or None,
-          "errors": errors, "warnings": warns,
+          "errors": errors, "warnings": warns, "auto_corrected": fixes or None,
           "next": "mk remotion sheet <deck> to look at it" if not errors else "fix the errors first"})
 
 
 # ------------------------------------------------------------------- rendering
 def scene_mid_frames(deck: dict) -> list[int]:
+    """A frame ~62% into each scene — past its entrance, before it leaves."""
     fps = deck.get("fps", 30)
-    at, mids = 0, []
-    for i, s in enumerate(deck.get("scenes", [])):
-        f = max(1, round(float(s.get("duration", 2)) * fps))
-        tr = s.get("transition") or {}
-        ov = min(round(float(tr.get("duration", 0.3)) * fps), f - 1, at) \
-            if i and tr.get("type") == "fade" else 0
-        start = max(0, at - ov)
-        at = start + f
-        mids.append(start + round(f * 0.62))
-    return mids
+    return [round(t * fps + max(1, round(float(s.get("duration", 2)) * fps)) * 0.62)
+            for (t, _, _), s in zip(coherence.scene_starts(deck), deck.get("scenes", []))]
 
 
 def cmd_still(a):
@@ -374,7 +354,7 @@ def cmd_still(a):
         if not 0 <= a.scene < len(mids):
             die(f"scene {a.scene} out of range (0..{len(mids)-1})")
         frame = mids[a.scene]
-    npx(d, ["still", "src/index.ts", "Deck", str(out), f"--props={deck_path}",
+    npx(d, ["still", "src/index.ts", "Deck", str(out), f"--props={resolved_props(deck_path)}",
             f"--frame={frame}", "--log=error"], timeout=900)
     emit({"ok": True, "output": str(out), "frame": frame,
           "next": "open it with your image reader — do not judge a design you have not seen"})
@@ -394,9 +374,10 @@ def cmd_sheet(a):
     shutil.rmtree(tmp, ignore_errors=True)
     tmp.mkdir(parents=True, exist_ok=True)
     shots = []
+    props = resolved_props(deck_path)
     for i, f in enumerate(mids):
         p = tmp / f"s{i:02d}.png"
-        npx(d, ["still", "src/index.ts", "Deck", str(p), f"--props={deck_path}",
+        npx(d, ["still", "src/index.ts", "Deck", str(p), f"--props={props}",
                 f"--frame={f}", "--log=error"], timeout=900)
         shots.append(p)
     n = len(shots)
@@ -430,16 +411,12 @@ def cmd_render(a):
     d = ensure_project(project_dir(a.dir))
     deck_path = safe_path(a.deck, must_exist=True)
     deck = read_json(deck_path, {})
-    errors, warns = lint(deck)
-    if which("ffprobe"):
-        merrors, mwarns, _ = probe_media(deck, d)
-        errors += merrors
-        warns += mwarns
+    errors, warns, fixes = full_lint(deck, d)
     if errors:
         die("deck does not validate:\n  " + "\n  ".join(errors))
     out = safe_path(a.output, write=True)
     out.parent.mkdir(parents=True, exist_ok=True)
-    args = ["render", "src/index.ts", "Deck", str(out), f"--props={deck_path}", "--log=error",
+    args = ["render", "src/index.ts", "Deck", str(out), f"--props={resolved_props(deck_path)}", "--log=error",
             f"--concurrency={a.concurrency}"]
     if a.preview:
         args += ["--scale=0.5", "--crf=30"]
@@ -451,6 +428,7 @@ def cmd_render(a):
           "scenes": len(deck.get("scenes", [])),
           "duration_s": round(sum(float(s.get("duration", 2)) for s in deck.get("scenes", [])), 2),
           "quality": "preview" if a.preview else "final", "warnings": warns,
+          "auto_corrected": fixes or None,
           "next": f"mk qc {out} --target shorts --graphics"})
 
 

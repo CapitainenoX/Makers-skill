@@ -7,16 +7,28 @@
  *
  *  Plain words are medium-weight and muted; emphasised words are black and near-black.
  *  Reading only the bold words still gives the sentence — that is the test.
+ *
+ *  Markers, each a different level of importance:
+ *
+ *      **bold**        the words that carry the sentence
+ *      __accent__      the brand colour — one per scene
+ *      *serif*         italic serif — the voice, a nuance, an aside
+ *      ~~underline~~   a hand-drawn stroke draws itself under the words
+ *      ==highlight==   a marker sweeps across and the ink flips — once per video
+ *      [[icon]]        an inline logo or glyph, sized to the line: [[logos/github.svg]]
  */
 
-export type Emphasis = "plain" | "bold" | "accent" | "mark";
+export type Emphasis = "plain" | "bold" | "accent" | "mark" | "serif" | "under" | "icon";
 
 export type Token = { text: string; em: Emphasis };
 
 const MARKERS: [RegExp, Emphasis][] = [
+  [/\[\[([^\]]+)\]\]/g, "icon"],
   [/\*\*([^*]+)\*\*/g, "bold"],
   [/__([^_]+)__/g, "accent"],
   [/==([^=]+)==/g, "mark"],
+  [/~~([^~]+)~~/g, "under"],
+  [/\*([^*\s][^*]*?)\*/g, "serif"],
 ];
 
 /** Split a marked-up string into words, each carrying its emphasis. */
@@ -47,6 +59,10 @@ export const parse = (input: string): Token[] => {
 
   const tokens: Token[] = [];
   for (const span of spans) {
+    if (span.em === "icon") {
+      tokens.push({ text: span.text.trim(), em: "icon" });
+      continue;
+    }
     for (const word of span.text.split(/\s+/)) {
       if (word) tokens.push({ text: word, em: span.em });
     }
@@ -55,4 +71,8 @@ export const parse = (input: string): Token[] => {
 };
 
 /** True when the string carries no markers — lets callers keep the old Line API. */
-export const isPlain = (s: string) => !/\*\*|__|==/.test(s);
+export const isPlain = (s: string) => !/\*|__|==|~~|\[\[/.test(s);
+
+/** Remove markers, for measuring or for a plain fallback. */
+export const strip = (s: string) =>
+  s.replace(/\[\[[^\]]+\]\]/g, "").replace(/\*\*|__|==|~~|\*/g, "").replace(/\s+/g, " ").trim();

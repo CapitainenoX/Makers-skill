@@ -59,7 +59,7 @@
       "nodes": [
         {
           "icon": "logos/react.svg",
-          "label": "Remotion"
+          "label": "React"
         },
         {
           "icon": "logos/ffmpeg.svg",
@@ -67,11 +67,11 @@
         },
         {
           "icon": "logos/python.svg",
-          "label": "toolbelt"
+          "label": "Python"
         },
         {
           "icon": "logos/nodedotjs.svg",
-          "label": "render"
+          "label": "Node.js"
         }
       ],
       "rich": "**Remotion** for design, **ffmpeg** for footage"
@@ -99,7 +99,7 @@
           "label": "TypeScript"
         }
       ],
-      "rich": "real brand marks, ==never redrawn=="
+      "rich": "real brand marks, ~~never redrawn~~"
     },
     {
       "type": "stat",
@@ -109,23 +109,14 @@
       "sub": "one beat each"
     },
     {
-      "type": "compare",
-      "duration": 2.7,
-      "left": {
-        "label": "Before",
-        "items": [
-          "Hours in a timeline",
-          "Every video from zero",
-          "Music that doesn't fit"
-        ]
+      "type": "split",
+      "duration": 2.6,
+      "a": {
+        "text": "**before**: hours in a *timeline*"
       },
-      "right": {
-        "label": "After",
-        "items": [
-          "One prompt",
-          "It remembers what worked",
-          "Voice, bed and SFX mixed"
-        ]
+      "b": {
+        "text": "**after**: one __prompt__",
+        "icon": "logos/claude.svg"
       }
     },
     {

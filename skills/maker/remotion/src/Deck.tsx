@@ -5,153 +5,183 @@ import {
 } from "remotion";
 import { seedOf, variantFor, variantStyle } from "./motion";
 import { DEFAULTS, layout, type Deck as DeckType, type Scene } from "./deck";
-import { THEMES } from "./theme";
-import { useDisplayFont } from "./components/Fonts";
+import { buildTheme } from "./theme";
+import { useFonts } from "./components/Fonts";
 import { Decor } from "./components/Decor";
+import { Backdrop } from "./components/Backdrop";
 import { Watermark } from "./components/Watermark";
-import { TextStack } from "./scenes/TextStack";
-import { Pill } from "./scenes/Pill";
-import { LogoList } from "./scenes/LogoList";
-import { Card } from "./scenes/Card";
-import { Bullets } from "./scenes/Bullets";
-import { Stat } from "./scenes/Stat";
-import { Code } from "./scenes/Code";
-import { Compare } from "./scenes/Compare";
-import { Outro } from "./scenes/Outro";
-import { MediaScene } from "./scenes/Media";
-import { Tiles } from "./scenes/Tiles";
-import { Annotate } from "./scenes/Annotate";
-import { Marquee } from "./scenes/Marquee";
-import { Quote } from "./scenes/Quote";
-import { Progress } from "./scenes/Progress";
-import { Chips } from "./scenes/Chips";
-import { Diagram } from "./scenes/Diagram";
-import { Flow } from "./scenes/Flow";
-import { Mock } from "./scenes/Mock";
-import { Cta } from "./scenes/Cta";
+import { MotionBlurDefs } from "./components/MotionBlur";
+import { Layers } from "./components/Layers";
+import { Kit, TEXT_FX, useKit, type KitValue, type MotionLanguage } from "./kit";
+import { phaseStyle, type Transition } from "./transitions";
+import { RENDERERS } from "./scenes";
 
-const RENDERERS = {
-  textStack: TextStack, pill: Pill, logoList: LogoList, card: Card,
-  bullets: Bullets, stat: Stat, code: Code, compare: Compare, outro: Outro,
-  media: MediaScene, tiles: Tiles, annotate: Annotate, marquee: Marquee,
-  quote: Quote, progress: Progress, chips: Chips, diagram: Diagram,
-  flow: Flow, mock: Mock, cta: Cta,
-} as const;
+const LANGUAGES: MotionLanguage[] = ["clean", "punchy", "soft", "graphic"];
 
-/** Wraps one scene: owns its cross-fade in and the final fade-out of the video. */
+/** Wraps one scene: its floor, its decor, its slow push, its arrival and its departure. */
 const SceneFrame: React.FC<{
   scene: Scene;
   index: number;
   seed: number;
   zoom: number;
-  overlap: number;
+  frames: number;
+  inT?: Transition;
+  inFrames: number;
+  outT?: Transition;
+  outFrames: number;
   isLast: boolean;
+  deckDecor: DeckType["decor"];
+  deckBackdrop: DeckType["backdrop"];
   children: React.ReactNode;
-}> = ({ scene, index, seed, zoom, overlap, isLast, children }) => {
+}> = ({ scene, index, seed, zoom, frames, inT, inFrames, outT, outFrames, isLast,
+        deckDecor, deckBackdrop, children }) => {
   const frame = useCurrentFrame();
-  const { durationInFrames, fps, width } = useVideoConfig();
-  const fadeIn = overlap > 0
-    ? interpolate(frame, [0, overlap], [0, 1], { extrapolateRight: "clamp" })
-    : 1;
-  const fadeOut = isLast
-    ? interpolate(frame, [durationInFrames - 8, durationInFrames], [1, 0], {
-        extrapolateLeft: "clamp", extrapolateRight: "clamp",
-      })
-    : 1;
+  const { fps, width, height } = useVideoConfig();
+  const { theme, blur } = useKit();
+
   // Alternating push-in and pull-out across the deck, so the drift itself is not monotone.
-  const amount = scene.zoom ?? zoom;
-  const dir = (index + seed) % 2 === 0 ? 1 : -1;
-  const own = useVideoConfig().durationInFrames;
-  const k = interpolate(frame, [0, Math.max(1, own)], [0, 1], {
+  // A pull-out starts slightly in and settles at 1 — the frame never shrinks below its
+  // own size, which would expose the page at the edges of a full-bleed scene.
+  const amount = Math.max(0, Math.min(0.2, scene.zoom ?? zoom));
+  const k = interpolate(frame, [0, Math.max(1, frames + outFrames)], [0, 1], {
     extrapolateLeft: "clamp", extrapolateRight: "clamp",
   });
-  const push = 1 + dir * amount * k;
+  const push = 1 + amount * ((index + seed) % 2 === 0 ? k : 1 - k);
 
-  const v = variantStyle(
-    variantFor(index, scene.variant, seed),
-    interpolate(frame, [0, Math.round(fps * 0.34)], [0, 1], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-      easing: Easing.out(Easing.cubic),
-    }),
-    width * 0.055,
-  );
+  // On a cut the block arrives by itself; under a transition the transition is the arrival.
+  const v = inFrames > 0
+    ? { opacity: 1, transform: undefined as string | undefined }
+    : variantStyle(
+        variantFor(index, scene.variant, seed),
+        interpolate(frame, [0, Math.round(fps * 0.34)], [0, 1], {
+          extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.cubic),
+        }),
+        width * 0.055,
+      );
+
+  const inPhase = inT && inFrames > 0 && frame < inFrames
+    ? phaseStyle(inT, "in", frame / inFrames, (frame - 1) / inFrames, width, height, theme.accent, blur)
+    : null;
+  const outPhase = outT && outFrames > 0 && frame >= frames
+    ? phaseStyle(outT, "out", (frame - frames) / outFrames, (frame - frames - 1) / outFrames,
+        width, height, theme.accent, blur)
+    : null;
+
+  const fadeOut = isLast
+    ? interpolate(frame, [frames - 8, frames], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })
+    : 1;
+  const phase = { ...(outPhase?.style ?? {}), ...(inPhase?.style ?? {}) };
+  const phaseOpacity = (phase.opacity as number | undefined) ?? 1;
+  const overlays = [...(inPhase?.overlay ?? []), ...(outPhase?.overlay ?? [])];
+
   return (
-    <AbsoluteFill style={{ background: scene.bg ?? "transparent" }}>
-      <AbsoluteFill
-        style={{
-          ...v,
-          opacity: (v.opacity as number) * fadeIn * fadeOut,
-          transform: `scale(${push.toFixed(4)}) ${v.transform ?? ""}`.trim(),
-        }}
-      >
-        {children}
+    <AbsoluteFill>
+      <AbsoluteFill style={{ ...phase, opacity: phaseOpacity * fadeOut, overflow: "hidden" }}>
+        <Backdrop kind={scene.backdrop ?? deckBackdrop} bg={scene.bg ?? theme.bg} index={index} />
+        <Decor spec={scene.decor ?? deckDecor} theme={theme} seed={seed} index={index + 1} />
+        <AbsoluteFill
+          style={{
+            opacity: v.opacity as number,
+            transform: `scale(${push.toFixed(4)}) ${v.transform ?? ""}`.trim(),
+          }}
+        >
+          {children}
+        </AbsoluteFill>
+        <Layers layers={scene.layers} sceneFrames={frames} />
       </AbsoluteFill>
+      {overlays.map((o, i) => (
+        <AbsoluteFill key={i} style={{ background: o.background, clipPath: o.clipPath,
+          opacity: o.opacity ?? 1 }} />
+      ))}
     </AbsoluteFill>
   );
 };
 
 export const Deck: React.FC<DeckType> = (deck) => {
-  const { width, durationInFrames } = useVideoConfig();
+  const { width, durationInFrames, fps } = useVideoConfig();
   const seed = seedOf(deck.seed);
-  const theme = {
-    ...THEMES[deck.theme ?? DEFAULTS.theme],
-    ...(deck.brand?.accent ? { accent: deck.brand.accent } : {}),
-  };
+  const theme = buildTheme(deck.theme ?? DEFAULTS.theme, deck.brand?.accent);
+  const { fonts, ready } = useFonts(deck.typeset, deck.brand?.font);
   const base = width * (deck.baseSize ?? DEFAULTS.baseSize);
-  const font = useDisplayFont(deck.brand?.font);
+  const language = deck.motion?.language ?? LANGUAGES[seed % LANGUAGES.length];
+  const kit: KitValue = {
+    theme, fonts, base, seed, language,
+    blur: deck.motion?.blur ?? 1,
+    textFx: "rise",
+    logos: deck.logos ?? "auto",
+  };
   const { places } = layout(deck);
 
+  // Nothing paints until every face is loaded: auto-fitted lines are measured on the
+  // first paint, and measuring against the fallback font sizes them wrong for good.
+  if (!ready) return <AbsoluteFill style={{ background: theme.bg }} />;
+
   return (
-    <AbsoluteFill style={{ background: theme.bg }}>
-      <Decor spec={deck.decor} theme={theme} seed={seed} index={0} />
+    <Kit.Provider value={kit}>
+      <AbsoluteFill style={{ background: theme.bg }}>
+        <MotionBlurDefs />
 
-      {deck.scenes.map((scene, i) => {
-        const place = places[i];
-        const Renderer = RENDERERS[scene.type] as React.FC<any>;
-        if (!Renderer) return null;
-        return (
-          <Sequence key={i} from={place.start} durationInFrames={place.frames} name={scene.type}>
-            <SceneFrame
-              scene={scene}
-              index={i}
-              seed={seed}
-              zoom={deck.zoom ?? 0.035}
-              overlap={place.overlap}
-              isLast={place.start + place.frames >= durationInFrames}
-            >
-              <Decor spec={scene.decor ?? deck.decor} theme={theme} seed={seed} index={i + 1} />
-              <Renderer
-                scene={scene}
-                theme={theme}
-                base={base}
-                font={font}
-                durationInFrames={place.frames}
-              />
-            </SceneFrame>
-          </Sequence>
-        );
-      })}
+        {deck.scenes.map((scene, i) => {
+          const place = places[i];
+          const Renderer = RENDERERS[scene.type] as React.FC<any> | undefined;
+          if (!Renderer) return null;
+          const fxList = TEXT_FX[language];
+          const sceneKit: KitValue = {
+            ...kit,
+            textFx: scene.textFx ?? fxList[(i + seed) % fxList.length],
+          };
+          return (
+            <Sequence key={i} from={place.start} durationInFrames={place.frames + place.outFrames}
+              name={`${i} ${scene.type}`}>
+              <Kit.Provider value={sceneKit}>
+                <SceneFrame
+                  scene={scene}
+                  index={i}
+                  seed={seed}
+                  zoom={deck.zoom ?? 0.035}
+                  frames={place.frames}
+                  inT={scene.transition}
+                  inFrames={place.inFrames}
+                  outT={deck.scenes[i + 1]?.transition}
+                  outFrames={place.outFrames}
+                  isLast={i === deck.scenes.length - 1}
+                  deckDecor={deck.decor}
+                  deckBackdrop={deck.backdrop}
+                >
+                  <Renderer
+                    scene={scene}
+                    theme={theme}
+                    base={base}
+                    font={fonts.body}
+                    fonts={fonts}
+                    durationInFrames={place.frames}
+                  />
+                </SceneFrame>
+              </Kit.Provider>
+            </Sequence>
+          );
+        })}
 
-      <Watermark text={deck.brand?.watermark} theme={theme} base={base} font={font} />
+        <Watermark text={deck.brand?.watermark} theme={theme} base={base} font={fonts.mono} />
 
-      {deck.audio?.src ? (
-        <Audio
-          src={deck.audio.src.startsWith("http") ? deck.audio.src : staticFile(deck.audio.src)}
-          volume={(f) => {
-            const fin = Math.round((deck.audio?.fadeIn ?? 0.4) * 30);
-            const fout = Math.round((deck.audio?.fadeOut ?? 1.2) * 30);
-            const gain = 10 ** ((deck.audio?.gain ?? -19) / 20);
-            const up = fin > 0 ? interpolate(f, [0, fin], [0, 1], { extrapolateRight: "clamp" }) : 1;
-            const down = fout > 0
-              ? interpolate(f, [durationInFrames - fout, durationInFrames], [1, 0], {
-                  extrapolateLeft: "clamp", extrapolateRight: "clamp",
-                })
-              : 1;
-            return gain * up * down;
-          }}
-        />
-      ) : null}
-    </AbsoluteFill>
+        {deck.audio?.src ? (
+          <Audio
+            src={deck.audio.src.startsWith("http") ? deck.audio.src : staticFile(deck.audio.src)}
+            volume={(f) => {
+              const fin = Math.round((deck.audio?.fadeIn ?? 0.4) * fps);
+              const fout = Math.round((deck.audio?.fadeOut ?? 1.2) * fps);
+              const gain = 10 ** ((deck.audio?.gain ?? -19) / 20);
+              const up = fin > 0 ? interpolate(f, [0, fin], [0, 1], { extrapolateRight: "clamp" }) : 1;
+              const down = fout > 0
+                ? interpolate(f, [durationInFrames - fout, durationInFrames], [1, 0], {
+                    extrapolateLeft: "clamp", extrapolateRight: "clamp",
+                  })
+                : 1;
+              return gain * up * down;
+            }}
+          />
+        ) : null}
+      </AbsoluteFill>
+    </Kit.Provider>
   );
 };

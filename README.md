@@ -76,9 +76,32 @@ Un skill routeur qui appelle dix sous-skills, chacun chargé **au moment où il 
 avec une vraie ombre et une dérive de quelques pixels, ne se lit plus comme un rush mais
 comme du design produit. C'est le style « studio » fond clair.
 
-19 types de scène. Cinq portent de la vidéo (`card`, `media`, `tiles`, `annotate`, plein
-cadre), quatre portent la structure (`chips` pastilles à logos, `diagram` hub + connecteurs,
-`flow` pipeline, `mock` composant d'UI reconstruit).
+34 types de scène, rangés par **silhouette** pour ne jamais montrer trois fois la même
+forme d'affilée : typo (`textStack`, `kinetic` affiche plein cadre, `quote`), mur de
+chapitre (`chapter`), logos (`chips`, `orbit` qui tourne, `diagram`, `marquee`), listes
+(`bullets`, `steps`, `checklist` qui se coche, `timeline`, `flow`), duels (`compare`,
+`versus` avec VS qui claque, `split` écran coupé en deux), chiffres (`stat` compteur /
+rouleau / anneau, `progress`, `chart` barres-colonnes-courbe), rushs (`card`, `media`,
+`tiles`, `annotate`, `gallery`, `focus` qui zoome sur un détail, `beforeAfter` avec
+curseur), UI (`mock` qui se tape tout seul, `code`, `notify`, `post`).
+
+Chaque scène accepte des **éléments complémentaires** (`layers`) : image-sticker, logo,
+badge, flèche ou boucle dessinée à la main, curseur qui clique, notification, éclat,
+étincelles, annotation manuscrite.
+
+**12 transitions** (`push`, `whip`, `zoom`, `wipe`, `iris`, `panel`, `blinds`, `flash`…)
+avec un **vrai flou de mouvement directionnel**, choisies automatiquement dans un
+« langage de mouvement » par vidéo (`clean`, `punchy`, `soft`, `graphic`) — jamais deux
+fois la même d'affilée.
+
+**Une police par niveau d'importance** (`typeset`) : display pour le hook et les
+chiffres, body pour les phrases, serif italique pour la voix, mono pour le code et les
+données — `studio`, `editorial`, `impact`, `tech`, `playful`, toutes embarquées.
+
+**La cohérence est vérifiée, puis corrigée** : chaque logo est mesuré contre la pastille
+où il est posé (le logo GitHub noir sur fond sombre est redessiné en blanc, le jaune
+Snapchat sur blanc passe à l'encre), un logo qui ne correspond pas à son nom est signalé,
+un marqueur `**` oublié qui s'afficherait à l'écran est une erreur.
 
 La signature du style, c'est **une phrase qui coule avec l'emphase dedans** — pas des
 lignes empilées :
@@ -89,14 +112,16 @@ lignes empilées :
 
 Le bloc est **centré**, les bords haut/bas remplis par un `decor` qui déborde et dérive.
 Le style par défaut est **noir sur blanc** ; la couleur s'active avec `brand.accent`.
-Chaque scène entre par une direction différente (`variant` tourne automatiquement).
-Les surlignages sont **animés** : le texte arrive, puis le marqueur le traverse.
-La police (Inter) est **embarquée**, jamais tirée d'un CDN au rendu.
+Les marqueurs : `**gras**`, `__accent__`, `*serif italique*`, `~~souligné dessiné~~`,
+`==surligné==`, `[[logos/github.svg]]` (logo dans la phrase). Les mots entrent avec un
+effet qui tourne d'une scène à l'autre (masque, flou, pop, glissé, frappe).
+Les polices sont **embarquées**, jamais tirées d'un CDN au rendu.
 
 ### De vrais logos, du vrai son
 
 ```bash
-mk logo get github docker node --color 111111   # marques réelles (Simple Icons, CC0)
+mk logo get github docker node                  # marques réelles, couleur de marque écrite dans le fichier
+mk logo check                                   # lesquelles ne se liront pas, et où
 mk sound pack                                   # one-shots enregistrés (Freesound, CC0) + crédits
 mk sound music "minimal tech ambient loop"      # un lit musical, licence tracée
 mk sfx gen --all                                # repli synthétisé, aucune clé d'API
@@ -113,7 +138,8 @@ alpha), on le pose sur la timeline de l'EDL.
 ```bash
 mk remotion init                                 # une fois
 mk remotion deck deck.json --template footage-short   # celui à prendre si tu as des rushs
-mk remotion validate deck.json                   # gratuit, toujours avant de rendre
+mk remotion deck deck.json --template showcase   # toutes les nouvelles formes, une fois chacune
+mk remotion validate deck.json                   # rythme + cohérence + transitions, gratuit
 mk remotion sheet deck.json -o out/sheet.png     # une image par scène — et on la REGARDE
 mk remotion render deck.json -o out/final.mp4
 ```

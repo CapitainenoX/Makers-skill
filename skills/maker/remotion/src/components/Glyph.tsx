@@ -1,6 +1,7 @@
 import React from "react";
-import { Img, staticFile } from "remotion";
 import type { Glyph as GlyphName } from "../deck";
+import { useKit } from "../kit";
+import { Logo, type Tint } from "./Logo";
 
 /** Built-in geometric glyphs, drawn in code so the repo ships no third-party
  *  marks. For a real brand logo, pass a path to the brand's own asset instead —
@@ -108,26 +109,139 @@ const BUILTINS: Record<string, (c: string) => React.ReactNode> = {
       <path d="M28 42l14 12-14 12M52 66h18" />
     </g>
   ),
+  heart: (c) => (
+    <path fill={c} d="M50 88L16 54A20 20 0 0150 26a20 20 0 0134 28z" />
+  ),
+  play: (c) => <path fill={c} d="M30 16l54 34-54 34z" />,
+  search: (c) => (
+    <g fill="none" stroke={c} strokeWidth="10" strokeLinecap="round">
+      <circle cx="42" cy="42" r="26" /><path d="M62 62l24 24" />
+    </g>
+  ),
+  user: (c) => (
+    <g fill={c}>
+      <circle cx="50" cy="32" r="18" />
+      <path d="M14 90a36 30 0 0172 0z" />
+    </g>
+  ),
+  clock: (c) => (
+    <g fill="none" stroke={c} strokeWidth="9" strokeLinecap="round">
+      <circle cx="50" cy="50" r="38" /><path d="M50 28v24l16 10" />
+    </g>
+  ),
+  globe: (c) => (
+    <g fill="none" stroke={c} strokeWidth="7">
+      <circle cx="50" cy="50" r="38" />
+      <ellipse cx="50" cy="50" rx="16" ry="38" />
+      <path d="M12 50h76M18 30h64M18 70h64" />
+    </g>
+  ),
+  fire: (c) => (
+    <path fill={c} d="M52 6c4 18 26 26 26 52a28 28 0 01-56 0c0-12 6-20 12-26 0 10 4 16 10 18-4-18 4-32 8-44z" />
+  ),
+  cross: (c) => (
+    <path fill="none" stroke={c} strokeWidth="12" strokeLinecap="round" d="M24 24l52 52M76 24L24 76" />
+  ),
+  eye: (c) => (
+    <g>
+      <path fill="none" stroke={c} strokeWidth="8" d="M6 50s16-28 44-28 44 28 44 28-16 28-44 28S6 50 6 50z" />
+      <circle cx="50" cy="50" r="13" fill={c} />
+    </g>
+  ),
+  download: (c) => (
+    <path fill="none" stroke={c} strokeWidth="10" strokeLinecap="round" strokeLinejoin="round"
+      d="M50 12v50M28 42l22 22 22-22M16 86h68" />
+  ),
+  link: (c) => (
+    <g fill="none" stroke={c} strokeWidth="9" strokeLinecap="round">
+      <path d="M44 56a16 16 0 0022 0l14-14a16 16 0 00-22-22l-6 6" />
+      <path d="M56 44a16 16 0 00-22 0L20 58a16 16 0 0022 22l6-6" />
+    </g>
+  ),
+  chart: (c) => (
+    <g fill={c}>
+      <rect x="12" y="54" width="18" height="34" rx="4" />
+      <rect x="41" y="34" width="18" height="54" rx="4" />
+      <rect x="70" y="14" width="18" height="74" rx="4" />
+    </g>
+  ),
+  mic: (c) => (
+    <g fill="none" stroke={c} strokeWidth="8" strokeLinecap="round">
+      <rect x="36" y="8" width="28" height="50" rx="14" fill={c} />
+      <path d="M22 46a28 28 0 0056 0M50 74v18" />
+    </g>
+  ),
+  image: (c) => (
+    <g>
+      <rect x="10" y="18" width="80" height="64" rx="10" fill="none" stroke={c} strokeWidth="8" />
+      <circle cx="34" cy="40" r="8" fill={c} />
+      <path fill={c} d="M16 76l22-22 14 14 12-12 22 20z" />
+    </g>
+  ),
+  music: (c) => (
+    <g fill={c}>
+      <path d="M36 16l48-8v58h-8V24l-32 6v46h-8z" />
+      <circle cx="28" cy="78" r="12" /><circle cx="72" cy="68" r="12" />
+    </g>
+  ),
+  key: (c) => (
+    <g fill="none" stroke={c} strokeWidth="9" strokeLinecap="round">
+      <circle cx="32" cy="50" r="18" /><path d="M50 50h40M78 50v14M66 50v10" />
+    </g>
+  ),
+  trophy: (c) => (
+    <g fill={c}>
+      <path d="M28 10h44v26a22 22 0 01-44 0z" />
+      <path fill="none" stroke={c} strokeWidth="7" d="M28 18H14c0 16 8 22 16 22M72 18h14c0 16-8 22-16 22" />
+      <rect x="44" y="56" width="12" height="18" /><rect x="30" y="74" width="40" height="12" rx="4" />
+    </g>
+  ),
+  flag: (c) => (
+    <g fill={c}>
+      <rect x="18" y="8" width="8" height="84" rx="4" />
+      <path d="M26 12h56l-12 18 12 18H26z" />
+    </g>
+  ),
+  cursor: (c) => (
+    <path fill={c} stroke="#FFFFFF" strokeWidth="5" strokeLinejoin="round"
+      d="M20 10l58 38-26 6 16 30-12 6-16-30-20 18z" />
+  ),
+  warning: (c) => (
+    <g>
+      <path fill={c} d="M50 8l44 80H6z" />
+      <rect x="45" y="36" width="10" height="28" rx="5" fill="#FFFFFF" />
+      <circle cx="50" cy="74" r="6" fill="#FFFFFF" />
+    </g>
+  ),
+  money: (c) => (
+    <g fill="none" stroke={c} strokeWidth="9" strokeLinecap="round">
+      <path d="M66 26c-4-6-10-8-16-8-10 0-18 6-18 14 0 20 36 12 36 32 0 8-8 14-18 14-8 0-14-4-18-10M50 8v84" />
+    </g>
+  ),
 };
 
-export const Glyph: React.FC<{ name?: GlyphName | string; size: number; color: string }> = ({
-  name,
-  size,
-  color,
-}) => {
+export const isBuiltinGlyph = (name?: string) => !!name && name in BUILTINS;
+
+export const GLYPH_NAMES = Object.keys(BUILTINS);
+
+/** A built-in glyph drawn in `color`, or — for anything that is not a built-in name — a
+ *  logo file, measured against `surface` and recoloured if it would not read there. */
+export const Glyph: React.FC<{
+  name?: GlyphName | string;
+  size: number;
+  color: string;
+  /** the colour behind the mark; defaults to the page */
+  surface?: string;
+  tint?: Tint;
+}> = ({ name, size, color, surface, tint }) => {
+  const { theme } = useKit();
   if (!name) return null;
   const builtin = BUILTINS[name];
   if (!builtin) {
-    // treat anything unknown as a file in public/
-    return (
-      <Img
-        src={name.startsWith("http") ? name : staticFile(name)}
-        style={{ width: size, height: size, objectFit: "contain" }}
-      />
-    );
+    return <Logo src={name} size={size} surface={surface ?? theme.bg} tint={tint} />;
   }
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" style={{ display: "block" }}>
+    <svg width={size} height={size} viewBox="0 0 100 100" style={{ display: "block", flex: "none" }}>
       {builtin(color)}
     </svg>
   );

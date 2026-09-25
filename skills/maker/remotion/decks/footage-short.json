@@ -1,38 +1,156 @@
 {
-  "width": 1080, "height": 1920, "fps": 30, "theme": "light", "baseSize": 0.058,
-  "brand": { "accent": "#D97757", "watermark": "REPLACE-handle" },
-  "audio": { "src": "REPLACE-bed.mp3", "gain": -19, "fadeIn": 0.4, "fadeOut": 1.2 },
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "theme": "light",
+  "baseSize": 0.058,
+  "brand": {
+    "accent": "#D97757",
+    "watermark": "REPLACE-handle"
+  },
+  "audio": {
+    "src": "REPLACE-bed.mp3",
+    "gain": -19,
+    "fadeIn": 0.4,
+    "fadeOut": 1.2
+  },
   "scenes": [
-    { "type": "textStack", "duration": 1.3, "anchor": "top", "reveal": "word",
+    {
+      "type": "textStack",
+      "duration": 1.3,
+      "anchor": "top",
+      "reveal": "word",
       "lines": [
-        { "t": "REPLACE le hook", "w": "black", "s": 2.0 },
-        { "t": "REPLACE la promesse", "w": "black", "s": 2.0, "c": "accent" } ] },
-
-    { "type": "card", "duration": 2.2, "anchor": "top", "device": "phone",
-      "float": 8, "tilt": 4,
-      "media": { "src": "shots/REPLACE-app.mp4", "in": 0, "out": 3.0 },
-      "lines": [ { "t": "REPLACE ce qu'on voit", "w": "black", "s": 1.5 } ] },
-
-    { "type": "media", "duration": 2.0, "frame": "browser", "anchor": "top",
-      "media": { "src": "shots/REPLACE-demo.mp4", "in": 0, "out": 2.4 },
-      "lines": [ { "t": "REPLACE l'étape suivante", "w": "black", "s": 1.4 } ] },
-
-    { "type": "annotate", "duration": 2.4, "frame": "browser", "anchor": "top",
-      "media": { "src": "shots/REPLACE-demo.mp4", "in": 2.0, "out": 4.4 },
-      "lines": [ { "t": "REPLACE le détail qui compte", "w": "black", "s": 1.25 } ],
-      "marks": [ { "x": 0.36, "y": 0.44, "kind": "ring", "label": "ici", "at": 0.6 } ] },
-
-    { "type": "media", "duration": 1.8, "frame": "full", "position": "bottom",
-      "media": { "src": "shots/REPLACE-result.mp4", "in": 0, "out": 2.2 },
-      "lines": [ { "t": "REPLACE le résultat", "w": "black", "s": 1.6 } ] },
-
-    { "type": "stat", "duration": 1.6, "value": "REPLACE",
-      "label": "REPLACE ce que le chiffre mesure", "sub": "REPLACE la nuance" },
-
-    { "type": "outro", "duration": 1.6, "transition": { "type": "fade", "duration": 0.28 },
+        {
+          "t": "REPLACE le hook",
+          "w": "black",
+          "s": 2.0
+        },
+        {
+          "t": "REPLACE la promesse",
+          "w": "black",
+          "s": 2.0,
+          "c": "accent"
+        }
+      ]
+    },
+    {
+      "type": "card",
+      "duration": 2.2,
+      "anchor": "top",
+      "device": "phone",
+      "float": 8,
+      "tilt": 4,
+      "media": {
+        "src": "shots/REPLACE-app.mp4",
+        "in": 0,
+        "out": 3.0
+      },
       "lines": [
-        { "t": "REPLACE l'appel", "w": "medium", "s": 0.78, "c": "muted", "i": true },
-        { "t": "REPLACE l'action", "w": "black", "s": 1.5 } ],
-      "handle": "REPLACE-handle" }
+        {
+          "t": "REPLACE ce qu'on voit",
+          "w": "black",
+          "s": 1.5
+        }
+      ]
+    },
+    {
+      "type": "media",
+      "duration": 2.0,
+      "frame": "browser",
+      "anchor": "top",
+      "media": {
+        "src": "shots/REPLACE-demo.mp4",
+        "in": 0,
+        "out": 2.4
+      },
+      "lines": [
+        {
+          "t": "REPLACE l'\u00e9tape suivante",
+          "w": "black",
+          "s": 1.4
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "duration": 1.6,
+      "value": "REPLACE",
+      "label": "REPLACE ce que le chiffre mesure",
+      "sub": "REPLACE la nuance"
+    },
+    {
+      "type": "annotate",
+      "duration": 2.4,
+      "frame": "browser",
+      "anchor": "top",
+      "media": {
+        "src": "shots/REPLACE-demo.mp4",
+        "in": 2.0,
+        "out": 4.4
+      },
+      "lines": [
+        {
+          "t": "REPLACE le d\u00e9tail qui compte",
+          "w": "black",
+          "s": 1.25
+        }
+      ],
+      "marks": [
+        {
+          "x": 0.36,
+          "y": 0.44,
+          "kind": "ring",
+          "label": "ici",
+          "at": 0.6
+        }
+      ]
+    },
+    {
+      "type": "media",
+      "duration": 1.8,
+      "frame": "full",
+      "position": "bottom",
+      "media": {
+        "src": "shots/REPLACE-result.mp4",
+        "in": 0,
+        "out": 2.2
+      },
+      "lines": [
+        {
+          "t": "REPLACE le r\u00e9sultat",
+          "w": "black",
+          "s": 1.6
+        }
+      ]
+    },
+    {
+      "type": "cta",
+      "duration": 1.6,
+      "rich": "REPLACE la raison de ==s'abonner=="
+    },
+    {
+      "type": "outro",
+      "duration": 1.6,
+      "transition": {
+        "type": "fade",
+        "duration": 0.28
+      },
+      "lines": [
+        {
+          "t": "REPLACE l'appel",
+          "w": "medium",
+          "s": 0.78,
+          "c": "muted",
+          "i": true
+        },
+        {
+          "t": "REPLACE l'action",
+          "w": "black",
+          "s": 1.5
+        }
+      ],
+      "handle": "REPLACE-handle"
+    }
   ]
 }

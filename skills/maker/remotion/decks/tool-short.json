@@ -4,23 +4,41 @@
   "fps": 30,
   "theme": "light",
   "baseSize": 0.058,
-  "brand": { "accent": "#D97757", "watermark": "REPLACE-handle" },
+  "brand": {
+    "accent": "#D97757",
+    "watermark": "REPLACE-handle"
+  },
   "scenes": [
     {
       "type": "textStack",
       "duration": 1.4,
       "anchor": "top",
       "lines": [
-        { "t": "you can now", "w": "medium", "s": 0.72, "c": "muted", "i": true },
-        { "t": "REPLACE", "w": "black", "s": 2.05 },
-        { "t": "for free.", "w": "black", "s": 2.05, "c": "accent" }
+        {
+          "t": "you can now",
+          "w": "medium",
+          "s": 0.72,
+          "c": "muted",
+          "i": true
+        },
+        {
+          "t": "REPLACE",
+          "w": "black",
+          "s": 2.05
+        },
+        {
+          "t": "for free.",
+          "w": "black",
+          "s": 2.05,
+          "c": "accent"
+        }
       ]
     },
     {
       "type": "pill",
       "duration": 1.6,
       "label": "REPLACE-name",
-      "sub": "open source · runs locally"
+      "sub": "open source \u00b7 runs locally"
     },
     {
       "type": "code",
@@ -38,30 +56,75 @@
       "duration": 2.8,
       "anchor": "top",
       "heading": [
-        { "t": "then you pick any", "w": "medium", "s": 0.8, "c": "muted", "i": true },
-        { "t": "model you want", "w": "medium", "s": 0.8, "c": "muted", "i": true }
+        {
+          "t": "then you pick any",
+          "w": "medium",
+          "s": 0.8,
+          "c": "muted",
+          "i": true
+        },
+        {
+          "t": "model you want",
+          "w": "medium",
+          "s": 0.8,
+          "c": "muted",
+          "i": true
+        }
       ],
       "items": [
-        { "icon": "sparkle", "label": "REPLACE", "accent": true },
-        { "icon": "circle", "label": "REPLACE" },
-        { "icon": "star", "label": "REPLACE" },
-        { "icon": "dot", "label": "REPLACE" }
+        {
+          "icon": "sparkle",
+          "label": "REPLACE",
+          "accent": true
+        },
+        {
+          "icon": "circle",
+          "label": "REPLACE"
+        },
+        {
+          "icon": "star",
+          "label": "REPLACE"
+        },
+        {
+          "icon": "dot",
+          "label": "REPLACE"
+        }
       ],
       "footer": [
-        { "t": "or a free one on your own machine", "w": "medium", "s": 0.5, "c": "muted", "i": true }
+        {
+          "t": "or a free one on your own machine",
+          "w": "medium",
+          "s": 0.5,
+          "c": "muted",
+          "i": true
+        }
       ]
     },
     {
       "type": "card",
       "duration": 2.2,
       "anchor": "top",
-      "transition": { "type": "fade", "duration": 0.28 },
+      "transition": {
+        "type": "fade",
+        "duration": 0.28
+      },
       "lines": [
-        { "t": "You Think It", "w": "black", "s": 1.75 },
-        { "t": "It Builds It", "w": "black", "s": 1.75 }
+        {
+          "t": "You Think It",
+          "w": "black",
+          "s": 1.75
+        },
+        {
+          "t": "It Builds It",
+          "w": "black",
+          "s": 1.75
+        }
       ],
       "device": "phone",
-      "gradient": ["#A9A6D8", "#8FB4DE"]
+      "gradient": [
+        "#A9A6D8",
+        "#8FB4DE"
+      ]
     },
     {
       "type": "stat",
@@ -71,12 +134,30 @@
       "sub": "REPLACE the qualifier"
     },
     {
+      "type": "cta",
+      "duration": 1.8,
+      "rich": "REPLACE pourquoi ==s'abonner=="
+    },
+    {
       "type": "outro",
       "duration": 1.8,
-      "transition": { "type": "fade", "duration": 0.3 },
+      "transition": {
+        "type": "fade",
+        "duration": 0.3
+      },
       "lines": [
-        { "t": "link in bio", "w": "medium", "s": 0.78, "c": "muted", "i": true },
-        { "t": "go build something", "w": "black", "s": 1.5 }
+        {
+          "t": "link in bio",
+          "w": "medium",
+          "s": 0.78,
+          "c": "muted",
+          "i": true
+        },
+        {
+          "t": "go build something",
+          "w": "black",
+          "s": 1.5
+        }
       ],
       "handle": "REPLACE-handle"
     }

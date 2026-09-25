@@ -138,8 +138,8 @@
       "title": "terminal",
       "lines": [
         "$ mk assemble deck.json",
-        "  14 scenes · 1080x1920 · 30fps",
-        "  rendering …",
+        "  14 scenes \u00b7 1080x1920 \u00b7 30fps",
+        "  rendering \u2026",
         "  PASS  -14.1 LUFS"
       ]
     },
@@ -149,6 +149,11 @@
       "value": "38s",
       "label": "from prompt to render",
       "sub": "no timeline, no keyframes"
+    },
+    {
+      "type": "cta",
+      "duration": 1.8,
+      "rich": "if this helped, ==follow=="
     },
     {
       "type": "outro",
