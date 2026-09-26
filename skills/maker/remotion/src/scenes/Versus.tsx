@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { AbsoluteFill, useVideoConfig } from "remotion";
 import { useAnim, enter } from "../motion";
@@ -12,7 +13,7 @@ import type { SceneProps } from "./types";
 /** Two contenders face off: each side slides in from its edge, then the VS badge slams
  *  down between them with a shake. The winner (`accent: true`) keeps the colour. */
 export const Versus: React.FC<SceneProps<"versus">> = ({ scene }) => {
-  const { width } = useVideoConfig();
+  const { width } = useFrameSize();
   const { kit, fps, frame, arrive } = useAnim();
   const { theme, fonts, base } = kit;
   const slamAt = 9;

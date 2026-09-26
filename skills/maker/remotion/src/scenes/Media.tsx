@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { AbsoluteFill, useVideoConfig } from "remotion";
 import { TypeStack } from "../components/Type";
@@ -11,7 +12,7 @@ import type { SceneProps } from "./types";
 /** Footage, presented. Full-bleed with a scrim and a headline, or framed in a shell.
  *  This is how a rush stops looking like a rush. */
 export const MediaScene: React.FC<SceneProps<"media">> = ({ scene }) => {
-  const { width } = useVideoConfig();
+  const { width } = useFrameSize();
   const { kit, arrive } = useAnim();
   const { theme, base } = kit;
   const drift = useFloat(scene.float ?? 0, scene.tilt ?? 0);

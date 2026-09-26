@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { AbsoluteFill, Easing, interpolate, useVideoConfig } from "remotion";
 import { Media } from "../components/Media";
@@ -11,7 +12,7 @@ import type { SceneProps } from "./types";
  *  reveal the difference — it overshoots, comes back, and settles past the middle. The
  *  proof shot for a redesign, an upscale, a cleanup, a fix. */
 export const BeforeAfter: React.FC<SceneProps<"beforeAfter">> = ({ scene }) => {
-  const { width, height } = useVideoConfig();
+  const { width, height } = useFrameSize();
   const { kit, fps, frame, arrive } = useAnim();
   const { theme, fonts, base } = kit;
   const full = scene.frame === "full";

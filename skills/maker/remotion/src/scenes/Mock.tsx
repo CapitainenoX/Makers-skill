@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { interpolate, useVideoConfig } from "remotion";
 import { Stage } from "../components/Stage";
@@ -12,7 +13,7 @@ import type { SceneProps } from "./types";
  *  a message. The text types itself with a caret, then the send button presses — the
  *  control is used, not just shown. */
 export const Mock: React.FC<SceneProps<"mock">> = ({ scene }) => {
-  const { width } = useVideoConfig();
+  const { width } = useFrameSize();
   const { kit, fps, frame, arrive } = useAnim();
   const { theme, fonts, base } = kit;
   const W = width * 0.9;

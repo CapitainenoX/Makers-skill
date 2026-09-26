@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { AbsoluteFill, useVideoConfig } from "remotion";
 import { TypeStack } from "../components/Type";
@@ -13,7 +14,7 @@ import type { SceneProps } from "./types";
  *  looking pasted onto the page — and it follows the brand accent, so the card
  *  belongs to this video instead of every video. */
 export const Card: React.FC<SceneProps<"card">> = ({ scene }) => {
-  const { width } = useVideoConfig();
+  const { width } = useFrameSize();
   const { kit, arrive } = useAnim();
   const { theme, base } = kit;
   const tintBase = theme.accent === theme.text ? "#8FA3DE" : theme.accent;

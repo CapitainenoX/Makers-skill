@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { AbsoluteFill, useVideoConfig } from "remotion";
 import { measureText } from "@remotion/layout-utils";
@@ -12,7 +13,7 @@ import type { SceneProps } from "./types";
  *  moves at constant speed — it is a machine, so linear is correct here. Chip widths are
  *  measured, not guessed, so the loop is seamless. */
 export const Marquee: React.FC<SceneProps<"marquee">> = ({ scene }) => {
-  const { width, fps } = useVideoConfig();
+  const { width, fps } = useFrameSize();
   const { kit, frame, arrive } = useAnim();
   const { theme, fonts, base } = kit;
   const speed = scene.speed ?? 70;            // px per second

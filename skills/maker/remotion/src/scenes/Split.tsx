@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { AbsoluteFill, Easing, interpolate, useVideoConfig } from "remotion";
 import { useAnim } from "../motion";
@@ -13,7 +14,7 @@ import type { SceneProps } from "./types";
  *  tools side by side. The halves open from the divider outward, and the divider itself
  *  draws across. On a vertical canvas the default is two rows. */
 export const Split: React.FC<SceneProps<"split">> = ({ scene }) => {
-  const { width, height } = useVideoConfig();
+  const { width, height } = useFrameSize();
   const { kit, fps, frame, arrive } = useAnim();
   const { theme, fonts, base } = kit;
   const rows = (scene.dir ?? (height > width ? "rows" : "columns")) === "rows";

@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { AbsoluteFill, useVideoConfig } from "remotion";
 import { TypeStack } from "../components/Type";
@@ -11,7 +12,7 @@ import type { SceneProps } from "./types";
  *  than a grid: each tile has its own scale, angle and arrival — and keeps bobbing
  *  on its own phase after it lands, so the shelf never freezes. */
 export const Tiles: React.FC<SceneProps<"tiles">> = ({ scene }) => {
-  const { width, height, fps } = useVideoConfig();
+  const { width, height, fps } = useFrameSize();
   const { kit, arrive, frame } = useAnim();
   const { theme, fonts, base } = kit;
   const n = scene.items.length;

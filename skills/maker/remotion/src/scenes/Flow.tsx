@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { Easing, interpolate, useVideoConfig } from "remotion";
 import { Stage } from "../components/Stage";
@@ -11,7 +12,7 @@ import type { SceneProps } from "./types";
 /** A labelled pipeline on a white card — input, steps, output. The spine fills as each
  *  step lights up in turn, which is what turns a list into a mechanism. */
 export const Flow: React.FC<SceneProps<"flow">> = ({ scene }) => {
-  const { width } = useVideoConfig();
+  const { width } = useFrameSize();
   const { kit, fps, frame, arrive } = useAnim();
   const { theme, fonts, base } = kit;
   const W = width * 0.88;

@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { AbsoluteFill, Easing, interpolate, useVideoConfig } from "remotion";
 import { Glyph } from "../components/Glyph";
@@ -23,7 +24,7 @@ const countTo = (v: string | undefined, k: number) => {
  *  creator is allowed to show, or for the creator's own words; never to put words in
  *  someone's mouth. */
 export const Post: React.FC<SceneProps<"post">> = ({ scene }) => {
-  const { width } = useVideoConfig();
+  const { width } = useFrameSize();
   const { kit, fps, frame, arrive } = useAnim();
   const { theme, fonts, base } = kit;
   const W = width * 0.9;

@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { AbsoluteFill, Easing, interpolate, useVideoConfig } from "remotion";
 import { blurFilter, useAnim } from "../motion";
@@ -20,7 +21,7 @@ const splitValue = (value: string) => {
  *  fastest, with a vertical smear while it spins. Both are monotonic — a spring
  *  oscillates, and a counter that reads 1,240 -> 1,228 -> 1,240 looks broken. */
 export const Stat: React.FC<SceneProps<"stat">> = ({ scene }) => {
-  const { width } = useVideoConfig();
+  const { width } = useFrameSize();
   const { kit, fps, frame, arrive, ramp } = useAnim();
   const { theme, fonts, base } = kit;
   // The count lands exactly when the number is said (voice sync), else ~0.9 s in.

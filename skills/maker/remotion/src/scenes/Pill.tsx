@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { AbsoluteFill, useVideoConfig } from "remotion";
 import { TypeStack } from "../components/Type";
@@ -11,7 +12,7 @@ import type { SceneProps } from "./types";
 /** A soft raised capsule holding a name — the "product card" beat.
  *  Two shadows, not one: a wide soft one for depth, a tight one for contact. */
 export const Pill: React.FC<SceneProps<"pill">> = ({ scene }) => {
-  const { width } = useVideoConfig();
+  const { width } = useFrameSize();
   const { kit, arrive } = useAnim();
   const { theme, fonts, base } = kit;
   const iconSize = base * 1.7;

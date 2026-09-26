@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { AbsoluteFill, useVideoConfig } from "remotion";
 import { Glyph } from "../components/Glyph";
@@ -10,7 +11,7 @@ import type { SceneProps } from "./types";
 /** Notifications dropping in and stacking — social proof, a flood of results, "it just
  *  keeps happening". Each new one pushes the stack down; older ones shrink back. */
 export const Notify: React.FC<SceneProps<"notify">> = ({ scene }) => {
-  const { width } = useVideoConfig();
+  const { width } = useFrameSize();
   const { kit, fps, frame, arrive, at } = useAnim();
   const { theme, fonts, base } = kit;
   const items = scene.items.slice(0, 5);

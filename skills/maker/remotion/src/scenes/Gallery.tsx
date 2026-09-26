@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { AbsoluteFill, useVideoConfig } from "remotion";
 import { Media } from "../components/Media";
@@ -11,7 +12,7 @@ import type { SceneProps } from "./types";
  *  card tossed aside to reveal the next). `focus` lifts one item forward after the
  *  others land. Every tile is a still or a loop, each with a slow Ken Burns. */
 export const Gallery: React.FC<SceneProps<"gallery">> = ({ scene, durationInFrames }) => {
-  const { width, height } = useVideoConfig();
+  const { width, height } = useFrameSize();
   const { kit, fps, frame, arrive, ramp } = useAnim();
   const { theme, fonts, base } = kit;
   const items = scene.items.slice(0, 6);

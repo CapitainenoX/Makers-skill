@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { AbsoluteFill, useVideoConfig } from "remotion";
 import { stagger, useAnim } from "../motion";
@@ -12,7 +13,7 @@ import type { SceneProps } from "./types";
  *  The terminal is always a dark slab. It used to take the theme's surface, which on the
  *  default white theme meant near-white text on a white card — invisible. */
 export const Code: React.FC<SceneProps<"code">> = ({ scene }) => {
-  const { width } = useVideoConfig();
+  const { width } = useFrameSize();
   const { kit, fps, frame, arrive } = useAnim();
   const { theme, fonts, base } = kit;
   const prompt = scene.prompt ?? "$";

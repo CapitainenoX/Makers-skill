@@ -2,7 +2,7 @@
 
 ```jsonc
 {
-  "width": 1080, "height": 1920, "fps": 30,
+  "width": 1080, "height": 1920, "fps": 30,   // 1920x1080 for long-form: scenes lay out in a centred area 1.15x the height wide, type a touch smaller; "baseSize": 0.066 reads well there
   "style": "mono",                        // mono (default, strict black & white) | color
   "hud": true,                            // scene counter + handle + progress bar (mono default)
   "ghost": true,                          // giant outlined keyword behind scenes (mono default)

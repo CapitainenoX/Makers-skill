@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { useVideoConfig } from "remotion";
 import { Chip } from "../components/Chip";
@@ -9,7 +10,7 @@ import type { SceneProps } from "./types";
 /** A row or grid of logo chips. The whole "works with everything" beat in one shape.
  *  Chips drop in from alternating sides with a pop and a small spin, then breathe. */
 export const Chips: React.FC<SceneProps<"chips">> = ({ scene }) => {
-  const { width } = useVideoConfig();
+  const { width } = useFrameSize();
   const { kit, fps, frame, arrive } = useAnim();
   const n = scene.items.length;
   const cols = scene.columns ?? (n <= 3 ? n : n === 4 ? 2 : 3);

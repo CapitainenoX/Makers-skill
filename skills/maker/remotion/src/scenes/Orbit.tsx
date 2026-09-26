@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { useVideoConfig } from "remotion";
 import { Chip } from "../components/Chip";
@@ -10,7 +11,7 @@ import type { SceneProps } from "./types";
  *  platform and its integrations — "everything connects to this" as motion rather than
  *  as a grid. The satellites stay upright while they travel. */
 export const Orbit: React.FC<SceneProps<"orbit">> = ({ scene }) => {
-  const { width } = useVideoConfig();
+  const { width } = useFrameSize();
   const { kit, fps, frame, arrive } = useAnim();
   const { theme, base } = kit;
   const S = width * 0.84;

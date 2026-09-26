@@ -1,3 +1,4 @@
+import { layoutWidth } from "./frame";
 import React from "react";
 import {
   AbsoluteFill, Audio, Easing, Sequence, interpolate, staticFile,
@@ -160,7 +161,7 @@ const ghostFor = (scene: Scene, on: boolean): string | undefined => {
 };
 
 export const Deck: React.FC<DeckType> = (deck) => {
-  const { width, durationInFrames, fps } = useVideoConfig();
+  const { width, height, durationInFrames, fps } = useVideoConfig();
   const seed = seedOf(deck.seed);
   // Black and white is the house style; `style: "color"` opts into the accent.
   const mono = (deck.style ?? "mono") === "mono";
@@ -169,7 +170,9 @@ export const Deck: React.FC<DeckType> = (deck) => {
   const themeFor = (i: number) => inverted[i]
     ? buildTheme(deck.theme ?? DEFAULTS.theme, deck.brand?.accent, mono, true) : theme;
   const { fonts, ready } = useFonts(deck.typeset, deck.brand?.font);
-  const base = width * (deck.baseSize ?? DEFAULTS.baseSize);
+  // Sized from the layout width (see frame.ts), a touch smaller in landscape: a 16:9 deck
+  // sized from its full width set type 1.8x too large and stacked scenes overflowed.
+  const base = layoutWidth(width, height) * (deck.baseSize ?? DEFAULTS.baseSize) * (width > height ? 0.8 : 1);
   // The black-and-white house style moves in hard edges and masks ("graphic"); a colour
   // deck left unset takes one from its seed.
   const language = deck.motion?.language

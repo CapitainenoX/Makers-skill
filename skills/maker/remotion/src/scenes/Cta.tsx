@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { Easing, interpolate, useVideoConfig } from "remotion";
 import { Stage } from "../components/Stage";
@@ -19,7 +20,7 @@ const DEFAULTS: Action[] = [
  *  named, on screen, while the payoff is still warm. Each button lands, then the main one
  *  is pressed — a ring ripples out and the bell rings. The press is what the eye follows. */
 export const Cta: React.FC<SceneProps<"cta">> = ({ scene }) => {
-  const { width } = useVideoConfig();
+  const { width } = useFrameSize();
   const { kit, fps, frame, arrive } = useAnim();
   const { theme, fonts } = kit;
   const items: Action[] = scene.actions?.length ? scene.actions : DEFAULTS;

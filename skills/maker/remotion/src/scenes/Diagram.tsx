@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React, { useId } from "react";
 import { Easing, interpolate, useVideoConfig } from "remotion";
 import { Chip } from "../components/Chip";
@@ -10,7 +11,7 @@ import type { SceneProps } from "./types";
  *  the nodes land, and a pulse travels down each wire — so the structure reads as a live
  *  system rather than as icons that happen to be near each other. */
 export const Diagram: React.FC<SceneProps<"diagram">> = ({ scene }) => {
-  const { width } = useVideoConfig();
+  const { width } = useFrameSize();
   const { kit, fps, frame, arrive } = useAnim();
   const { theme, base } = kit;
   const nodes = scene.nodes;

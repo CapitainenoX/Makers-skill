@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { AbsoluteFill, Easing, interpolate, useVideoConfig } from "remotion";
 import { TypeStack } from "../components/Type";
@@ -13,7 +14,7 @@ import type { SceneProps } from "./types";
  *  a cursor: the mark lands where the eye should already be going. Rings and boxes draw
  *  themselves; a soft pulse keeps them alive after they land. */
 export const Annotate: React.FC<SceneProps<"annotate">> = ({ scene }) => {
-  const { width } = useVideoConfig();
+  const { width } = useFrameSize();
   const { kit, fps, frame, arrive } = useAnim();
   const { theme, fonts, base } = kit;
   const kind = scene.frame ?? "browser";

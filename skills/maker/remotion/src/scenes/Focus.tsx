@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { AbsoluteFill, Easing, interpolate, useVideoConfig } from "remotion";
 import { Media } from "../components/Media";
@@ -10,7 +11,7 @@ import type { SceneProps } from "./types";
  *  the detail at (x, y) while everything else dims under a spotlight. The single most
  *  useful move for a screen recording — it does the pointing for you. */
 export const Focus: React.FC<SceneProps<"focus">> = ({ scene }) => {
-  const { width, height } = useVideoConfig();
+  const { width, height } = useFrameSize();
   const { kit, fps, frame, arrive } = useAnim();
   const { theme, fonts, base } = kit;
   const kind = scene.frame ?? "card";

@@ -1,3 +1,4 @@
+import { useFrameSize } from "../frame";
 import React from "react";
 import { AbsoluteFill, Easing, interpolate, useVideoConfig } from "remotion";
 import { blurFilter, cueAt, enter, useAnim } from "../motion";
@@ -17,7 +18,7 @@ import type { SceneProps } from "./types";
  *  the italic serif — mixing a condensed grotesque with an italic serif in the same
  *  poster is the most "designed" thing type can do. */
 export const Kinetic: React.FC<SceneProps<"kinetic">> = ({ scene, durationInFrames }) => {
-  const { width } = useVideoConfig();
+  const { width } = useFrameSize();
   const { kit, fps, frame } = useAnim();
   const { theme, fonts, base } = kit;
   const style = scene.style ?? "stack";
