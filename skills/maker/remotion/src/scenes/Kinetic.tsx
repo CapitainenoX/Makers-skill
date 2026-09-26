@@ -119,10 +119,9 @@ export const Kinetic: React.FC<SceneProps<"kinetic">> = ({ scene, durationInFram
         return (
           <div key={i} style={{ overflow: "hidden", lineHeight: fonts.displayLeading,
             fontFamily: fonts.display, fontSize: size,
-            // once landed, lines keep sliding a little in opposite directions: parallax
-            // that keeps a poster alive without moving what the eye is reading
-            transform: `translate3d(${((i % 2 ? 1 : -1) * interpolate(frame, [d, d + durationInFrames], [0, width * 0.035], {
-              extrapolateLeft: "clamp", extrapolateRight: "clamp" })).toFixed(2)}px, 0, 0)`, willChange: "transform",
+            // once landed, a line holds perfectly still. A slow parallax slide (0.4 px a
+            // frame) re-rasterised the glyphs at a new sub-pixel offset every frame and the
+            // words visibly vibrated while being read
             paddingBottom: size * 0.08, marginBottom: -size * 0.08, whiteSpace: "nowrap" }}>
             <div style={{ transform: `translateY(${((1 - m) * 105).toFixed(2)}%)`,
               filter: blurFilter(0, (m - mv) * size, kit.blur) }}>

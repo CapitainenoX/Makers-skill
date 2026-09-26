@@ -2,26 +2,33 @@ import type React from "react";
 import { Easing, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { useKit, type TextFx } from "./kit";
 
-/** Spring presets. `pop` overshoots — that overshoot is what makes an entrance
- *  read as snappy rather than as a rectangle sliding. */
+/** Spring presets: fast (in place in ~0.25-0.35 s, so the words can be read at once)
+ *  and damped close to critical. The first set was soft and underdamped: entrances took
+ *  most of a second, and the long decaying oscillation at the end read as the element
+ *  vibrating in place. `pop` keeps one small overshoot, which is what makes it snappy. */
 export const SPRINGS = {
-  pop: { damping: 15, mass: 0.5, stiffness: 230 },
-  snap: { damping: 18, mass: 0.55, stiffness: 190 },
-  smooth: { damping: 26, mass: 0.9, stiffness: 120 },
-  heavy: { damping: 30, mass: 1.4, stiffness: 90 },
+  pop: { damping: 21, mass: 0.5, stiffness: 340 },
+  snap: { damping: 28, mass: 0.5, stiffness: 360 },
+  smooth: { damping: 30, mass: 0.7, stiffness: 240 },
+  heavy: { damping: 32, mass: 1, stiffness: 200 },
   // a hard, fast arrival with one small bounce — slams, VS badges, stamps
-  slam: { damping: 14, mass: 0.7, stiffness: 420 },
+  slam: { damping: 24, mass: 0.6, stiffness: 520 },
 } as const;
 
 export type SpringName = keyof typeof SPRINGS;
 
-/** 0 -> 1 entrance value, delayed by `delay` frames. */
+/** 0 -> 1 entrance value, delayed by `delay` frames. Once within a hair of rest it is
+ *  exactly 1: a spring's tail keeps moving things by fractions of a pixel for a second,
+ *  and on text that sub-pixel creep is visible as shimmer — the "vibrating" word. */
 export const enter = (
   frame: number,
   fps: number,
   delay = 0,
   preset: SpringName = "snap",
-) => spring({ frame: frame - delay, fps, config: SPRINGS[preset] });
+) => {
+  const v = spring({ frame: frame - delay, fps, config: SPRINGS[preset] });
+  return Math.abs(1 - v) < 0.004 ? 1 : v;
+};
 
 /** 1 -> 0 over the last `tail` frames of a scene, so scenes breathe out. */
 export const exit = (frame: number, durationInFrames: number, tail = 7) =>
@@ -221,9 +228,11 @@ export const TEXT_SPRING: Record<TextFx, SpringName> = {
   rise: "snap", mask: "snap", blur: "smooth", pop: "pop", slide: "snap", type: "snap",
 };
 
-/** Cadence between words, in ms. Typing is faster and steady; masks read best tight. */
+/** Cadence between words, in ms. Tight on purpose: a sentence arrives as one quick
+ *  ripple and is readable almost at once. Revealing it word by word with the voice made
+ *  the caption change on every word — nobody can read a moving sentence. */
 export const TEXT_CADENCE: Record<TextFx, number> = {
-  rise: 85, mask: 100, blur: 90, pop: 90, slide: 85, type: 60,
+  rise: 32, mask: 38, blur: 32, pop: 32, slide: 32, type: 28,
 };
 
 // ------------------------------------------------------------------ voice cues

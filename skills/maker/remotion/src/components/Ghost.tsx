@@ -4,7 +4,7 @@ import { useKit } from "../kit";
 import { alpha } from "../color";
 
 /** A giant outlined word behind the scene — the scene's keyword, three times wider than
- *  the frame, drifting sideways. It fills the dead space above and below a small block
+ *  the frame, sliding in and settling. It fills the dead space above and below a small block
  *  with texture instead of decoration, and it is pure ink: it works in black and white.
  *  Low contrast on purpose: it is read by the eye, not by the viewer. */
 export const Ghost: React.FC<{ text?: string; index: number }> = ({ text, index }) => {
@@ -14,8 +14,10 @@ export const Ghost: React.FC<{ text?: string; index: number }> = ({ text, index 
   if (!text) return null;
   const word = fonts.displayUpper ? text.toUpperCase() : text;
   const dir = index % 2 === 0 ? -1 : 1;
-  const k = interpolate(frame, [0, Math.max(1, durationInFrames)], [0, 1], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // Slides in with the scene, then rests. A drift that never stops kept a thin outline
+  // moving by a few pixels every frame behind the text — it strobed, read as vibration.
+  const k = interpolate(frame, [0, Math.max(1, Math.min(durationInFrames, Math.round(fps * 1.1)))], [0, 0.5], {
+    extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) });
   const inP = interpolate(frame, [0, Math.round(fps * 0.5)], [0, 1], {
     extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) });
   const size = Math.min(height * 0.34, (width * 2.6) / Math.max(3, word.length));

@@ -23,7 +23,7 @@ the harness only uses hard-edged transitions (wipe, push, iris, whip, blinds), b
 dissolve averages the two into grey mush.
 
 Two things fill the frame instead of wallpaper: a **ghost** — the scene's keyword,
-outlined, three times the frame's width, drifting behind the block — and the **HUD**,
+outlined, three times the frame's width, sliding in behind the block and resting — and the **HUD**,
 an editorial frame with the scene counter, the handle and a hairline progress bar.
 Corner decor is off in this style.
 
@@ -104,9 +104,10 @@ Move the decor around between scenes (`corners`, and alternate `rays` / `arcs` /
 Identical wallpaper on eleven scenes in a row is the repetition viewers feel without being
 able to name.
 
-**Everything drifts slightly.** Every scene gets a slow push (`zoom`, 0.035 by default),
-alternating in and out across the deck. A perfectly static frame reads as a slide; three
-or four percent of drift over two seconds reads as a camera.
+**Arrive fast, then hold still.** Energy comes from arrivals — quick, damped, blurred on
+the way in — never from a frame that keeps creeping. A slow camera push or a parallax
+moves text by a fraction of a pixel per frame and the glyphs visibly shimmer; the camera
+is still by default (`zoom: 0`) and every spring snaps to rest instead of trailing off.
 
 **Nothing holds still and nothing is busy.** One element enters per beat, springs into
 place, and stays. No particle storms, no background video. One or two complementary

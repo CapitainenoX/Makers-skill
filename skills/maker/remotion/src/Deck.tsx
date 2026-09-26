@@ -52,8 +52,10 @@ const SceneFrame: React.FC<{
   const k = interpolate(frame, [0, Math.max(1, frames + outFrames)], [0, 1], {
     extrapolateLeft: "clamp", extrapolateRight: "clamp",
   });
-  // A constant, barely-there drift. An eased push that accelerates mid-scene, stacked
-  // with punch-ins, made viewers dizzy — the camera must never be the event.
+  // Off by default (deck.zoom 0): an eased push stacked with punch-ins made viewers
+  // dizzy, and even a constant 2.5 % drift re-rasterised every glyph at a new scale each
+  // frame — text shimmered, read as vibrating. The camera must never be the event; motion
+  // belongs to what arrives. A deck may still opt in with `zoom`.
   const ke = k;
   const push = 1 + amount * ((index + seed) % 2 === 0 ? ke : 1 - ke);
 
@@ -210,7 +212,7 @@ export const Deck: React.FC<DeckType> = (deck) => {
                   scene={scene}
                   index={i}
                   seed={seed}
-                  zoom={deck.zoom ?? 0.025}
+                  zoom={deck.zoom ?? 0}
                   frames={place.frames}
                   inT={scene.transition}
                   inFrames={place.inFrames}

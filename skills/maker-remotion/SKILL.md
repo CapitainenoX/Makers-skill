@@ -59,7 +59,7 @@ Then rewrite it from the beat sheet. Full schema, every scene type and every fie
 drawn in the ink of their surface, accents become underlines or reversed words.
 Rhythm comes from **inversion**: some scenes flip to a black slab (chosen automatically,
 never twice in a row, always joined by a hard-edged transition). Each scene carries a
-**ghost** — its keyword, huge and outlined, drifting behind — and the video wears a
+**ghost** — its keyword, huge and outlined, sliding in behind — and the video wears a
 **HUD** (scene counter, handle, progress bar). `validate` flags any colour that slips
 into a mono deck. `"style": "color"` opts out.
 
@@ -292,7 +292,9 @@ Three moves carry most of the life in this look:
   Enough to feel alive, not enough to notice.
 - `stat` counts its digits up on a monotonic ramp, never on the spring: a value that
   overshoots and comes back reads as a bug, not as energy.
-- The `rich` caption reveals word by word, so a written line lands like a spoken one.
+- The `rich` caption lands as one quick ripple (~0.2 s for a sentence) on its first
+  spoken word, then holds still. Never word by word with the voice: a caption that
+  changes on every word cannot be read.
 - `==highlight==` is animated: the words land as normal text, then the marker strokes
   across them and the ink flips. A box that appears with the word reads as a label; the
   sweep reads as someone highlighting a line.
@@ -323,11 +325,16 @@ A transition never changes the timing: cuts sit on the running sum of durations.
 
 ### Energy without speed, smoothness without stutter
 
-Dynamic is movement *inside* a readable scene, not more cuts: items land on their words,
-kinetic lines keep sliding in parallax after they land, the ghost word travels behind.
-The camera itself stays almost still — a constant 2.5 % drift, no acceleration. Whole-
-frame punch-ins on emphasised words exist (`motion.punch: true`) but are off by default:
-stacked with the drift they made viewers dizzy. The camera must never be the event.
+Dynamic is *fast arrivals* inside a readable scene, not more cuts and not constant
+motion: items land on their words in ~0.3 s, a caption lands whole, then everything holds
+**perfectly still** to be read. The camera does not move (`zoom` defaults to 0), the ghost
+word slides in and rests, backdrop grids are fixed. Anything that keeps creeping a
+fraction of a pixel per frame — a slow drift, a parallax, a spring's tail — re-rasterises
+the glyphs every frame and reads as text *vibrating*. Whole-frame punch-ins exist
+(`motion.punch: true`) but are off by default: they made viewers dizzy.
+
+`mk remotion jitter` reports `still_frames_pct`: a calm video sits well above 50 %.
+Single digits mean something never stops moving.
 
 Smoothness rules the renderer now follows — keep them in any scene you add:
 

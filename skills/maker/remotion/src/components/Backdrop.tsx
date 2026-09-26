@@ -73,7 +73,8 @@ export const Backdrop: React.FC<{ kind?: BackdropKind; bg: string; index: number
         <AbsoluteFill style={{
           backgroundImage: `radial-gradient(${alpha(theme.muted, 0.45)} ${Math.max(1.2, width * 0.0019)}px, transparent 0)`,
           backgroundSize: `${step}px ${step}px`,
-          backgroundPosition: `${(t * 6 * side) % step}px ${(t * 4) % step}px`,
+          // static: a grid of tiny dots crawling a fraction of a pixel a frame shimmers
+          backgroundPosition: `${(index * step * 0.37) % step}px 0px`,
           WebkitMaskImage: "radial-gradient(70% 55% at 50% 50%, #000 20%, transparent 85%)",
           maskImage: "radial-gradient(70% 55% at 50% 50%, #000 20%, transparent 85%)",
         }} />
@@ -81,13 +82,13 @@ export const Backdrop: React.FC<{ kind?: BackdropKind; bg: string; index: number
     );
   }
 
-  // lines: faint diagonal hairlines drifting
+  // lines: faint diagonal hairlines, still (crawling hairlines shimmer like dots do)
   const gap = width * 0.06;
   return (
     <AbsoluteFill style={{ background: bg }}>
       <AbsoluteFill style={{
         backgroundImage: `repeating-linear-gradient(${side > 0 ? 115 : 65}deg, ${alpha(theme.muted, 0.14)} 0 1.5px, transparent 1.5px ${gap}px)`,
-        backgroundPosition: `${(t * 10) % gap}px 0`,
+        backgroundPosition: `${(index * gap * 0.41) % gap}px 0`,
         WebkitMaskImage: "linear-gradient(180deg, #000, transparent 30%, transparent 70%, #000)",
         maskImage: "linear-gradient(180deg, #000, transparent 30%, transparent 70%, #000)",
       }} />

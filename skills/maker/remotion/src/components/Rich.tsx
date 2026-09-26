@@ -6,7 +6,7 @@ import { useKit, type TextFx } from "../kit";
 import { enter, stagger, textFxStyle, TEXT_CADENCE, TEXT_SPRING } from "../motion";
 import { Glyph } from "./Glyph";
 
-/** A flowing sentence with per-word emphasis and a word-by-word reveal.
+/** A flowing sentence with per-word emphasis and a quick ripple reveal.
  *
  *  Each marker is a level of importance, and each level has its own face: plain words in
  *  the body face, muted; `**bold**` heavier and darker; `*serif*` in the italic serif — the
@@ -26,7 +26,8 @@ export const Rich: React.FC<{
   fx?: TextFx;
   /** light text for captions over footage */
   inverse?: boolean;
-  /** seconds (from the scene start) at which each token is spoken — voice sync */
+  /** seconds (from the scene start) at which each token is spoken — voice sync. Only the
+   *  first is used: it is when the whole sentence lands */
   times?: number[];
   /** base font for plain + bold words (defaults to the body face). `serif` sets the
    *  whole sentence in the serif — quotations — with emphasis as italics */
@@ -67,9 +68,11 @@ export const Rich: React.FC<{
     else groups.push({ words: [t.text], em: t.em, index: i });
   });
 
-  const lastShown = groups.reduce((acc, g, gi) =>
-    frame >= (typeof times?.[g.index] === "number" ? Math.round(times[g.index] * fps)
-      : delay + stagger(g.index, fps, gapMs)) ? gi : acc, -1);
+  // Voice sync sets when the sentence lands — its first spoken word — not when each word
+  // does: the whole caption ripples in at once, then holds still to be read.
+  const start = typeof times?.[0] === "number" ? Math.max(0, Math.round((times[0] - 0.08) * fps)) : delay;
+  const at = (i: number) => reveal === "word" ? start + stagger(i, fps, gapMs) : start;
+  const lastShown = groups.reduce((acc, g, gi) => frame >= at(g.index) ? gi : acc, -1);
 
   return (
     <div
@@ -86,9 +89,7 @@ export const Rich: React.FC<{
       }}
     >
       {groups.map((g, gi) => {
-        const spoken = times?.[g.index];
-        const d = typeof spoken === "number" ? Math.max(0, Math.round((spoken - 0.06) * fps))
-          : reveal === "word" ? delay + stagger(g.index, fps, gapMs) : delay;
+        const d = at(g.index);
         const p = enter(frame, fps, d, preset);
         const q = enter(frame - 1, fps, d, preset);
         const anim = textFxStyle(effect, p, q, px, blur);
@@ -146,14 +147,18 @@ export const Rich: React.FC<{
           const sweep = interpolate(frame, [sweepStart, sweepStart + sweepFrames], [0, 1], {
             extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.cubic),
           });
-          const inked = sweep > 0.55;
+          // The ink flips only where the box has passed: flipping the whole phrase at once
+          // turned the words not yet covered into dark-on-dark, and they vanished.
           const box = inverse ? "#FFFFFF" : theme.text;
+          const cut = `inset(-20% ${((1 - sweep) * 100).toFixed(2)}% -20% 0)`;
           return wrap(
             <>
               <span style={{ position: "absolute", inset: `${-px * 0.06}px ${-px * 0.16}px`,
                 background: box, borderRadius: px * 0.1,
                 transform: `scaleX(${sweep})`, transformOrigin: "left center" }} />
-              <span style={{ position: "relative", color: inked ? (inverse ? "#0A0A0B" : theme.bg) : strongColor }}>
+              <span style={{ position: "relative", color: strongColor }}>{word}</span>
+              <span style={{ position: "absolute", left: 0, top: 0, whiteSpace: "nowrap",
+                color: inverse ? "#0A0A0B" : theme.bg, clipPath: cut }}>
                 {word}
               </span>
             </>,

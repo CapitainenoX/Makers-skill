@@ -11,7 +11,7 @@
   "baseSize": 0.058,                      // type scale as a fraction of width
   "brand": { "accent": "#D97757", "font": "", "watermark": "yourhandle" },
   "seed": "my-video-slug",   // shifts entrances, push direction, decor and transitions
-  "zoom": 0.025,             // constant drift on every scene; 0 for static
+  "zoom": 0,                 // camera push on every scene; 0 (default) holds it still
   "motion": {
     "language": "graphic",   // clean | punchy | soft | graphic — mono default: graphic
     "blur": 1,               // motion-blur strength, 0 disables
@@ -51,7 +51,7 @@ full URL. Copy assets into `.maker/remotion/public/` before referencing them.
 | `duration` | seconds (required) |
 | `anchor` | `top` \| `center` \| `bottom` — default `center`; the edges are filled by `decor` |
 | `variant` | `up` `down` `left` `right` `scale` `fade` `zoomOut` `tiltLeft` `tiltRight` `riseFar` — how this scene's block arrives. Left unset it rotates by index **and the deck seed** |
-| `zoom` | slow push on this scene as a fraction (deck default `0.035`). `0` holds it still |
+| `zoom` | slow push on this scene as a fraction (deck default `0`, still). Opt-in: moving text shimmers |
 | `bg` | override the deck background for this scene |
 | `backdrop` | override the deck backdrop for this scene |
 | `transition` | how this scene arrives — see below. Omit it and the harness picks |
