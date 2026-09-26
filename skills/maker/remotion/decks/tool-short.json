@@ -10,7 +10,7 @@
   "scenes": [
     {
       "type": "textStack",
-      "duration": 1.4,
+      "duration": 2.8,
       "anchor": "top",
       "lines": [
         {
@@ -35,13 +35,13 @@
     },
     {
       "type": "pill",
-      "duration": 1.6,
+      "duration": 2.8,
       "label": "REPLACE-name",
       "sub": "open source \u00b7 runs locally"
     },
     {
       "type": "code",
-      "duration": 2.4,
+      "duration": 5.4,
       "title": "terminal",
       "lines": [
         "$ npm i -g REPLACE",
@@ -52,7 +52,7 @@
     },
     {
       "type": "logoList",
-      "duration": 2.8,
+      "duration": 5.4,
       "anchor": "top",
       "heading": [
         {
@@ -101,7 +101,7 @@
     },
     {
       "type": "card",
-      "duration": 2.2,
+      "duration": 2.8,
       "anchor": "top",
       "transition": {
         "type": "fade",
@@ -123,19 +123,19 @@
     },
     {
       "type": "stat",
-      "duration": 1.6,
+      "duration": 3.4,
       "value": "REPLACE",
       "label": "REPLACE what the number means",
       "sub": "REPLACE the qualifier"
     },
     {
       "type": "cta",
-      "duration": 1.8,
+      "duration": 2.0,
       "rich": "REPLACE pourquoi ==s'abonner=="
     },
     {
       "type": "outro",
-      "duration": 1.8,
+      "duration": 2.8,
       "transition": {
         "type": "fade",
         "duration": 0.3

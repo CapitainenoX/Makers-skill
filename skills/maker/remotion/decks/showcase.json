@@ -10,7 +10,7 @@
   "scenes": [
     {
       "type": "kinetic",
-      "duration": 1.6,
+      "duration": 2.8,
       "lines": [
         "stop editing",
         "**by** *hand*",
@@ -19,7 +19,7 @@
     },
     {
       "type": "chips",
-      "duration": 1.8,
+      "duration": 4.0,
       "items": [
         {
           "icon": "logos/github.svg",
@@ -47,7 +47,7 @@
     },
     {
       "type": "chapter",
-      "duration": 1.6,
+      "duration": 2.5,
       "number": "01",
       "title": "The setup",
       "sub": "two minutes, once",
@@ -98,7 +98,7 @@
     },
     {
       "type": "steps",
-      "duration": 2.2,
+      "duration": 2.5,
       "heading": [
         {
           "t": "Three steps",
@@ -127,7 +127,7 @@
     },
     {
       "type": "chart",
-      "duration": 2.2,
+      "duration": 3.4,
       "kind": "bar",
       "unit": "s",
       "items": [
@@ -152,7 +152,7 @@
     },
     {
       "type": "checklist",
-      "duration": 2.2,
+      "duration": 4.9,
       "heading": [
         {
           "t": "Myths",
@@ -179,7 +179,7 @@
     },
     {
       "type": "timeline",
-      "duration": 2.2,
+      "duration": 4.9,
       "items": [
         {
           "date": "2023",
@@ -203,7 +203,7 @@
     },
     {
       "type": "chart",
-      "duration": 2.2,
+      "duration": 3.4,
       "kind": "line",
       "unit": "K",
       "items": [
@@ -235,7 +235,7 @@
     },
     {
       "type": "orbit",
-      "duration": 2.2,
+      "duration": 4.3,
       "hub": {
         "icon": "logos/claude.svg",
         "fill": "brand"
@@ -270,7 +270,7 @@
     },
     {
       "type": "gallery",
-      "duration": 2.2,
+      "duration": 2.8,
       "layout": "fan",
       "items": [
         {
@@ -290,7 +290,7 @@
     },
     {
       "type": "notify",
-      "duration": 2.4,
+      "duration": 5.2,
       "items": [
         {
           "app": "Render",
@@ -325,7 +325,7 @@
     },
     {
       "type": "focus",
-      "duration": 2.4,
+      "duration": 3.1,
       "media": "shots/app.svg",
       "x": 0.3,
       "y": 0.2,
@@ -339,7 +339,7 @@
     },
     {
       "type": "post",
-      "duration": 2.4,
+      "duration": 3.7,
       "name": "Ada Lovelace",
       "handle": "@ada",
       "verified": true,
@@ -350,7 +350,7 @@
     },
     {
       "type": "stat",
-      "duration": 1.8,
+      "duration": 2.2,
       "value": "40,000",
       "label": "stars",
       "style": "roll",
@@ -359,14 +359,14 @@
     },
     {
       "type": "stat",
-      "duration": 1.8,
+      "duration": 2.2,
       "value": "92%",
       "label": "watched to the end",
       "ring": 0.92
     },
     {
       "type": "code",
-      "duration": 2.4,
+      "duration": 5.4,
       "title": "zsh",
       "lines": [
         "$ mk remotion render deck.json",
@@ -377,7 +377,7 @@
     },
     {
       "type": "mock",
-      "duration": 2.2,
+      "duration": 4.3,
       "text": "Make me a short about this repo.",
       "badge": "Chat",
       "meta": "one prompt",
@@ -415,14 +415,14 @@
     },
     {
       "type": "quote",
-      "duration": 2.4,
+      "duration": 3.7,
       "text": "The best editor is the one you **never open**.",
       "author": "Someone wise",
       "role": "on tooling"
     },
     {
       "type": "textStack",
-      "duration": 1.8,
+      "duration": 2.2,
       "lines": [
         {
           "t": "it's open source",
@@ -467,7 +467,7 @@
     },
     {
       "type": "cta",
-      "duration": 2.0,
+      "duration": 3.4,
       "rich": "if this saved you an hour, ==say so=="
     }
   ]

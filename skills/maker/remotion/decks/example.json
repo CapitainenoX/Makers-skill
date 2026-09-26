@@ -10,7 +10,7 @@
   "scenes": [
     {
       "type": "textStack",
-      "duration": 2.0,
+      "duration": 4.3,
       "lines": [
         {
           "t": "it is",
@@ -39,7 +39,7 @@
     },
     {
       "type": "pill",
-      "duration": 1.6,
+      "duration": 2.8,
       "label": "maker",
       "lines": [
         {
@@ -58,7 +58,7 @@
     },
     {
       "type": "logoList",
-      "duration": 2.8,
+      "duration": 5.4,
       "heading": [
         {
           "t": "then you pick any",
@@ -107,7 +107,7 @@
     },
     {
       "type": "card",
-      "duration": 2.4,
+      "duration": 2.8,
       "transition": {
         "type": "fade",
         "duration": 0.28
@@ -129,7 +129,7 @@
     },
     {
       "type": "code",
-      "duration": 2.6,
+      "duration": 5.4,
       "title": "terminal",
       "lines": [
         "$ mk assemble deck.json",
@@ -140,19 +140,19 @@
     },
     {
       "type": "stat",
-      "duration": 1.8,
+      "duration": 3.4,
       "value": "38s",
       "label": "from prompt to render",
       "sub": "no timeline, no keyframes"
     },
     {
       "type": "cta",
-      "duration": 1.8,
+      "duration": 2.2,
       "rich": "if this helped, ==follow=="
     },
     {
       "type": "outro",
-      "duration": 2.0,
+      "duration": 2.5,
       "transition": {
         "type": "fade",
         "duration": 0.3

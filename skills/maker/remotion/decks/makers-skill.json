@@ -10,7 +10,7 @@
   "scenes": [
     {
       "type": "chips",
-      "duration": 1.5,
+      "duration": 3.4,
       "size": 0.23,
       "items": [
         {
@@ -24,7 +24,7 @@
     },
     {
       "type": "mock",
-      "duration": 1.9,
+      "duration": 4.6,
       "text": "Make me a short about this GitHub project.",
       "badge": "Chat",
       "meta": "one prompt",
@@ -32,7 +32,7 @@
     },
     {
       "type": "flow",
-      "duration": 2.5,
+      "duration": 5.4,
       "title": "What it actually does",
       "steps": [
         {
@@ -52,7 +52,7 @@
     },
     {
       "type": "diagram",
-      "duration": 2.5,
+      "duration": 4.0,
       "hub": {
         "icon": "gear"
       },
@@ -78,7 +78,7 @@
     },
     {
       "type": "chips",
-      "duration": 2.2,
+      "duration": 3.7,
       "columns": 4,
       "size": 0.16,
       "items": [
@@ -103,7 +103,7 @@
     },
     {
       "type": "stat",
-      "duration": 1.8,
+      "duration": 2.5,
       "value": "20",
       "label": "scene types",
       "sub": "one beat each"
@@ -121,7 +121,7 @@
     },
     {
       "type": "bullets",
-      "duration": 2.3,
+      "duration": 5.2,
       "heading": [
         {
           "t": "All of it is free",
@@ -150,7 +150,7 @@
     },
     {
       "type": "marquee",
-      "duration": 1.9,
+      "duration": 5.4,
       "speed": 78,
       "lines": [
         {
@@ -173,7 +173,7 @@
     },
     {
       "type": "cta",
-      "duration": 2.0,
+      "duration": 4.3,
       "size": 0.19,
       "actions": [
         {

@@ -19,7 +19,7 @@
   "scenes": [
     {
       "type": "chips",
-      "duration": 1.5,
+      "duration": 4.6,
       "items": [
         {
           "icon": "sparkle",
@@ -33,7 +33,7 @@
     },
     {
       "type": "diagram",
-      "duration": 2.0,
+      "duration": 4.3,
       "hub": {
         "icon": "gear"
       },
@@ -56,7 +56,7 @@
     },
     {
       "type": "kinetic",
-      "duration": 1.6,
+      "duration": 2.8,
       "style": "stack",
       "lines": [
         "all of them",
@@ -66,7 +66,7 @@
     },
     {
       "type": "flow",
-      "duration": 2.2,
+      "duration": 5.4,
       "title": "LLM (Large Language Model)",
       "steps": [
         {
@@ -94,7 +94,7 @@
     },
     {
       "type": "mock",
-      "duration": 1.8,
+      "duration": 5.4,
       "text": "Build me a landing page for a hair salon.",
       "badge": "Chat",
       "meta": "Sonnet 5 \u00b7 Medium",
@@ -106,7 +106,7 @@
     },
     {
       "type": "cta",
-      "duration": 1.8,
+      "duration": 2.2,
       "rich": "follow for **part two**"
     }
   ]
