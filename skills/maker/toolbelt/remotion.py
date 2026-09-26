@@ -488,6 +488,44 @@ def cmd_sync(a):
           "next": f"mk remotion sheet {out}  — then render and mix with the same voice"})
 
 
+def cmd_jitter(a):
+    """Find stutters in a rendered video: frames whose change from the previous one is an
+    isolated spike inside otherwise smooth motion (cuts excluded). Every one found so far
+    was a real bug — a layout shift, a filter toggling, a state snapping instead of
+    fading — invisible on a contact sheet and obvious to a viewer."""
+    import subprocess
+    video = safe_path(a.video, must_exist=True)
+    exe = which("ffmpeg") or die("ffmpeg required")
+    W, H = 90, 160
+    raw = subprocess.run([exe, "-v", "error", "-i", str(video), "-vf", f"scale={W}:{H},format=gray",
+                          "-f", "rawvideo", "-"], capture_output=True, timeout=900).stdout
+    n = len(raw) // (W * H)
+    frames = [raw[i * W * H:(i + 1) * W * H] for i in range(n)]
+    diffs = [sum(abs(x - y) for x, y in zip(frames[i], frames[i - 1])) / (W * H) for i in range(1, n)]
+    cuts: list[int] = []
+    fps = 30
+    if a.deck:
+        deck = coherence.resolve(read_json(safe_path(a.deck, must_exist=True), {}))
+        fps = deck.get("fps", 30)
+        cuts = [round(t * fps) for t, _, _ in coherence.scene_starts(deck)]
+    spikes = []
+    for i in range(3, len(diffs) - 3):
+        f = i + 1
+        if any(abs(f - c) <= 3 for c in cuts):
+            continue
+        win = sorted(diffs[i - 3:i] + diffs[i + 1:i + 4])
+        med = win[len(win) // 2]
+        if diffs[i] > 0.6 and diffs[i] > 4 * max(med, 0.15):
+            spikes.append({"frame": f, "t": round(f / fps, 2), "jump": round(diffs[i], 2),
+                           "around": round(med, 2)})
+    still = sum(1 for d in diffs if d < 0.05) / max(1, len(diffs))
+    emit({"ok": not spikes, "frames": n, "spikes": spikes,
+          "still_frames_pct": round(100 * still),
+          "hint": "open the frame before and the frame of each spike: usual causes are a box "
+                  "that grows (reserve its space), a filter added or removed mid-motion, a "
+                  "colour/state that switches instead of fading" if spikes else None})
+
+
 def cmd_studio(a):
     d = ensure_project(project_dir(a.dir))
     emit({"ok": True, "run_this_yourself": f"cd {d} && npx remotion studio",
@@ -527,6 +565,11 @@ def main():
     sy.add_argument("--lead", type=float, default=0.12, help="cut this long before each phrase")
     sy.add_argument("--tail", type=float, default=0.7, help="hold after the last word")
     sy.set_defaults(fn=cmd_sync)
+
+    jt = sub.add_parser("jitter", help="find stutters in a rendered video")
+    jt.add_argument("video"); jt.add_argument("--deck", default=None,
+                                              help="the deck, so its cuts are not counted")
+    jt.set_defaults(fn=cmd_jitter)
 
     st = sub.add_parser("studio"); st.set_defaults(fn=cmd_studio)
 

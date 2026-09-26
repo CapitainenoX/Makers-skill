@@ -69,13 +69,13 @@ const SceneFrame: React.FC<{
   if (typeof scene.cues?.value === "number") punchTimes.push(scene.cues.value);
   const punch = punchTimes.reduce((acc, at) => {
     const f = frame - Math.round(at * fps);
-    if (f < 0 || f > 16) return acc;
-    const up = f <= 4
-      ? interpolate(f, [0, 4], [0, 1], { easing: Easing.out(Easing.cubic) })
-      : interpolate(f, [4, 16], [1, 0], { extrapolateRight: "clamp", easing: Easing.inOut(Easing.sin) });
+    if (f < 0 || f > 20) return acc;
+    const up = f <= 6
+      ? interpolate(f, [0, 6], [0, 1], { easing: Easing.inOut(Easing.sin) })
+      : interpolate(f, [6, 20], [1, 0], { extrapolateRight: "clamp", easing: Easing.inOut(Easing.sin) });
     return Math.max(acc, up);
   }, 0);
-  const zoomNow = push * (1 + 0.025 * punch);
+  const zoomNow = push * (1 + 0.018 * punch);
 
   // On a cut the block arrives by itself; under a transition the transition is the arrival.
   const v = inFrames > 0

@@ -72,6 +72,8 @@ BUILD (motion graphics, no footage — Remotion)
   mk remotion init                       Install the renderer once
   mk remotion deck <out.json> [--template T]
   mk remotion validate <deck.json>       Pacing + coherence (logo colours, contrast, markup) + transition plan
+  mk remotion sync <deck> --words <w>    Cut on the narration: phrases, items and numbers on their words
+  mk remotion jitter <video> --deck <d>  Find stutters: isolated frame jumps inside smooth motion
   mk remotion sheet <deck.json> -o s.png One frame per scene, tiled — LOOK AT IT
   mk remotion still <deck.json> -o p.png [--scene N | --frame N]
   mk remotion render <deck.json> -o v.mp4 [--preview] [--transparent]

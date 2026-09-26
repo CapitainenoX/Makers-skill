@@ -207,6 +207,18 @@ def sync(deck: dict, words: list[dict], lead: float = 0.12, tail: float = 0.9,
                         break
                 times.append(hit)
             filled = _fill(times, rel(seg[0]), rel(seg[-1]))
+            if s.get("type") == "kinetic" and any(x is None for x in times):
+                # a poster whose lines paraphrase the voice: land them across the first
+                # part of the phrase instead of waiting on words that are never said
+                a0, a1 = rel(seg[0]), rel(seg[0]) + 0.6 * (rel(seg[-1]) - rel(seg[0]))
+                filled = [round(x, 3) for x in spread(len(labels), a0, max(a0 + 0.3, a1))]
+            # The first item lands with the phrase, whatever word it matched: "200,000"
+            # is spoken "two hundred thousand", and matching its last word ("stars")
+            # left the hook's first line blank for two seconds. Later items keep order.
+            if filled:
+                filled[0] = min(filled[0], rel(seg[0]))
+                for k in range(1, len(filled)):
+                    filled[k] = max(filled[k], filled[k - 1] + 0.25)
             if any(x is not None for x in times) or len(labels) > 1:
                 cues["items"] = filled
         # rich caption: token by token

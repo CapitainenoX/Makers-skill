@@ -78,9 +78,13 @@ export const Code: React.FC<SceneProps<"code">> = ({ scene }) => {
                   </>
                 ) : shown}
                 {(typingNow || isLast) && cursorOn ? (
+                  // zero net width: the caret never pushes the text into a new line
                   <span style={{ display: "inline-block", width: base * 0.2, height: base * 0.4,
-                    marginLeft: 2, verticalAlign: "text-bottom", background: fg }} />
+                    marginLeft: 2, marginRight: -(base * 0.2 + 2), verticalAlign: "text-bottom", background: fg }} />
                 ) : null}
+                {/* the rest of the command, invisible: the line wraps where it will end up
+                    from the first character, instead of jumping to two lines mid-typing */}
+                {isCmd ? <span style={{ visibility: "hidden" }}>{l.slice(shown.length)}</span> : null}
               </div>
             );
           })}

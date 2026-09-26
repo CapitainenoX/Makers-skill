@@ -22,7 +22,7 @@ export const Kinetic: React.FC<SceneProps<"kinetic">> = ({ scene, durationInFram
   const { theme, fonts, base } = kit;
   const style = scene.style ?? "stack";
   const lines = scene.lines.length ? scene.lines : [" "];
-  const maxW = width * 0.88;
+  const maxW = width * 0.84;
 
   const renderLine = (line: string, size: number) => {
     // consecutive accent words share one reversed block ("one line", not "one" "line")

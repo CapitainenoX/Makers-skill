@@ -15,7 +15,7 @@ export const Mock: React.FC<SceneProps<"mock">> = ({ scene }) => {
   const { width } = useVideoConfig();
   const { kit, fps, frame, arrive } = useAnim();
   const { theme, fonts, base } = kit;
-  const W = width * 0.86;
+  const W = width * 0.9;
   const kind = scene.kind ?? "prompt";
   const dark = kind !== "search";
 
@@ -45,7 +45,7 @@ export const Mock: React.FC<SceneProps<"mock">> = ({ scene }) => {
         display: "flex", flexDirection: kind === "search" ? "row" : "column",
         alignItems: kind === "search" ? "center" : "stretch", gap: base * 0.3 }}>
         {kind === "search" ? <Glyph name="search" size={base * 0.6} color={dim} /> : null}
-        <span style={{ fontFamily: fonts.body, fontSize: base * 0.48, fontWeight: WEIGHTS.medium,
+        <span style={{ fontFamily: fonts.body, fontSize: base * 0.66, fontWeight: WEIGHTS.medium,
           letterSpacing: "-0.015em", color: fg, lineHeight: 1.25, minHeight: kind === "search" ? undefined : base * 1.2,
           flex: kind === "search" ? 1 : undefined }}>
           {scene.text.slice(0, shownN)}
@@ -58,7 +58,7 @@ export const Mock: React.FC<SceneProps<"mock">> = ({ scene }) => {
         {kind !== "search" ? (
           <div style={{ display: "flex", alignItems: "center", gap: base * 0.18 }}>
             {scene.badge ? (
-              <span style={{ fontFamily: fonts.body, fontSize: base * 0.3, fontWeight: WEIGHTS.semibold,
+              <span style={{ fontFamily: fonts.body, fontSize: base * 0.38, fontWeight: WEIGHTS.semibold,
                 color: fg, background: dark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
                 borderRadius: base * 0.16, padding: `${base * 0.08}px ${base * 0.18}px` }}>
                 {scene.badge}
@@ -66,9 +66,9 @@ export const Mock: React.FC<SceneProps<"mock">> = ({ scene }) => {
             ) : null}
             <span style={{ flex: 1 }} />
             {scene.meta ? (
-              <span style={{ fontFamily: fonts.mono, fontSize: base * 0.28, color: dim }}>{scene.meta}</span>
+              <span style={{ fontFamily: fonts.mono, fontSize: base * 0.36, color: dim }}>{scene.meta}</span>
             ) : null}
-            <span style={{ width: base * 0.6, height: base * 0.6, borderRadius: base * 0.18,
+            <span style={{ width: base * 0.78, height: base * 0.78, borderRadius: base * 0.22,
               background: theme.accent === theme.text && dark ? "#FFFFFF" : theme.accent,
               display: "flex", alignItems: "center", justifyContent: "center",
               transform: `scale(${press})` }}>

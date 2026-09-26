@@ -252,7 +252,12 @@ video about a GitHub project. Reference one as a chip icon:
 "$MK" remotion render deck.json -o out/final.mp4 --preview   # half scale, fast
 "$MK" remotion render deck.json -o out/final.mp4             # final
 "$MK" qc out/final.mp4 --target shorts
+"$MK" remotion jitter out/final.mp4 --deck deck.json   # stutters: must come back empty
 ```
+
+`jitter` compares every frame with the next and reports isolated jumps inside smooth
+motion. A contact sheet cannot show a stutter; this can, and every spike it has found was
+a real bug (a box that grew, a filter toggled, a state that snapped instead of fading).
 
 `--transparent` renders VP8 with alpha, for an insert you will composite over footage
 in the EDL — that is the normal way to mix the two engines.
