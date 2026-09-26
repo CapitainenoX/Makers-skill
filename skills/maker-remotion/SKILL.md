@@ -316,6 +316,26 @@ as jumpy. `motion.blur: 0` turns it off; `1.5` is heavier.
 
 A transition never changes the timing: cuts sit on the running sum of durations.
 
+### Energy without speed, smoothness without stutter
+
+Dynamic is movement *inside* a readable scene, not more cuts: every scene drifts
+(6 % in the mono style, eased), the frame **punches in** ~2.5 % on each emphasised word and
+each named item as the voice says it (from the `sync` cues), kinetic lines keep sliding
+in parallax after they land, the ghost word travels behind.
+
+Smoothness rules the renderer now follows — keep them in any scene you add:
+
+- An element that ever carries motion blur keeps an (identity) filter for its whole
+  life. Adding and removing a filter switches the rendering path and the text jumps
+  half a pixel on that frame.
+- Anything that slowly scales or translates is `willChange: "transform"` (rasterised
+  once, moved as a bitmap); re-rasterising text at a new scale every frame shimmers.
+- Nothing changes the layout mid-scene: text that will be typed, lines that will
+  appear, are laid out invisibly from frame 0. A box that grows shoves its neighbours.
+- No filter with `url()` on an ancestor of something that clips (`overflow: hidden`
+  strips): Chromium stops clipping.
+- Overshoot is small (`pop` damping 15): a wobble at 30 fps reads as jitter.
+
 ## 9. Going beyond the deck
 
 When a beat genuinely needs something the scene library has no shape for, write a real

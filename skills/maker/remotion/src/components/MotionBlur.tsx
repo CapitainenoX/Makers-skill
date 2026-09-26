@@ -7,6 +7,9 @@ import { MB_LEVELS, MB_STEP } from "../motion";
 export const MotionBlurDefs: React.FC = () => (
   <svg width={0} height={0} style={{ position: "absolute" }} aria-hidden>
     <defs>
+      <filter id="mb0" x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
+        <feOffset dx="0" dy="0" />
+      </filter>
       {Array.from({ length: MB_LEVELS }).map((_, i) => {
         const s = ((i + 1) * MB_STEP).toFixed(2);
         return (
@@ -18,6 +21,10 @@ export const MotionBlurDefs: React.FC = () => (
             <filter id={`mby${i + 1}`} x="-5%" y="-30%" width="110%" height="160%"
               colorInterpolationFilters="sRGB">
               <feGaussianBlur stdDeviation={`0 ${s}`} />
+            </filter>
+            <filter id={`mbd${i + 1}`} x="-25%" y="-25%" width="150%" height="150%"
+              colorInterpolationFilters="sRGB">
+              <feGaussianBlur stdDeviation={`${(Number(s) * 0.7).toFixed(2)}`} />
             </filter>
           </React.Fragment>
         );

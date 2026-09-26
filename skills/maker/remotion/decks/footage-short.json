@@ -21,12 +21,12 @@
       "reveal": "word",
       "lines": [
         {
-          "t": "REPLACE le hook",
+          "t": "REPLACE the hook",
           "w": "black",
           "s": 2.0
         },
         {
-          "t": "REPLACE la promesse",
+          "t": "REPLACE the promise",
           "w": "black",
           "s": 2.0,
           "c": "accent"
@@ -47,7 +47,7 @@
       },
       "lines": [
         {
-          "t": "REPLACE ce qu'on voit",
+          "t": "REPLACE what we see",
           "w": "black",
           "s": 1.5
         }
@@ -65,7 +65,7 @@
       },
       "lines": [
         {
-          "t": "REPLACE l'\u00e9tape suivante",
+          "t": "REPLACE the next step",
           "w": "black",
           "s": 1.4
         }
@@ -75,8 +75,8 @@
       "type": "stat",
       "duration": 3.7,
       "value": "REPLACE",
-      "label": "REPLACE ce que le chiffre mesure",
-      "sub": "REPLACE la nuance"
+      "label": "REPLACE what the number measures",
+      "sub": "REPLACE the nuance"
     },
     {
       "type": "annotate",
@@ -90,7 +90,7 @@
       },
       "lines": [
         {
-          "t": "REPLACE le d\u00e9tail qui compte",
+          "t": "REPLACE the detail that matters",
           "w": "black",
           "s": 1.25
         }
@@ -100,7 +100,7 @@
           "x": 0.36,
           "y": 0.44,
           "kind": "ring",
-          "label": "ici",
+          "label": "here",
           "at": 0.6
         }
       ]
@@ -117,7 +117,7 @@
       },
       "lines": [
         {
-          "t": "REPLACE le r\u00e9sultat",
+          "t": "REPLACE the result",
           "w": "black",
           "s": 1.6
         }
@@ -126,7 +126,7 @@
     {
       "type": "cta",
       "duration": 2.5,
-      "rich": "REPLACE la raison de ==s'abonner=="
+      "rich": "REPLACE the reason to ==follow=="
     },
     {
       "type": "outro",
@@ -137,14 +137,14 @@
       },
       "lines": [
         {
-          "t": "REPLACE l'appel",
+          "t": "REPLACE the ask",
           "w": "medium",
           "s": 0.78,
           "c": "muted",
           "i": true
         },
         {
-          "t": "REPLACE l'action",
+          "t": "REPLACE the action",
           "w": "black",
           "s": 1.5
         }

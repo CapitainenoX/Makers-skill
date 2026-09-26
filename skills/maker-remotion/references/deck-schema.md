@@ -11,9 +11,9 @@
   "baseSize": 0.058,                      // type scale as a fraction of width
   "brand": { "accent": "#D97757", "font": "", "watermark": "yourhandle" },
   "seed": "my-video-slug",   // shifts entrances, push direction, decor and transitions
-  "zoom": 0.035,             // slow push on every scene; 0 for a static deck
+  "zoom": 0.06,              // eased push on every scene (0.035 in colour); 0 for static
   "motion": {
-    "language": "punchy",    // clean | punchy | soft | graphic — left out, the seed picks
+    "language": "graphic",   // clean | punchy | soft | graphic — mono default: graphic
     "blur": 1,               // motion-blur strength, 0 disables
     "transitions": "auto"    // auto (default) | cut
   },

@@ -52,7 +52,16 @@ export const Code: React.FC<SceneProps<"code">> = ({ scene }) => {
         <div style={{ padding: base * 0.44, display: "flex", flexDirection: "column", gap: base * 0.14,
           minHeight: base * 2.4 }}>
           {plan.map(({ l, isCmd, start, len }, i) => {
-            if (frame < start) return null;
+            // a line not typed yet still takes its place (invisible): a terminal that
+            // grows as lines arrive shoves the whole block up — a visible jolt
+            if (frame < start) {
+              return (
+                <div key={i} style={{ fontFamily: fonts.mono, fontSize: base * (scene.lines.length <= 3 ? 0.6 : 0.5),
+                  lineHeight: 1.4, whiteSpace: "pre-wrap", wordBreak: "break-word", visibility: "hidden" }}>
+                  {l}
+                </div>
+              );
+            }
             const shown = isCmd && len > 0
               ? prompt + l.slice(prompt.length, prompt.length + Math.ceil(((frame - start) / len) * (l.length - prompt.length)))
               : l;

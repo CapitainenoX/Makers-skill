@@ -129,7 +129,10 @@ def seed_of(seed) -> int:
 
 def language_of(deck: dict) -> str:
     lang = (deck.get("motion") or {}).get("language")
-    return lang if lang in LANGUAGES else LANGUAGES[seed_of(deck.get("seed")) % len(LANGUAGES)]
+    if lang in LANGUAGES:
+        return lang
+    # the black-and-white house style moves in hard edges and masks
+    return "graphic" if is_mono(deck) else LANGUAGES[seed_of(deck.get("seed")) % len(LANGUAGES)]
 
 
 # ------------------------------------------------------------------ resolve

@@ -33,7 +33,7 @@ export const Chip: React.FC<{
   if (fill === "accent") {
     bg = theme.accent; ink = theme.onAccent; markTint = tint ?? theme.onAccent;
   } else if (fill === "ink") {
-    bg = theme.panel; ink = theme.onPanel; markTint = tint ?? "auto";
+    bg = theme.panel; ink = theme.onPanel; markTint = tint ?? (mono ? "mono" : "auto");
   } else if (fill === "brand") {
     const b = brandFill(info, theme.accent);
     bg = b.fill; ink = b.ink; markTint = tint ?? b.ink;

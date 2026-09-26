@@ -5,7 +5,7 @@ import { useKit, type TextFx } from "./kit";
 /** Spring presets. `pop` overshoots — that overshoot is what makes an entrance
  *  read as snappy rather than as a rectangle sliding. */
 export const SPRINGS = {
-  pop: { damping: 12, mass: 0.5, stiffness: 220 },
+  pop: { damping: 15, mass: 0.5, stiffness: 230 },
   snap: { damping: 18, mass: 0.55, stiffness: 190 },
   smooth: { damping: 26, mass: 0.9, stiffness: 120 },
   heavy: { damping: 30, mass: 1.4, stiffness: 90 },
@@ -108,11 +108,15 @@ export const blurFilter = (vx: number, vy: number, k = 1): string | undefined =>
   const sx = Math.abs(vx) * 0.42 * k;
   const sy = Math.abs(vy) * 0.42 * k;
   const big = Math.max(sx, sy);
-  if (big < 0.9) return undefined;
+  // Below the threshold the element still goes through an (identity) SVG filter. Dropping
+  // the filter when motion stops switched the element to another rendering path, and
+  // the text visibly jumped half a pixel on that frame — the "stutter" at the end of
+  // every entrance. One path, start to finish.
+  if (big < 0.9) return "url(#mb0)";
   const level = Math.max(1, Math.min(MB_LEVELS, Math.round(big / MB_STEP)));
   if (sx >= sy * 2.2) return `url(#mbx${level})`;
   if (sy >= sx * 2.2) return `url(#mby${level})`;
-  return `blur(${(big * 0.55).toFixed(2)}px)`;
+  return `url(#mbd${level})`;
 };
 
 export type Dir = "up" | "down" | "left" | "right";
@@ -214,7 +218,7 @@ export const textFxStyle = (
 /** The spring each text effect rides. Mask and blur must not overshoot: an overshooting
  *  mask clips the top of the letters, an overshooting blur flickers. */
 export const TEXT_SPRING: Record<TextFx, SpringName> = {
-  rise: "snap", mask: "smooth", blur: "smooth", pop: "pop", slide: "snap", type: "snap",
+  rise: "snap", mask: "snap", blur: "smooth", pop: "pop", slide: "snap", type: "snap",
 };
 
 /** Cadence between words, in ms. Typing is faster and steady; masks read best tight. */

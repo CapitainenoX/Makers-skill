@@ -145,7 +145,8 @@ def main():
     ap.add_argument("-o", "--output", required=True)
     ap.add_argument("--voice", default=None)
     ap.add_argument("--engine", default="auto", choices=["auto", *ENGINES])
-    ap.add_argument("--lang", default="fr")
+    ap.add_argument("--lang", default="en",
+                    help="en (default — the house style ships in English) | fr | any edge-tts locale")
     ap.add_argument("--rate", default="+0%", help="edge-tts speaking rate, e.g. +8%%")
     ap.add_argument("--pause", type=float, default=0.35,
                     help="silence between sentences (edge-tts). A short needs air to be read; "

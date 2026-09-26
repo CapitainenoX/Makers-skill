@@ -163,7 +163,9 @@ export const phaseStyle = (
         style: { opacity: e >= 0.52 ? 1 : 0 },
         overlay: [
           { background: accent, clipPath: slab(lead) },
-          { background: t.color ?? "#0A0A0B", clipPath: slab(trail) },
+          // a mid grey: on a black-and-white deck an ink or paper slab can match the
+          // scene it crosses and vanish, so the reveal read as text popping in
+          { background: t.color ?? "#7A7A7A", clipPath: slab(trail) },
         ],
       };
     }

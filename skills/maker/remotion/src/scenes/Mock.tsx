@@ -50,7 +50,10 @@ export const Mock: React.FC<SceneProps<"mock">> = ({ scene }) => {
           flex: kind === "search" ? 1 : undefined }}>
           {scene.text.slice(0, shownN)}
           {caret ? <span style={{ display: "inline-block", width: Math.max(2, base * 0.045), height: base * 0.52,
-            marginLeft: 2, verticalAlign: "text-bottom", background: theme.accent === theme.text ? fg : theme.accent }} /> : null}
+            marginLeft: 2, marginRight: -Math.max(2, base * 0.045) - 2, verticalAlign: "text-bottom",
+            background: theme.accent === theme.text ? fg : theme.accent }} /> : null}
+          {/* the rest of the text, invisible, so the box is its final size from frame 0 */}
+          <span style={{ visibility: "hidden" }}>{scene.text.slice(shownN)}</span>
         </span>
         {kind !== "search" ? (
           <div style={{ display: "flex", alignItems: "center", gap: base * 0.18 }}>

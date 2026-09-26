@@ -23,17 +23,17 @@
   ],
 
   "layers": [
-    { "type": "text", "text": "3 COMMANDES", "style": "hook", "uppercase": true,
+    { "type": "text", "text": "3 COMMANDS", "style": "hook", "uppercase": true,
       "start": 0.0, "duration": 1.1, "y": 0.18,
       "in": { "anim": "popIn", "duration": 0.2, "ease": "easeOutBack" },
       "out": { "anim": "popOut", "duration": 0.13 } },
 
-    { "type": "text", "text": "ici 👇", "style": "kicker",
+    { "type": "text", "text": "right here 👇", "style": "kicker",
       "start": 5.6, "duration": 1.0, "x": 0.6, "y": 0.45,
       "in": { "anim": "popIn", "duration": 0.18, "ease": "easeOutBack" },
       "out": { "anim": "fadeOut", "duration": 0.12 } },
 
-    { "type": "text", "text": "et c'est tout.", "style": "caption",
+    { "type": "text", "text": "and that's it.", "style": "caption",
       "start": 7.0, "duration": 1.4, "y": 0.8,
       "in": { "anim": "slideUp", "duration": 0.2 },
       "out": { "anim": "fadeOut", "duration": 0.15 } }

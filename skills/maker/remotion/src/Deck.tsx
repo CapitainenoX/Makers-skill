@@ -50,7 +50,32 @@ const SceneFrame: React.FC<{
   const k = interpolate(frame, [0, Math.max(1, frames + outFrames)], [0, 1], {
     extrapolateLeft: "clamp", extrapolateRight: "clamp",
   });
-  const push = 1 + amount * ((index + seed) % 2 === 0 ? k : 1 - k);
+  // eased, not linear: the drift accelerates out of the cut and settles, like a camera
+  const ke = Easing.inOut(Easing.sin)(k);
+  const push = 1 + amount * ((index + seed) % 2 === 0 ? ke : 1 - ke);
+
+  // Punches: when the voice hits an emphasised word (a **bold**, __accent__ or ==mark==
+  // token of the caption, synced by `mk remotion sync`) or names a list item, the whole
+  // frame kicks in by ~2.5 % and settles. It is the editor's "punch-in on the beat" —
+  // energy that lands on meaning, not on a clock.
+  const punchTimes: number[] = [];
+  if (scene.cues?.words && scene.rich) {
+    parse(scene.rich).forEach((t, i) => {
+      const at = scene.cues?.words?.[i];
+      if (t.em !== "plain" && t.em !== "icon" && typeof at === "number") punchTimes.push(at);
+    });
+  }
+  (scene.cues?.items ?? []).forEach((at, i) => { if (i > 0) punchTimes.push(at); });
+  if (typeof scene.cues?.value === "number") punchTimes.push(scene.cues.value);
+  const punch = punchTimes.reduce((acc, at) => {
+    const f = frame - Math.round(at * fps);
+    if (f < 0 || f > 16) return acc;
+    const up = f <= 4
+      ? interpolate(f, [0, 4], [0, 1], { easing: Easing.out(Easing.cubic) })
+      : interpolate(f, [4, 16], [1, 0], { extrapolateRight: "clamp", easing: Easing.inOut(Easing.sin) });
+    return Math.max(acc, up);
+  }, 0);
+  const zoomNow = push * (1 + 0.025 * punch);
 
   // On a cut the block arrives by itself; under a transition the transition is the arrival.
   const v = inFrames > 0
@@ -89,7 +114,10 @@ const SceneFrame: React.FC<{
         <AbsoluteFill
           style={{
             opacity: v.opacity as number,
-            transform: `scale(${push.toFixed(4)}) ${v.transform ?? ""}`.trim(),
+            transform: `scale(${zoomNow.toFixed(5)}) ${v.transform ?? ""}`.trim(),
+            // Rasterise the scene once and scale the bitmap: re-rendering text at a new
+            // scale every frame makes the glyphs shimmer and step — the jitter of a slow zoom.
+            willChange: "transform",
           }}
         >
           {children}
@@ -137,7 +165,10 @@ export const Deck: React.FC<DeckType> = (deck) => {
     ? buildTheme(deck.theme ?? DEFAULTS.theme, deck.brand?.accent, mono, true) : theme;
   const { fonts, ready } = useFonts(deck.typeset, deck.brand?.font);
   const base = width * (deck.baseSize ?? DEFAULTS.baseSize);
-  const language = deck.motion?.language ?? LANGUAGES[seed % LANGUAGES.length];
+  // The black-and-white house style moves in hard edges and masks ("graphic"); a colour
+  // deck left unset takes one from its seed.
+  const language = deck.motion?.language
+    ?? ((deck.style ?? "mono") === "mono" ? "graphic" : LANGUAGES[seed % LANGUAGES.length]);
   const kit: KitValue = {
     theme, fonts, base, seed, language,
     blur: deck.motion?.blur ?? 1,
@@ -176,7 +207,7 @@ export const Deck: React.FC<DeckType> = (deck) => {
                   scene={scene}
                   index={i}
                   seed={seed}
-                  zoom={deck.zoom ?? 0.035}
+                  zoom={deck.zoom ?? ((deck.style ?? "mono") === "mono" ? 0.06 : 0.035)}
                   frames={place.frames}
                   inT={scene.transition}
                   inFrames={place.inFrames}

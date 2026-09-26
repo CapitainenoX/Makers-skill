@@ -53,5 +53,5 @@ export const TEXT_FX: Record<MotionLanguage, TextFx[]> = {
   clean: ["rise", "mask", "rise", "slide"],
   punchy: ["pop", "mask", "slide", "pop"],
   soft: ["blur", "rise", "blur", "mask"],
-  graphic: ["mask", "slide", "mask", "pop"],
+  graphic: ["mask", "slide", "mask", "rise"],
 };

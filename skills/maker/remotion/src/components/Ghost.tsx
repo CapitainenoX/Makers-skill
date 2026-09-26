@@ -24,8 +24,8 @@ export const Ghost: React.FC<{ text?: string; index: number }> = ({ text, index 
   return (
     <AbsoluteFill style={{ overflow: "hidden", pointerEvents: "none" }}>
       <div style={{
-        position: "absolute", top, left: 0, whiteSpace: "nowrap",
-        transform: `translateX(${(dir * (0.12 - 0.24 * k) * width - (dir > 0 ? width * 0.4 : width * 0.1)).toFixed(1)}px)`,
+        position: "absolute", top, left: 0, whiteSpace: "nowrap", willChange: "transform",
+        transform: `translate3d(${(dir * (0.2 - 0.4 * k) * width - (dir > 0 ? width * 0.4 : width * 0.1)).toFixed(2)}px, 0, 0)`,
         fontFamily: fonts.display, fontWeight: fonts.displayWeight, fontSize: size,
         lineHeight: 1, letterSpacing: `${fonts.displayTracking}em`,
         color: "transparent",
