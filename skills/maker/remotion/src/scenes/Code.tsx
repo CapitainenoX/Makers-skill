@@ -58,7 +58,7 @@ export const Code: React.FC<SceneProps<"code">> = ({ scene }) => {
             if (frame < start) {
               return (
                 <div key={i} style={{ fontFamily: fonts.mono, fontSize: base * (scene.lines.length <= 3 ? 0.6 : 0.5),
-                  lineHeight: 1.4, whiteSpace: "pre-wrap", wordBreak: "break-word", visibility: "hidden" }}>
+                  lineHeight: 1.4, whiteSpace: "pre-wrap", wordBreak: "break-all", visibility: "hidden" }}>
                   {l}
                 </div>
               );
@@ -70,7 +70,7 @@ export const Code: React.FC<SceneProps<"code">> = ({ scene }) => {
             const isLast = i === plan.length - 1 || frame < plan[i + 1].start;
             return (
               <div key={i} style={{ fontFamily: fonts.mono, fontSize: base * (scene.lines.length <= 3 ? 0.6 : 0.5), lineHeight: 1.4,
-                color: isCmd ? fg : dim, whiteSpace: "pre-wrap", wordBreak: "break-word",
+                color: isCmd ? fg : dim, whiteSpace: "pre-wrap", wordBreak: "break-all",
                 opacity: isCmd ? 1 : Math.min(1, (frame - start) / 4) }}>
                 {isCmd ? (
                   <>

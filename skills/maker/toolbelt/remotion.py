@@ -503,15 +503,20 @@ def cmd_jitter(a):
     frames = [raw[i * W * H:(i + 1) * W * H] for i in range(n)]
     diffs = [sum(abs(x - y) for x, y in zip(frames[i], frames[i - 1])) / (W * H) for i in range(1, n)]
     cuts: list[int] = []
+    spans: list[tuple[int, int]] = []
     fps = 30
     if a.deck:
         deck = coherence.resolve(read_json(safe_path(a.deck, must_exist=True), {}))
         fps = deck.get("fps", 30)
-        cuts = [round(t * fps) for t, _, _ in coherence.scene_starts(deck)]
+        # a transition is one designed, fast move (an iris opening, a wipe crossing the
+        # frame): it spikes by nature. Skip the cut and the whole transition after it.
+        spans = [(round(t * fps), round(coherence.TRANSITION_SECONDS.get(tr, 0.6) * fps))
+                 for t, _, tr in coherence.scene_starts(deck)]
+        cuts = [c for c, _ in spans]
     spikes = []
     for i in range(3, len(diffs) - 3):
         f = i + 1
-        if any(abs(f - c) <= 3 for c in cuts):
+        if any(c - 3 <= f <= c + n + 3 for c, n in spans):
             continue
         win = sorted(diffs[i - 3:i] + diffs[i + 1:i + 4])
         med = win[len(win) // 2]
