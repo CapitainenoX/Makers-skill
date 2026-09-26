@@ -11,11 +11,12 @@
   "baseSize": 0.058,                      // type scale as a fraction of width
   "brand": { "accent": "#D97757", "font": "", "watermark": "yourhandle" },
   "seed": "my-video-slug",   // shifts entrances, push direction, decor and transitions
-  "zoom": 0.06,              // eased push on every scene (0.035 in colour); 0 for static
+  "zoom": 0.025,             // constant drift on every scene; 0 for static
   "motion": {
     "language": "graphic",   // clean | punchy | soft | graphic — mono default: graphic
     "blur": 1,               // motion-blur strength, 0 disables
-    "transitions": "auto"    // auto (default) | cut
+    "transitions": "auto",   // auto (default) | cut
+    "punch": false           // whole-frame punch-in on emphasised words — off by default
   },
   "backdrop": "plain",       // plain | spotlight | mesh | grain | dots | lines
   "logos": "auto",           // auto | brand | mono — how logo files are coloured

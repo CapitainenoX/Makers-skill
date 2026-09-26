@@ -323,10 +323,11 @@ A transition never changes the timing: cuts sit on the running sum of durations.
 
 ### Energy without speed, smoothness without stutter
 
-Dynamic is movement *inside* a readable scene, not more cuts: every scene drifts
-(6 % in the mono style, eased), the frame **punches in** ~2.5 % on each emphasised word and
-each named item as the voice says it (from the `sync` cues), kinetic lines keep sliding
-in parallax after they land, the ghost word travels behind.
+Dynamic is movement *inside* a readable scene, not more cuts: items land on their words,
+kinetic lines keep sliding in parallax after they land, the ghost word travels behind.
+The camera itself stays almost still — a constant 2.5 % drift, no acceleration. Whole-
+frame punch-ins on emphasised words exist (`motion.punch: true`) but are off by default:
+stacked with the drift they made viewers dizzy. The camera must never be the event.
 
 Smoothness rules the renderer now follows — keep them in any scene you add:
 

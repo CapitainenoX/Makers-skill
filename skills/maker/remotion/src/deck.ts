@@ -289,6 +289,8 @@ export type Deck = {
     /** "auto" (default): `mk remotion` fills in transitions from the language.
      *  "cut": every scene cuts unless it names a transition */
     transitions?: "auto" | "cut";
+    /** whole-frame punch-in on each emphasised word (default false — it reads as dizzy) */
+    punch?: boolean;
   };
   /** "mono" (default): strict black and white — no accent, logos in ink, inverted scenes
    *  for rhythm. "color": the brand accent and logo colours come back */

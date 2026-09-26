@@ -36,9 +36,11 @@ const SceneFrame: React.FC<{
   deckDecor: DeckType["decor"];
   deckBackdrop: DeckType["backdrop"];
   ghost?: string;
+  /** whole-frame punch-ins on emphasised words — off by default (they read as dizzy) */
+  punchOn?: boolean;
   children: React.ReactNode;
 }> = ({ scene, index, seed, zoom, frames, inT, inFrames, outT, outFrames, isLast,
-        deckDecor, deckBackdrop, ghost, children }) => {
+        deckDecor, deckBackdrop, ghost, punchOn = false, children }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
   const { theme, blur, mono } = useKit();
@@ -50,8 +52,9 @@ const SceneFrame: React.FC<{
   const k = interpolate(frame, [0, Math.max(1, frames + outFrames)], [0, 1], {
     extrapolateLeft: "clamp", extrapolateRight: "clamp",
   });
-  // eased, not linear: the drift accelerates out of the cut and settles, like a camera
-  const ke = Easing.inOut(Easing.sin)(k);
+  // A constant, barely-there drift. An eased push that accelerates mid-scene, stacked
+  // with punch-ins, made viewers dizzy — the camera must never be the event.
+  const ke = k;
   const push = 1 + amount * ((index + seed) % 2 === 0 ? ke : 1 - ke);
 
   // Punches: when the voice hits an emphasised word (a **bold**, __accent__ or ==mark==
@@ -67,7 +70,7 @@ const SceneFrame: React.FC<{
   }
   (scene.cues?.items ?? []).forEach((at, i) => { if (i > 0) punchTimes.push(at); });
   if (typeof scene.cues?.value === "number") punchTimes.push(scene.cues.value);
-  const punch = punchTimes.reduce((acc, at) => {
+  const punch = !punchOn ? 0 : punchTimes.reduce((acc, at) => {
     const f = frame - Math.round(at * fps);
     if (f < 0 || f > 20) return acc;
     const up = f <= 6
@@ -207,7 +210,7 @@ export const Deck: React.FC<DeckType> = (deck) => {
                   scene={scene}
                   index={i}
                   seed={seed}
-                  zoom={deck.zoom ?? ((deck.style ?? "mono") === "mono" ? 0.06 : 0.035)}
+                  zoom={deck.zoom ?? 0.025}
                   frames={place.frames}
                   inT={scene.transition}
                   inFrames={place.inFrames}
@@ -217,6 +220,7 @@ export const Deck: React.FC<DeckType> = (deck) => {
                   deckDecor={deck.decor}
                   deckBackdrop={deck.backdrop}
                   ghost={ghostFor(scene, deck.ghost ?? mono)}
+                  punchOn={deck.motion?.punch ?? false}
                 >
                   <Renderer
                     scene={scene}
