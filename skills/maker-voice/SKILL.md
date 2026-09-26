@@ -69,8 +69,9 @@ never write it to a file, and tell the creator to revoke it when the batch is do
 ## 2. Generate
 
 ```bash
-"$MK" tts "Ce repo a quarante mille étoiles." -o voice/vo.wav --lang fr
-"$MK" tts - -o voice/vo.wav --lang fr < notes/script.txt      # long scripts via stdin
+"$MK" tts "This repo has forty thousand stars." -o voice/vo.wav            # English by default
+"$MK" tts - -o voice/vo.wav < notes/script.txt                 # long scripts via stdin, + words.json
+"$MK" tts "Ce repo a quarante mille étoiles." -o voice/vo.wav --lang fr   # only when asked
 "$MK" tts "…" -o voice/vo.wav --engine elevenlabs --voice <voice_id>
 ```
 

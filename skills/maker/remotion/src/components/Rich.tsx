@@ -1,36 +1,58 @@
 import React from "react";
 import { Easing, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 import { parse, type Token } from "../text";
-import { WEIGHTS, type Theme } from "../theme";
-import { enter, rise, stagger } from "../motion";
+import { WEIGHTS } from "../theme";
+import { useKit, type TextFx } from "../kit";
+import { enter, stagger, textFxStyle, TEXT_CADENCE, TEXT_SPRING } from "../motion";
+import { Glyph } from "./Glyph";
 
-/** A flowing sentence with per-word emphasis and a word-by-word reveal.
- *  Emphasised words are heavier, darker and a touch larger — the size bump is what
- *  makes the sentence read as spoken rather than typeset. */
+/** A flowing sentence with per-word emphasis and a quick ripple reveal.
+ *
+ *  Each marker is a level of importance, and each level has its own face: plain words in
+ *  the body face, muted; `**bold**` heavier and darker; `*serif*` in the italic serif — the
+ *  editorial contrast; `__accent__` in the brand colour. Emphasised words are a touch
+ *  larger: the size bump is what makes the sentence read as spoken rather than typeset. */
 export const Rich: React.FC<{
   text: string | Token[];
-  theme: Theme;
-  base: number;
-  font: string;
   /** multiplier on base for the plain words */
   size?: number;
   delay?: number;
   reveal?: "word" | "all";
   align?: "center" | "left";
-  /** ms between words */
+  /** ms between words; defaults to the effect's own cadence */
   cadence?: number;
   maxWidth?: string;
+  /** entrance effect; defaults to the scene's */
+  fx?: TextFx;
+  /** light text for captions over footage */
+  inverse?: boolean;
+  /** seconds (from the scene start) at which each token is spoken — voice sync. Only the
+   *  first is used: it is when the whole sentence lands */
+  times?: number[];
+  /** base font for plain + bold words (defaults to the body face). `serif` sets the
+   *  whole sentence in the serif — quotations — with emphasis as italics */
+  face?: "body" | "display" | "serif";
 }> = ({
-  text, theme, base, font, size = 1, delay = 0,
-  reveal = "word", align = "center", cadence = 55, maxWidth = "88%",
+  text, size = 1, delay = 0, reveal = "word", align = "center", cadence,
+  maxWidth = "88%", fx, inverse = false, face = "body", times,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const { theme, fonts, base, blur, textFx, mono } = useKit();
+  const effect = fx ?? textFx;
   const tokens = typeof text === "string" ? parse(text) : text;
   const px = base * size;
+  const gapMs = cadence ?? TEXT_CADENCE[effect];
+  const preset = TEXT_SPRING[effect];
 
-  // A highlight is one continuous marker stroke, so consecutive ==marked== words share a
-  // single box. Rendering them per-word gave a separate black rectangle around each word.
+  const serifFace = face === "serif";
+  const plainColor = inverse ? "rgba(255,255,255,0.78)" : serifFace ? theme.text : theme.muted;
+  const strongColor = inverse ? "#FFFFFF" : theme.text;
+  const family = face === "display" ? fonts.display : serifFace ? fonts.serif : fonts.body;
+  const upper = face === "display" && fonts.displayUpper;
+
+  // A highlight and an underline are one continuous stroke, so consecutive marked words
+  // share a single group. Rendering them per word gave a box around each word.
   type Group = { words: string[]; em: Token["em"]; index: number; trail?: string };
   const groups: Group[] = [];
   tokens.forEach((t, i) => {
@@ -38,13 +60,19 @@ export const Rich: React.FC<{
     // Punctuation left behind by a marker ("**JSON**, not") is its own token, and the
     // flex gap would push it off the word as "JSON , not". Glue it to the group before.
     const punct = /^[,.;:!?…)\]}»"']+$/.test(t.text);
-    if (punct && last) {
+    if (punct && last && t.em === "plain") {
       last.trail = (last.trail ?? "") + t.text;
       return;
     }
-    if (t.em === "mark" && last && last.em === "mark") last.words.push(t.text);
+    if ((t.em === "mark" || t.em === "under" || (t.em === "accent" && mono)) && last && last.em === t.em) last.words.push(t.text);
     else groups.push({ words: [t.text], em: t.em, index: i });
   });
+
+  // Voice sync sets when the sentence lands — its first spoken word — not when each word
+  // does: the whole caption ripples in at once, then holds still to be read.
+  const start = typeof times?.[0] === "number" ? Math.max(0, Math.round((times[0] - 0.08) * fps)) : delay;
+  const at = (i: number) => reveal === "word" ? start + stagger(i, fps, gapMs) : start;
+  const lastShown = groups.reduce((acc, g, gi) => frame >= at(g.index) ? gi : acc, -1);
 
   return (
     <div
@@ -53,83 +81,118 @@ export const Rich: React.FC<{
         flexWrap: "wrap",
         justifyContent: align === "center" ? "center" : "flex-start",
         alignItems: "baseline",
-        gap: `${px * 0.16}px ${px * 0.24}px`,
+        gap: `${px * 0.14}px ${px * 0.24}px`,
         maxWidth,
-        fontFamily: font,
-        lineHeight: 1.08,
+        fontFamily: family,
+        lineHeight: 1.1,
+        textTransform: upper ? "uppercase" : undefined,
       }}
     >
-      {groups.map((t, gi) => {
-        const p = reveal === "word"
-          ? enter(frame, fps, delay + stagger(t.index, fps, cadence), "snap")
-          : enter(frame, fps, delay, "snap");
-        const strong = t.em === "bold" || t.em === "accent" || t.em === "mark";
-        const base3 = rise(p, px * 0.26);
-        const typo: React.CSSProperties = {
-          display: "inline-block",
-          fontSize: strong ? px * 1.07 : px,
-          fontWeight: strong ? WEIGHTS.black : WEIGHTS.medium,
-          letterSpacing: strong ? "-0.038em" : "-0.02em",
-        };
+      {groups.map((g, gi) => {
+        const d = at(g.index);
+        const p = enter(frame, fps, d, preset);
+        const q = enter(frame - 1, fps, d, preset);
+        const anim = textFxStyle(effect, p, q, px, blur);
+        const strong = g.em !== "plain";
+        const word = g.words.join(" ");
+        const caret = effect === "type" && gi === lastShown && Math.floor(frame / 8) % 2 === 0;
 
-        if (t.em === "mark") {
-          // The words arrive as normal text, then the marker strokes across them and the
-          // ink flips. Painting the box at the same instant as the word reads as a static
-          // label; the sweep reads as someone highlighting a line.
-          const wordDelay = delay + stagger(t.index, fps, cadence);
-          const sweepStart = wordDelay + Math.round(fps * 0.2);
-          const sweepFrames = Math.max(3, Math.round(fps * 0.26));
-          const sweep = interpolate(frame, [sweepStart, sweepStart + sweepFrames], [0, 1], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-            easing: Easing.out(Easing.cubic),
-          });
-          const inked = interpolate(
-            frame,
-            [sweepStart + sweepFrames * 0.35, sweepStart + sweepFrames * 0.75],
-            [0, 1],
-            { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
-          );
-          return (
-            <span key={gi} style={{ ...base3, ...typo, position: "relative" }}>
-              <span
-                style={{
-                  position: "absolute",
-                  inset: `${-px * 0.06}px ${-px * 0.16}px`,
-                  background: theme.text,
-                  borderRadius: px * 0.1,
-                  transform: `scaleX(${sweep})`,
-                  transformOrigin: "left center",
-                }}
-              />
-              <span
-                style={{
-                  position: "relative",
-                  color: inked > 0.5 ? theme.bg : theme.text,
-                  transition: "none",
-                }}
-              >
-                {t.words.join(" ")}
-              </span>
-              {t.trail ? (
-                <span style={{ position: "relative", color: theme.muted }}>{t.trail}</span>
+        const typo: React.CSSProperties = serifFace
+          ? { fontSize: px, fontWeight: 400, letterSpacing: "-0.01em",
+              fontStyle: strong && fonts.serifItalic ? "italic" : "normal" }
+          : {
+              fontSize: strong ? px * 1.07 : px,
+              fontWeight: strong ? (face === "display" ? fonts.displayWeight : WEIGHTS.black) : WEIGHTS.medium,
+              letterSpacing: strong ? "-0.038em" : "-0.02em",
+            };
+        const wrap = (node: React.ReactNode) => (
+          <span key={gi} style={anim.outer}>
+            <span style={{ ...anim.inner, ...typo, position: "relative" }}>
+              {node}
+              {g.trail ? <span style={{ color: plainColor }}>{g.trail}</span> : null}
+              {caret ? (
+                <span style={{ position: "absolute", right: -px * 0.14, top: "8%", bottom: "8%",
+                  width: Math.max(2, px * 0.06), background: theme.accent }} />
               ) : null}
             </span>
+          </span>
+        );
+
+        if (g.em === "icon") {
+          return wrap(
+            <span style={{ display: "inline-flex", verticalAlign: "middle",
+              transform: `translateY(${px * 0.12}px)` }}>
+              <Glyph name={g.words[0]} size={px * 1.02} color={strongColor}
+                surface={inverse ? "#111111" : theme.bg} />
+            </span>,
           );
         }
 
-        return (
-          <span
-            key={gi}
-            style={{
-              ...base3,
-              ...typo,
-              color: t.em === "accent" ? theme.accent : strong ? theme.text : theme.muted,
-            }}
-          >
-            {t.words.join(" ")}
-            {t.trail ? <span style={{ color: theme.muted }}>{t.trail}</span> : null}
-          </span>
+        if (g.em === "serif") {
+          return wrap(
+            <span style={{ fontFamily: fonts.serif, fontStyle: fonts.serifItalic ? "italic" : "normal",
+              fontWeight: 400, fontSize: px * 1.16, letterSpacing: "-0.01em",
+              textTransform: "none", color: strongColor }}>
+              {word}
+            </span>,
+          );
+        }
+
+        if (g.em === "mark") {
+          // The words arrive as normal text, then the marker strokes across them and the
+          // ink flips. Painting the box with the word reads as a label; the sweep reads
+          // as someone highlighting a line.
+          const sweepStart = d + Math.round(fps * 0.2);
+          const sweepFrames = Math.max(3, Math.round(fps * 0.26));
+          const sweep = interpolate(frame, [sweepStart, sweepStart + sweepFrames], [0, 1], {
+            extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.cubic),
+          });
+          // The ink flips only where the box has passed: flipping the whole phrase at once
+          // turned the words not yet covered into dark-on-dark, and they vanished.
+          const box = inverse ? "#FFFFFF" : theme.text;
+          const cut = `inset(-20% ${((1 - sweep) * 100).toFixed(2)}% -20% 0)`;
+          return wrap(
+            <>
+              <span style={{ position: "absolute", inset: `${-px * 0.06}px ${-px * 0.16}px`,
+                background: box, borderRadius: px * 0.1,
+                transform: `scaleX(${sweep})`, transformOrigin: "left center" }} />
+              <span style={{ position: "relative", color: strongColor }}>{word}</span>
+              <span style={{ position: "absolute", left: 0, top: 0, whiteSpace: "nowrap",
+                color: inverse ? "#0A0A0B" : theme.bg, clipPath: cut }}>
+                {word}
+              </span>
+            </>,
+          );
+        }
+
+        // In black and white an accent colour would be the ink itself — it becomes an
+        // underline instead, so the word is still singled out.
+        if (g.em === "under" || (g.em === "accent" && mono)) {
+          // A hand-drawn stroke that draws itself under the words once they have landed.
+          const drawStart = d + Math.round(fps * 0.18);
+          const draw = interpolate(frame, [drawStart, drawStart + Math.round(fps * 0.34)], [0, 1], {
+            extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.cubic),
+          });
+          return wrap(
+            <>
+              <span style={{ position: "relative", color: strongColor }}>{word}</span>
+              <svg viewBox="0 0 200 20" preserveAspectRatio="none"
+                style={{ position: "absolute", left: "-4%", width: "108%", bottom: -px * 0.2,
+                  height: px * 0.3, overflow: "visible" }}>
+                <path d="M3 13 C 40 5, 90 5, 130 9 S 185 15, 197 8" fill="none"
+                  stroke={theme.accent === theme.text ? theme.text : theme.accent}
+                  strokeWidth={7} strokeLinecap="round" pathLength={1}
+                  strokeDasharray="1 1" strokeDashoffset={1 - draw} />
+              </svg>
+            </>,
+          );
+        }
+
+        return wrap(
+          <span style={{ color: g.em === "accent" ? (inverse ? theme.accent : theme.accentInk)
+            : strong ? strongColor : plainColor }}>
+            {word}
+          </span>,
         );
       })}
     </div>

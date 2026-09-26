@@ -15,20 +15,10 @@ from pathlib import Path
 
 from _common import (die, emit, ffmpeg, ffprobe_json, home, read_json, run,
                      safe_path, slugify, which, write_json)
+import coherence
+from coherence import SCENE_TYPES, scene_icons, scene_media as _scene_media
 
 TEMPLATE = Path(__file__).resolve().parent.parent / "remotion"
-SCENE_TYPES = {"textStack", "pill", "logoList", "card", "bullets", "stat",
-               "code", "compare", "outro", "media", "tiles", "annotate",
-               "marquee", "quote", "progress", "chips", "diagram", "flow", "mock", "cta"}
-# scenes that can carry footage…
-MEDIA_SCENES = {"card", "media", "tiles", "annotate"}
-# …and the subset that is pointless without it. A `card` with an empty device shell is a
-# deliberate, good-looking choice; an `annotate` with nothing to annotate is not.
-MEDIA_REQUIRED = {"media", "annotate", "tiles"}
-# scenes that actually render the flowing `rich` caption. Setting it elsewhere would do
-# nothing at all, which is worse than an error.
-RICH_SCENES = {"textStack", "chips", "diagram", "flow", "mock", "card", "media",
-               "tiles", "cta"}
 
 # Chromium lookup: reuse whatever the host already has before downloading 150 MB.
 BROWSER_HINTS = [
@@ -143,41 +133,7 @@ def cmd_deck(a):
 # -------------------------------------------------------------------- validate
 def scene_media(s: dict) -> list[tuple[str, dict]]:
     """Every media reference in a scene, normalised to (label, spec)."""
-    out = []
-    def norm(m):
-        return {"src": m} if isinstance(m, str) else (m if isinstance(m, dict) else None)
-    for key in ("media", "src"):
-        m = norm(s.get(key))
-        if m and m.get("src"):
-            out.append((s.get("type", "?"), m))
-    for it in (s.get("items") or []):
-        if isinstance(it, dict):
-            m = norm(it.get("media"))
-            if m and m.get("src"):
-                out.append((s.get("type", "?"), m))
-    return out
-
-
-def scene_icons(s: dict) -> list[str]:
-    """Every icon in a scene that names a file rather than a built-in glyph.
-
-    A glyph is a bare word (`gear`, `sparkle`); anything with a slash or a dot is a path
-    into public/. Missing ones used to sail through validate and then kill the render
-    with a 404 that named a URL, not a fix."""
-    found: list[str] = []
-
-    def take(v):
-        if isinstance(v, str) and ("/" in v or "." in v) and not v.startswith("http"):
-            found.append(v)
-
-    for key in ("hub", "chip"):
-        if isinstance(s.get(key), dict):
-            take(s[key].get("icon"))
-    for key in ("items", "nodes", "steps"):
-        for it in (s.get(key) or []):
-            if isinstance(it, dict):
-                take(it.get("icon"))
-    return found
+    return [(s.get("type", "?"), m) for m in _scene_media(s)]
 
 
 def probe_media(deck: dict, project: Path) -> tuple[list[str], list[str], list[dict]]:
@@ -186,11 +142,6 @@ def probe_media(deck: dict, project: Path) -> tuple[list[str], list[str], list[d
     errors, warns, report = [], [], []
     public = project / "public"
     for i, sc in enumerate(deck.get("scenes") or []):
-        for icon in scene_icons(sc):
-            if not (public / icon).exists():
-                slug = Path(icon).stem
-                errors.append(f"scene {i}: icon not found — {icon}. "
-                              f"Fetch it: mk logo get {slug}")
         for _, m in scene_media(sc):
             src = str(m["src"])
             if src.startswith(("http://", "https://", "data:")):
@@ -259,13 +210,18 @@ def lint(deck: dict) -> tuple[list[str], list[str]]:
         if t not in SCENE_TYPES:
             errors.append(f"scene {i}: unknown type {t!r}; use one of {sorted(SCENE_TYPES)}")
         d = float(s.get("duration", 2))
-        if d > 3.5 and vertical:
-            warns.append(f"scene {i} ({t}) runs {d}s — over ~3s a single card stops earning its place")
-        if s.get("rich") and t not in RICH_SCENES:
-            errors.append(f"scene {i} ({t}): `rich` is not rendered by this scene type. "
-                          f"Use one of {sorted(RICH_SCENES)}, or put the text in `lines`")
-        if t in MEDIA_REQUIRED and not (s.get("media") or s.get("src") or s.get("items")):
-            errors.append(f"scene {i} ({t}): needs a `media` source")
+        if d > 5.5 and vertical:
+            warns.append(f"scene {i} ({t}) runs {d}s — over ~5s a single card stops earning its place")
+        # Reading time: ~1 s to take the frame in, ~0.3 s per word on screen (half that when
+        # the narration says the words). Cut sooner and the text is never read.
+        words = on_screen_words(s)
+        spoken = bool(s.get("say"))            # the voice reads it aloud: less time needed
+        need = round((0.8 + 0.15 * words) if spoken else (1.0 + 0.3 * words), 1)
+        if words and d + 0.05 < need:
+            warns.append(f"scene {i} ({t}) shows ~{words} words for {d}s — needs ~{need}s to be "
+                         f"read. Lengthen it, or put fewer words on screen")
+        elif d < 1.4 and t != "kinetic":
+            warns.append(f"scene {i} ({t}) is {d}s — under 1.4s a scene flashes past")
         if t == "tiles":
             n = len(s.get("items") or [])
             if n < 2:
@@ -280,17 +236,21 @@ def lint(deck: dict) -> tuple[list[str], list[str]]:
             if not isinstance(ln, dict):
                 continue                      # `code` scenes hold plain strings
             if float(ln.get("s", 1)) >= 1.4 and len(str(ln.get("t", ""))) > 26:
-                warns.append(f"scene {i}: \"{str(ln['t'])[:30]}…\" is long for a display line — it will wrap")
+                warns.append(f"scene {i}: \"{str(ln['t'])[:30]}…\" is long for a display line — it "
+                             f"will be shrunk to fit the width; shorter reads bigger")
 
     if vertical and total > 60:
         warns.append(f"{total:.1f}s exceeds the 60s Shorts limit")
     first = float(scenes[0].get("duration", 2))
-    if first > 2.0:
-        warns.append(f"first scene is {first}s — the hook has to land inside 1.5s")
+    if first > 3.0:
+        warns.append(f"first scene is {first}s — the hook has to land inside ~2.5s")
     avg = total / len(scenes)
-    limit = 2.6 if vertical else 4.5
+    limit = 4.5 if vertical else 6.0
     if avg > limit:
         warns.append(f"average scene {avg:.1f}s exceeds {limit}s — it will feel like a slideshow")
+    if avg < 1.8:
+        warns.append(f"average scene {avg:.1f}s — the edit is racing; viewers get no time to "
+                     f"read. Aim for 2–4s a scene")
     runs, prev, n = [], None, 0
     for s in scenes:
         if s.get("type") == prev:
@@ -306,7 +266,7 @@ def lint(deck: dict) -> tuple[list[str], list[str]]:
     kinds = {s.get("type") for s in scenes}
     if len(kinds) == 1:
         warns.append("every scene is the same type — that is a slideshow, not an edit")
-    has_media = any(scene_media(s) for s in scenes)
+    has_media = any(_scene_media(s) for s in scenes)
     if len(scenes) >= 5 and not has_media:
         warns.append("no scene shows any footage or screenshot — type alone carries a 10s "
                      "video, not a 30s one. Put a screen recording in a card/media/tiles scene")
@@ -325,42 +285,93 @@ def lint(deck: dict) -> tuple[list[str], list[str]]:
     if len(scenes) >= 6 and len([v for v in variants if v]) == 0 and len(kinds) < 5:
         warns.append("few scene shapes and no entrance variation — set `variant` on a few "
                      "scenes, or mix in more types; repetition is what viewers feel")
+    if len(scenes) > 8 and not kinds & {"kinetic", "chapter", "split", "versus", "focus",
+                                         "beforeAfter", "chart", "timeline"}:
+        warns.append("no pattern interrupt — past eight scenes, drop in a `kinetic`, `chapter`, "
+                     "`split`, `versus`, `focus` or `chart` so the back half does not feel like "
+                     "the front half")
     return errors, warns
+
+
+def on_screen_words(s: dict) -> int:
+    """Rough count of the words a scene puts on screen."""
+    import voicesync
+    n = 0
+    if s.get("rich"):
+        n += sum(1 for t, icon in voicesync.rich_tokens(s["rich"]) if not icon and any(ch.isalnum() for ch in t))
+    for key in ("lines", "heading", "caption", "footer"):
+        for ln in s.get(key) or []:
+            txt = ln.get("t") if isinstance(ln, dict) else ln
+            n += len(str(txt or "").split())
+    for key in ("label", "title", "sub", "text", "kicker"):
+        if isinstance(s.get(key), str):
+            n += len(s[key].split())
+    if s.get("type") != "kinetic":           # kinetic lines are already counted
+        n += sum(len(str(x).split()) for x in voicesync.item_labels(s))
+    return n
+
+
+def full_lint(deck: dict, project: Path | None) -> tuple[list[str], list[str], list[str]]:
+    """Pacing lint + coherence check + media probe, in one place."""
+    errors, warns = lint(deck)
+    public = (project / "public") if project else None
+    cerr, cwarn, fixes = coherence.check(deck, public if public and public.exists() else None)
+    errors += cerr
+    warns += cwarn
+    if project and which("ffprobe"):
+        merrors, mwarns, _ = probe_media(deck, project)
+        errors += merrors
+        warns += mwarns
+    return errors, warns, fixes
+
+
+def resolved_props(deck_path: Path) -> Path:
+    """Write the resolved deck (transitions filled in) next to the render cache and return
+    its path: stills, sheets, renders and `mk mix` all read the same decisions."""
+    deck = read_json(deck_path, {})
+    out = safe_path(home() / "cache" / "decks" / f"{slugify(deck_path.stem) or 'deck'}.resolved.json",
+                    write=True)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    write_json(out, coherence.resolve(deck))
+    return out
 
 
 def cmd_validate(a):
     deck = read_json(safe_path(a.deck, must_exist=True), None)
     if not isinstance(deck, dict):
         die("deck must be a JSON object")
+    project = project_dir(a.dir)
     errors, warns = lint(deck)
+    public = project / "public"
+    cerr, cwarn, fixes = coherence.check(deck, public if public.exists() else None)
+    errors += cerr
+    warns += cwarn
     media_report: list[dict] = []
     if which("ffprobe"):
-        merrors, mwarns, media_report = probe_media(deck, project_dir(a.dir))
+        merrors, mwarns, media_report = probe_media(deck, project)
         errors += merrors
         warns += mwarns
     fps = deck.get("fps", 30)
     total = sum(float(s.get("duration", 2)) for s in deck.get("scenes", []))
+    resolved = coherence.resolve(deck)
+    plan = [f"{i} {s.get('type')} ← {(s.get('transition') or {}).get('type', 'cut')}"
+            + (f" {s['transition']['dir']}" if (s.get("transition") or {}).get("dir") else "")
+            for i, s in enumerate(resolved.get("scenes", []))]
     emit({"ok": not errors, "scenes": len(deck.get("scenes", [])),
           "duration_s": round(total, 2), "frames": int(total * fps),
           "canvas": f"{deck.get('width',1080)}x{deck.get('height',1920)}@{fps}",
+          "motion": resolved["motion"]["language"], "transitions": plan,
           "media": media_report or None,
-          "errors": errors, "warnings": warns,
+          "errors": errors, "warnings": warns, "auto_corrected": fixes or None,
           "next": "mk remotion sheet <deck> to look at it" if not errors else "fix the errors first"})
 
 
 # ------------------------------------------------------------------- rendering
 def scene_mid_frames(deck: dict) -> list[int]:
+    """A frame ~62% into each scene — past its entrance, before it leaves."""
     fps = deck.get("fps", 30)
-    at, mids = 0, []
-    for i, s in enumerate(deck.get("scenes", [])):
-        f = max(1, round(float(s.get("duration", 2)) * fps))
-        tr = s.get("transition") or {}
-        ov = min(round(float(tr.get("duration", 0.3)) * fps), f - 1, at) \
-            if i and tr.get("type") == "fade" else 0
-        start = max(0, at - ov)
-        at = start + f
-        mids.append(start + round(f * 0.62))
-    return mids
+    return [round(t * fps + max(1, round(float(s.get("duration", 2)) * fps)) * 0.62)
+            for (t, _, _), s in zip(coherence.scene_starts(deck), deck.get("scenes", []))]
 
 
 def cmd_still(a):
@@ -374,7 +385,7 @@ def cmd_still(a):
         if not 0 <= a.scene < len(mids):
             die(f"scene {a.scene} out of range (0..{len(mids)-1})")
         frame = mids[a.scene]
-    npx(d, ["still", "src/index.ts", "Deck", str(out), f"--props={deck_path}",
+    npx(d, ["still", "src/index.ts", "Deck", str(out), f"--props={resolved_props(deck_path)}",
             f"--frame={frame}", "--log=error"], timeout=900)
     emit({"ok": True, "output": str(out), "frame": frame,
           "next": "open it with your image reader — do not judge a design you have not seen"})
@@ -394,9 +405,10 @@ def cmd_sheet(a):
     shutil.rmtree(tmp, ignore_errors=True)
     tmp.mkdir(parents=True, exist_ok=True)
     shots = []
+    props = resolved_props(deck_path)
     for i, f in enumerate(mids):
         p = tmp / f"s{i:02d}.png"
-        npx(d, ["still", "src/index.ts", "Deck", str(p), f"--props={deck_path}",
+        npx(d, ["still", "src/index.ts", "Deck", str(p), f"--props={props}",
                 f"--frame={f}", "--log=error"], timeout=900)
         shots.append(p)
     n = len(shots)
@@ -430,16 +442,12 @@ def cmd_render(a):
     d = ensure_project(project_dir(a.dir))
     deck_path = safe_path(a.deck, must_exist=True)
     deck = read_json(deck_path, {})
-    errors, warns = lint(deck)
-    if which("ffprobe"):
-        merrors, mwarns, _ = probe_media(deck, d)
-        errors += merrors
-        warns += mwarns
+    errors, warns, fixes = full_lint(deck, d)
     if errors:
         die("deck does not validate:\n  " + "\n  ".join(errors))
     out = safe_path(a.output, write=True)
     out.parent.mkdir(parents=True, exist_ok=True)
-    args = ["render", "src/index.ts", "Deck", str(out), f"--props={deck_path}", "--log=error",
+    args = ["render", "src/index.ts", "Deck", str(out), f"--props={resolved_props(deck_path)}", "--log=error",
             f"--concurrency={a.concurrency}"]
     if a.preview:
         args += ["--scale=0.5", "--crf=30"]
@@ -451,7 +459,71 @@ def cmd_render(a):
           "scenes": len(deck.get("scenes", [])),
           "duration_s": round(sum(float(s.get("duration", 2)) for s in deck.get("scenes", [])), 2),
           "quality": "preview" if a.preview else "final", "warnings": warns,
+          "auto_corrected": fixes or None,
           "next": f"mk qc {out} --target shorts --graphics"})
+
+
+def cmd_sync(a):
+    """Time the deck on the narration: cuts on phrases, items on their words."""
+    import voicesync
+    deck_path = safe_path(a.deck, must_exist=True)
+    deck = read_json(deck_path, None)
+    if not isinstance(deck, dict):
+        die("deck must be a JSON object")
+    wpath = safe_path(a.words, must_exist=True)
+    wdata = read_json(wpath, {}) or {}
+    words = wdata.get("words") if isinstance(wdata, dict) else wdata
+    if not words:
+        die(f"no word timings in {wpath}. `mk tts` writes <voice>.words.json with edge-tts")
+    missing = [i for i, sc in enumerate(deck.get("scenes", [])) if not sc.get("say")]
+    deck, notes = voicesync.sync(deck, words, lead=a.lead, tail=a.tail, fps=deck.get("fps", 30))
+    out = safe_path(a.output, write=True) if a.output else deck_path
+    write_json(out, deck)
+    total = sum(float(sc.get("duration", 0)) for sc in deck.get("scenes", []))
+    emit({"ok": True, "deck": str(out), "duration_s": round(total, 2),
+          "voice_s": words[-1]["end"],
+          "scenes": [{"i": i, "type": sc.get("type"), "duration": sc.get("duration"),
+                      "cues": sc.get("cues")} for i, sc in enumerate(deck.get("scenes", []))],
+          "unsynced": missing or None, "notes": notes or None,
+          "next": f"mk remotion sheet {out}  — then render and mix with the same voice"})
+
+
+def cmd_jitter(a):
+    """Find stutters in a rendered video: frames whose change from the previous one is an
+    isolated spike inside otherwise smooth motion (cuts excluded). Every one found so far
+    was a real bug — a layout shift, a filter toggling, a state snapping instead of
+    fading — invisible on a contact sheet and obvious to a viewer."""
+    import subprocess
+    video = safe_path(a.video, must_exist=True)
+    exe = which("ffmpeg") or die("ffmpeg required")
+    W, H = 90, 160
+    raw = subprocess.run([exe, "-v", "error", "-i", str(video), "-vf", f"scale={W}:{H},format=gray",
+                          "-f", "rawvideo", "-"], capture_output=True, timeout=900).stdout
+    n = len(raw) // (W * H)
+    frames = [raw[i * W * H:(i + 1) * W * H] for i in range(n)]
+    diffs = [sum(abs(x - y) for x, y in zip(frames[i], frames[i - 1])) / (W * H) for i in range(1, n)]
+    cuts: list[int] = []
+    fps = 30
+    if a.deck:
+        deck = coherence.resolve(read_json(safe_path(a.deck, must_exist=True), {}))
+        fps = deck.get("fps", 30)
+        cuts = [round(t * fps) for t, _, _ in coherence.scene_starts(deck)]
+    spikes = []
+    for i in range(3, len(diffs) - 3):
+        f = i + 1
+        if any(abs(f - c) <= 3 for c in cuts):
+            continue
+        win = sorted(diffs[i - 3:i] + diffs[i + 1:i + 4])
+        med = win[len(win) // 2]
+        if diffs[i] > 0.6 and diffs[i] > 4 * max(med, 0.15):
+            spikes.append({"frame": f, "t": round(f / fps, 2), "jump": round(diffs[i], 2),
+                           "around": round(med, 2)})
+    still = sum(1 for d in diffs if d < 0.05) / max(1, len(diffs))
+    emit({"ok": not spikes, "frames": n, "spikes": spikes,
+          "still_frames_pct": round(100 * still),
+          "hint": "open the frame before and the frame of each spike: usual causes are a box "
+                  "that grows (reserve its space), a filter added or removed mid-motion, a "
+                  "colour/state that switches instead of fading" if spikes else None})
 
 
 def cmd_studio(a):
@@ -485,6 +557,19 @@ def main():
     r.add_argument("--preview", action="store_true"); r.add_argument("--transparent", action="store_true")
     r.add_argument("--concurrency", type=int, default=2); r.add_argument("--timeout", type=int, default=3600)
     r.set_defaults(fn=cmd_render)
+
+    sy = sub.add_parser("sync", help="cut the deck on the narration's word timings")
+    sy.add_argument("deck"); sy.add_argument("--words", required=True,
+                                             help="<voice>.words.json written by mk tts")
+    sy.add_argument("-o", "--output", default=None, help="default: rewrite the deck in place")
+    sy.add_argument("--lead", type=float, default=0.12, help="cut this long before each phrase")
+    sy.add_argument("--tail", type=float, default=0.7, help="hold after the last word")
+    sy.set_defaults(fn=cmd_sync)
+
+    jt = sub.add_parser("jitter", help="find stutters in a rendered video")
+    jt.add_argument("video"); jt.add_argument("--deck", default=None,
+                                              help="the deck, so its cuts are not counted")
+    jt.set_defaults(fn=cmd_jitter)
 
     st = sub.add_parser("studio"); st.set_defaults(fn=cmd_studio)
 

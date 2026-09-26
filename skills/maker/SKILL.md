@@ -107,6 +107,20 @@ What makes the second run fast, in order of value:
 If a second run is taking longer than five minutes, you are re-deriving something that is
 already in `.maker/`. Stop and read it.
 
+## 3c. House defaults — what a video is unless the creator says otherwise
+
+- **English.** Script, narration (`mk tts` defaults to `--lang en`, voice Christopher), on-screen
+  text, title and description. Reply to the creator in their own language; make the
+  video in English unless they ask for another one.
+- **Black and white, pro.** `maker-remotion`'s `style: "mono"`: white paper, black ink,
+  inverted slabs for rhythm, logos in ink, the ghost keyword and the HUD, the `graphic`
+  motion language (masks and hard-edged transitions). Colour only on request
+  (`"style": "color"`).
+- **Cut on the voice.** `mk tts` → `mk remotion sync` → render → `mk mix`. Scenes 2–4 s,
+  readable, with a punch-in on every emphasised word.
+
+A ruling in `.maker/memory/feedback.md` overrides these, like everything else.
+
 ## 4. Non-negotiables
 
 1. **Hook in 1.5 s.** First frame carries motion *and* readable text. No logo intro, ever.

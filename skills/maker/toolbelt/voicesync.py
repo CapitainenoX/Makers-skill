@@ -1,0 +1,268 @@
+#!/usr/bin/env python3
+"""Cut the deck on the voice.
+
+A narrated short where the pictures change on a clock and the voice runs on its own is
+two videos playing at once. Editors cut on the word: the scene changes as its phrase
+starts, the logo lands as its name is said, the number stops counting as it is spoken.
+
+Input: the deck, where each scene carries `say` — the words of the narration it covers —
+and the word timings `mk tts` writes next to the audio (`vo.words.json`). Output: the
+same deck with every `duration` set so the cuts sit just before each phrase, and `cues`
+per scene (seconds from the scene's start) for the renderer:
+
+    cues.items[i]  when list item i (chip, checklist line, step, kinetic line…) is named
+    cues.words[k]  when token k of the scene's `rich` caption is spoken
+    cues.value     when a stat's number is said
+
+Anything that cannot be matched falls back to an even spread inside the phrase, so a
+paraphrased caption still moves with the voice rather than on a clock.
+"""
+from __future__ import annotations
+
+import re
+
+STOP = {"the", "a", "an", "and", "of", "to", "it", "is", "in", "on", "for", "from", "that",
+        "this", "le", "la", "les", "de", "du", "des", "un", "une", "et", "à", "en", "pour"}
+
+# Same marker order as remotion/src/text.ts:parse, so token indexes agree.
+MARKERS = [r"\[\[([^\]]+)\]\]", r"\*\*([^*]+)\*\*", r"__([^_]+)__", r"==([^=]+)==",
+           r"~~([^~]+)~~", r"\*([^*\s][^*]*?)\*"]
+
+
+def norm(w: str) -> str:
+    return re.sub(r"[^\w]", "", w.lower().replace("'", "")).strip("_")
+
+
+def rich_tokens(text: str) -> list[tuple[str, bool]]:
+    """(token, is_icon) exactly as the renderer splits a rich caption."""
+    spans: list[tuple[str, str]] = [(text, "plain")]
+    for k, pat in enumerate(MARKERS):
+        out: list[tuple[str, str]] = []
+        for t, em in spans:
+            if em != "plain":
+                out.append((t, em))
+                continue
+            last = 0
+            for m in re.finditer(pat, t):
+                if m.start() > last:
+                    out.append((t[last:m.start()], "plain"))
+                out.append((m.group(1), "icon" if k == 0 else "em"))
+                last = m.end()
+            if last < len(t):
+                out.append((t[last:], "plain"))
+        spans = out
+    toks: list[tuple[str, bool]] = []
+    for t, em in spans:
+        if em == "icon":
+            toks.append((t.strip(), True))
+            continue
+        toks += [(w, False) for w in t.split() if w]
+    return toks
+
+
+def item_labels(s: dict) -> list[str]:
+    t = s.get("type")
+    if t == "kinetic":
+        return [re.sub(r"[*_=~\[\]]", "", l) for l in s.get("lines") or []]
+    if t in ("diagram", "orbit"):
+        return [n.get("label") or _stem(n.get("icon")) for n in s.get("nodes") or []]
+    if t == "flow":
+        return [st.get("label", "") for st in s.get("steps") or []]
+    if t == "cta":
+        return [a.get("label", "") for a in s.get("actions") or []]
+    if t == "timeline":
+        return [f"{it.get('date', '')} {it.get('label', '')}" for it in s.get("items") or []]
+    out = []
+    for it in s.get("items") or []:
+        if isinstance(it, dict):
+            out.append(it.get("label") or it.get("title") or _stem(it.get("icon")))
+        elif isinstance(it, str):
+            out.append(it)
+    return out
+
+
+def _stem(icon) -> str:
+    if not isinstance(icon, str):
+        return ""
+    base = icon.rsplit("/", 1)[-1].rsplit(".", 1)[0]
+    return {"googlechrome": "chrome", "vlcmediaplayer": "vlc", "obsstudio": "obs",
+            "nodedotjs": "node"}.get(base, base)
+
+
+def align(say: str, words: list[dict], ptr: int) -> tuple[int, int] | None:
+    """Find the span of `words` (from ptr) that speaks `say`. Greedy, tolerant of the
+    odd word the TTS split or merged differently."""
+    toks = [norm(w) for w in say.split() if norm(w)]
+    if not toks:
+        return None
+    first = None
+    for j in range(ptr, min(len(words), ptr + 40)):
+        if norm(words[j]["w"]) == toks[0] or (len(toks) > 1 and norm(words[j]["w"]) == toks[1]):
+            first = j
+            break
+    if first is None:
+        return None
+    j, last = first, first
+    for t in toks:
+        for k in range(j, min(len(words), j + 4)):
+            if norm(words[k]["w"]) == t:
+                last, j = k, k + 1
+                break
+    return first, last
+
+
+def spread(n: int, a: float, b: float) -> list[float]:
+    if n <= 0:
+        return []
+    if n == 1:
+        return [a]
+    return [a + (b - a) * i / (n - 1) for i in range(n)]
+
+
+def read_time(s: dict) -> float:
+    """How long a narrated scene must stay up: the voice reads the words aloud, so this is
+    only the time to take the frame in — ~0.8 s plus 0.15 s per word, never under 1.4 s."""
+    n = 0
+    if s.get("rich"):
+        n += sum(1 for t, icon in rich_tokens(s["rich"]) if not icon and any(c.isalnum() for c in t))
+    for key in ("lines", "heading"):
+        for ln in s.get(key) or []:
+            n += len(str(ln.get("t") if isinstance(ln, dict) else ln).split())
+    for key in ("label", "title", "sub", "kicker"):
+        if isinstance(s.get(key), str):
+            n += len(s[key].split())
+    if s.get("type") != "kinetic":
+        n += sum(len(str(x).split()) for x in item_labels(s))
+    return max(1.4, 0.8 + 0.15 * n)
+
+
+def sync(deck: dict, words: list[dict], lead: float = 0.12, tail: float = 0.9,
+         fps: int = 30, hold_after: float = 0.5, max_lag: float = 0.5) -> tuple[dict, list[str]]:
+    scenes = deck.get("scenes") or []
+    notes: list[str] = []
+    spans: list[tuple[int, int] | None] = []
+    ptr = 0
+    for i, s in enumerate(scenes):
+        say = s.get("say")
+        if not say:
+            spans.append(None)
+            continue
+        sp = align(say, words, ptr)
+        if sp is None:
+            notes.append(f"scene {i}: could not find \"{say[:40]}\" in the narration — kept its duration")
+        else:
+            ptr = sp[1] + 1
+        spans.append(sp)
+
+    # Scene starts: on the phrase, a hair early — but never before the previous scene
+    # has been on screen long enough to be read, and never before its last spoken word
+    # has had a moment to land. When the voice outruns the reading time, the picture
+    # lags the voice slightly and catches up at the next pause.
+    starts: list[float] = []
+    for i, s in enumerate(scenes):
+        sp = spans[i]
+        if i == 0:
+            starts.append(0.0)
+            continue
+        prev, psp = scenes[i - 1], spans[i - 1]
+        floor = starts[i - 1] + (float(prev.get("duration", 2)) if psp is None
+                                 else read_time(prev))
+        if psp is not None:
+            floor = max(floor, words[psp[1]]["end"] + hold_after)
+        want = words[sp[0]]["start"] - lead if sp is not None else floor
+        # the picture may trail the voice, but by half a second at most: past that the
+        # viewer hears one thing and sees another
+        start = max(want, min(floor, want + max_lag)) if sp is not None else floor
+        if sp is not None and floor - want > max_lag:
+            notes.append(f"scene {i - 1} is short for what it shows ({start - starts[i - 1]:.1f}s) — "
+                         f"put fewer words on it, merge it with scene {i}, or slow the voice")
+        starts.append(start)
+    end_voice = words[-1]["end"] if words else 0.0
+    for i, s in enumerate(scenes):
+        if i + 1 < len(scenes):
+            dur = starts[i + 1] - starts[i]
+        else:
+            dur = max(end_voice + tail, starts[i] + read_time(s)) - starts[i]
+        s["duration"] = round(max(0.5, round(dur * fps) / fps), 3)
+
+    for i, s in enumerate(scenes):
+        sp = spans[i]
+        if sp is None:
+            continue
+        seg = words[sp[0]: sp[1] + 1]
+        rel = lambda w: round(max(0.0, w["start"] - starts[i]), 3)
+        cues: dict = {}
+        # items: first spoken word matching a content word of the label
+        labels = item_labels(s)
+        if labels:
+            times: list[float | None] = []
+            used = -1
+            for lab in labels:
+                keys = [norm(x) for x in lab.split() if norm(x) and norm(x) not in STOP]
+                hit = None
+                for k, w in enumerate(seg):
+                    if k > used and keys and (norm(w["w"]) in keys or any(
+                            norm(w["w"]).startswith(x[:5]) for x in keys if len(x) >= 5)):
+                        hit, used = rel(w), k
+                        break
+                times.append(hit)
+            filled = _fill(times, rel(seg[0]), rel(seg[-1]))
+            if s.get("type") == "kinetic" and any(x is None for x in times):
+                # a poster whose lines paraphrase the voice: land them across the first
+                # part of the phrase instead of waiting on words that are never said
+                a0, a1 = rel(seg[0]), rel(seg[0]) + 0.6 * (rel(seg[-1]) - rel(seg[0]))
+                filled = [round(x, 3) for x in spread(len(labels), a0, max(a0 + 0.3, a1))]
+            # The first item lands with the phrase, whatever word it matched: "200,000"
+            # is spoken "two hundred thousand", and matching its last word ("stars")
+            # left the hook's first line blank for two seconds. Later items keep order.
+            if filled:
+                filled[0] = min(filled[0], rel(seg[0]))
+                for k in range(1, len(filled)):
+                    filled[k] = max(filled[k], filled[k - 1] + 0.25)
+            if any(x is not None for x in times) or len(labels) > 1:
+                cues["items"] = filled
+        # rich caption: token by token
+        if s.get("rich"):
+            toks = rich_tokens(s["rich"])
+            times, k0 = [], 0
+            for tok, icon in toks:
+                n = norm(tok) if not icon else norm(_stem(tok))
+                hit = None
+                for k in range(k0, len(seg)):
+                    if norm(seg[k]["w"]) == n and n:
+                        hit, k0 = rel(seg[k]), k + 1
+                        break
+                times.append(hit)
+            cues["words"] = _fill(times, rel(seg[0]), rel(seg[-1]))
+        if s.get("type") == "stat":
+            v = norm(str(s.get("value", "")))
+            for w in seg:
+                if norm(w["w"]) == v or (v and norm(w["w"]).startswith(v[:3])):
+                    cues["value"] = rel(w)
+                    break
+        if cues:
+            s["cues"] = cues
+        else:
+            s.pop("cues", None)
+    return deck, notes
+
+
+def _fill(times: list[float | None], a: float, b: float) -> list[float]:
+    """Unmatched entries: interpolated between their matched neighbours."""
+    out = list(times)
+    n = len(out)
+    known = [i for i, x in enumerate(out) if x is not None]
+    if not known:
+        return [round(x, 3) for x in spread(n, a, max(a, b - 0.2))]
+    for i in range(n):
+        if out[i] is not None:
+            continue
+        prev = max((k for k in known if k < i), default=None)
+        nxt = min((k for k in known if k > i), default=None)
+        if prev is None:
+            out[i] = max(0.0, out[nxt] - 0.12 * (nxt - i))
+        elif nxt is None:
+            out[i] = out[prev] + 0.12 * (i - prev)
+        else:
+            out[i] = out[prev] + (out[nxt] - out[prev]) * (i - prev) / (nxt - prev)
+    return [round(x, 3) for x in out]
