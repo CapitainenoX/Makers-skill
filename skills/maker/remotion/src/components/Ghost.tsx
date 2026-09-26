@@ -4,7 +4,7 @@ import { useKit } from "../kit";
 import { alpha } from "../color";
 
 /** A giant outlined word behind the scene — the scene's keyword, three times wider than
- *  the frame, sliding in and settling. It fills the dead space above and below a small block
+ *  the frame, sliding in and travelling behind the block. It fills the dead space above and below a small block
  *  with texture instead of decoration, and it is pure ink: it works in black and white.
  *  Low contrast on purpose: it is read by the eye, not by the viewer. */
 export const Ghost: React.FC<{ text?: string; index: number }> = ({ text, index }) => {
@@ -14,10 +14,15 @@ export const Ghost: React.FC<{ text?: string; index: number }> = ({ text, index 
   if (!text) return null;
   const word = fonts.displayUpper ? text.toUpperCase() : text;
   const dir = index % 2 === 0 ? -1 : 1;
-  // Slides in with the scene, then rests. A drift that never stops kept a thin outline
-  // moving by a few pixels every frame behind the text — it strobed, read as vibration.
-  const k = interpolate(frame, [0, Math.max(1, Math.min(durationInFrames, Math.round(fps * 1.1)))], [0, 0.5], {
+  // Slides in with the scene, then keeps travelling for as long as the scene is up: the
+  // main block holds still to be read, the background stays alive. The steady part moves
+  // a whole number of pixels per frame and lands on whole pixels — a slow sub-pixel drift
+  // re-rasterises the thin outline at a new offset every frame and it shimmers.
+  const slide = interpolate(frame, [0, Math.round(fps * 0.6)], [1, 0], {
     extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) });
+  const speed = Math.max(1, Math.round((2 * width) / 1080));
+  const x = Math.round(dir * 0.2 * width - (dir > 0 ? width * 0.4 : width * 0.1)
+    + dir * 0.25 * width * slide - dir * speed * frame);
   const inP = interpolate(frame, [0, Math.round(fps * 0.5)], [0, 1], {
     extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) });
   const size = Math.min(height * 0.34, (width * 2.6) / Math.max(3, word.length));
@@ -27,7 +32,7 @@ export const Ghost: React.FC<{ text?: string; index: number }> = ({ text, index 
     <AbsoluteFill style={{ overflow: "hidden", pointerEvents: "none" }}>
       <div style={{
         position: "absolute", top, left: 0, whiteSpace: "nowrap", willChange: "transform",
-        transform: `translate3d(${(dir * (0.2 - 0.4 * k) * width - (dir > 0 ? width * 0.4 : width * 0.1)).toFixed(2)}px, 0, 0)`,
+        transform: `translate3d(${x}px, 0, 0)`,
         fontFamily: fonts.display, fontWeight: fonts.displayWeight, fontSize: size,
         lineHeight: 1, letterSpacing: `${fonts.displayTracking}em`,
         color: "transparent",

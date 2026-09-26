@@ -23,7 +23,7 @@ the harness only uses hard-edged transitions (wipe, push, iris, whip, blinds), b
 dissolve averages the two into grey mush.
 
 Two things fill the frame instead of wallpaper: a **ghost** — the scene's keyword,
-outlined, three times the frame's width, sliding in behind the block and resting — and the **HUD**,
+outlined, three times the frame's width, sliding in and travelling behind the block — and the **HUD**,
 an editorial frame with the scene counter, the handle and a hairline progress bar.
 Corner decor is off in this style.
 
@@ -104,8 +104,10 @@ Move the decor around between scenes (`corners`, and alternate `rays` / `arcs` /
 Identical wallpaper on eleven scenes in a row is the repetition viewers feel without being
 able to name.
 
-**Arrive fast, then hold still.** Energy comes from arrivals — quick, damped, blurred on
-the way in — never from a frame that keeps creeping. A slow camera push or a parallax
+**Arrive fast, then hold still — the background keeps living.** Energy comes from
+arrivals — quick, damped, blurred on the way in — and from the complementary layer (ghost,
+grid, stickers) that keeps moving while the main block is read, never from text that
+keeps creeping. A slow camera push or a parallax
 moves text by a fraction of a pixel per frame and the glyphs visibly shimmer; the camera
 is still by default (`zoom: 0`) and every spring snaps to rest instead of trailing off.
 

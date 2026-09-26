@@ -67,14 +67,15 @@ export const Backdrop: React.FC<{ kind?: BackdropKind; bg: string; index: number
   }
 
   if (kind === "dots") {
-    const step = width * 0.05;
+    const step = Math.round(width * 0.05);
     return (
       <AbsoluteFill style={{ background: bg }}>
         <AbsoluteFill style={{
           backgroundImage: `radial-gradient(${alpha(theme.muted, 0.45)} ${Math.max(1.2, width * 0.0019)}px, transparent 0)`,
           backgroundSize: `${step}px ${step}px`,
-          // static: a grid of tiny dots crawling a fraction of a pixel a frame shimmers
-          backgroundPosition: `${(index * step * 0.37) % step}px 0px`,
+          // keeps travelling behind the content, one whole pixel per frame: a grid of
+          // tiny dots crawling a fraction of a pixel a frame shimmers instead of moving
+          backgroundPosition: `${(Math.round(index * step * 0.37) + frame * side) % step}px ${frame % step}px`,
           WebkitMaskImage: "radial-gradient(70% 55% at 50% 50%, #000 20%, transparent 85%)",
           maskImage: "radial-gradient(70% 55% at 50% 50%, #000 20%, transparent 85%)",
         }} />
@@ -82,13 +83,13 @@ export const Backdrop: React.FC<{ kind?: BackdropKind; bg: string; index: number
     );
   }
 
-  // lines: faint diagonal hairlines, still (crawling hairlines shimmer like dots do)
-  const gap = width * 0.06;
+  // lines: faint diagonal hairlines travelling, whole pixels per frame (see dots)
+  const gap = Math.round(width * 0.06);
   return (
     <AbsoluteFill style={{ background: bg }}>
       <AbsoluteFill style={{
         backgroundImage: `repeating-linear-gradient(${side > 0 ? 115 : 65}deg, ${alpha(theme.muted, 0.14)} 0 1.5px, transparent 1.5px ${gap}px)`,
-        backgroundPosition: `${(index * gap * 0.41) % gap}px 0`,
+        backgroundPosition: `${(Math.round(index * gap * 0.41) + frame) % gap}px 0`,
         WebkitMaskImage: "linear-gradient(180deg, #000, transparent 30%, transparent 70%, #000)",
         maskImage: "linear-gradient(180deg, #000, transparent 30%, transparent 70%, #000)",
       }} />

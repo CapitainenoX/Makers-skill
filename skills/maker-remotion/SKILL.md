@@ -326,15 +326,18 @@ A transition never changes the timing: cuts sit on the running sum of durations.
 ### Energy without speed, smoothness without stutter
 
 Dynamic is *fast arrivals* inside a readable scene, not more cuts and not constant
-motion: items land on their words in ~0.3 s, a caption lands whole, then everything holds
-**perfectly still** to be read. The camera does not move (`zoom` defaults to 0), the ghost
-word slides in and rests, backdrop grids are fixed. Anything that keeps creeping a
-fraction of a pixel per frame — a slow drift, a parallax, a spring's tail — re-rasterises
-the glyphs every frame and reads as text *vibrating*. Whole-frame punch-ins exist
+motion: items land on their words in ~0.3 s, a caption lands whole, then the **main block
+holds perfectly still** to be read — while the **complementary layer keeps moving**: the
+ghost word travels behind, backdrop grids scroll, stickers and icons (`layers`) bob and
+sway. The camera does not move (`zoom` defaults to 0). Anything that creeps a fraction of
+a pixel per frame — a slow drift, a parallax, a spring's tail — re-rasterises the glyphs
+every frame and reads as *vibrating*: background motion moves whole pixels per frame,
+springs snap to rest. Whole-frame punch-ins exist
 (`motion.punch: true`) but are off by default: they made viewers dizzy.
 
-`mk remotion jitter` reports `still_frames_pct`: a calm video sits well above 50 %.
-Single digits mean something never stops moving.
+`mk remotion jitter` reports `still_frames_pct`; with a travelling background it is
+naturally low, so check holds by eye: diff two frames of a held scene and only the
+complementary layer should light up.
 
 Smoothness rules the renderer now follows — keep them in any scene you add:
 

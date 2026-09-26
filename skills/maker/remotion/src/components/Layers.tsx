@@ -33,7 +33,12 @@ export const Layers: React.FC<{ layers?: Layer[]; sceneFrames: number }> = ({ la
         const pv = enter(frame - 1, fps, start, preset);
         const out = interpolate(frame, [end, end + 7], [1, 0], {
           extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.in(Easing.cubic) });
-        const bob = l.float ? Math.sin((frame - start) / fps * 2.2 + i) * base * 0.08 : 0;
+        // Complementary pieces keep moving once they land — they are what keeps a held
+        // frame alive while the main block stays still to be read. Toasts and pointers
+        // (arrows, circles, scribbles) sit on something precise and stay put.
+        const idle = l.float ?? !["toast", "arrow", "circle", "scribble", "cursor"].includes(l.kind);
+        const bob = idle ? Math.sin((frame - start) / fps * 2.2 + i) * base * 0.1 : 0;
+        const sway = idle ? Math.sin((frame - start) / fps * 1.6 + i * 2) * 3 : 0;
         const w = width * (l.size ?? (l.kind === "toast" ? 0.78 : l.kind === "image" ? 0.3 : 0.14));
         const rot = l.rotate ?? 0;
 
@@ -52,7 +57,7 @@ export const Layers: React.FC<{ layers?: Layer[]; sceneFrames: number }> = ({ la
           position: "absolute",
           left: l.x * width,
           top: l.y * height,
-          transform: `translate(-50%,-50%) translateY(${bob.toFixed(2)}px) ${tr} rotate(${rot}deg)`,
+          transform: `translate(-50%,-50%) translateY(${bob.toFixed(2)}px) ${tr} rotate(${(rot + sway).toFixed(2)}deg)`,
           opacity: Math.min(1, p * 1.6) * out,
           filter,
         };

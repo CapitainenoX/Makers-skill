@@ -126,7 +126,7 @@ One or two per scene make a frame feel produced; `validate` warns past three.
 
 Common keys: `x`/`y` (centre, 0–1 of the frame), `at`/`until` (seconds), `size` (width
 fraction), `rotate`, `color` (`accent` | `text` | `muted` | CSS), `fx` (`pop` `drop`
-`slide` `spin` `fade`), `float` (idle bob).
+`slide` `spin` `fade`), `float` (idle bob + sway: on by default, except toast, arrow, scribble and cursor; `false` pins it).
 
 ## Line objects (used by `textStack`, `pill`, `logoList`, `card`, `bullets`, `outro`, headings)
 
