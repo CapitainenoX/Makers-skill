@@ -109,7 +109,7 @@ already in `.maker/`. Stop and read it.
 
 ## 3c. House defaults — what a video is unless the creator says otherwise
 
-- **English.** Script, narration (`mk tts` defaults to `--lang en`, voice Andrew), on-screen
+- **English.** Script, narration (`mk tts` defaults to `--lang en`, voice Christopher), on-screen
   text, title and description. Reply to the creator in their own language; make the
   video in English unless they ask for another one.
 - **Black and white, pro.** `maker-remotion`'s `style: "mono"`: white paper, black ink,

@@ -17,7 +17,8 @@ from _common import die, emit, ffmpeg, run, safe_path, which, write_json
 
 ENGINES = ["puter", "elevenlabs", "kokoro", "piper", "edge-tts", "system"]
 EDGE_VOICES = {"fr": "fr-FR-HenriNeural", "fr-f": "fr-FR-DeniseNeural",
-               "en": "en-US-AndrewMultilingualNeural", "en-f": "en-US-AvaMultilingualNeural"}
+               "en": "en-US-ChristopherNeural", "en-f": "en-US-AvaMultilingualNeural",
+               "en-alt": "en-US-AndrewMultilingualNeural"}
 
 
 def available() -> list[str]:
