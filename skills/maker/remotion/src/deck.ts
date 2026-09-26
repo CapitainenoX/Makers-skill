@@ -70,7 +70,7 @@ export type Glyph =
   | "bell" | "comment" | "share" | "star" | "square" | "circle" | "triangle" | "plus"
   | "heart" | "play" | "search" | "user" | "clock" | "globe" | "fire" | "cross" | "eye"
   | "download" | "link" | "chart" | "mic" | "image" | "music" | "key" | "trophy" | "flag"
-  | "cursor" | "warning" | "money";
+  | "cursor" | "warning" | "money" | "bookmark";
 
 export type Item = {
   label: string;
@@ -159,6 +159,10 @@ type Base = {
   /** the giant outlined word behind the scene; false for none. Defaults to the
    *  scene's keyword in the black-and-white style */
   ghost?: string | false;
+  /** the narration this scene covers — `mk remotion sync` times the scene on it */
+  say?: string;
+  /** voice-synced timings, written by `mk remotion sync` (seconds from scene start) */
+  cues?: import("./kit").Cues;
 };
 
 export const justify = (a?: "top" | "center" | "bottom") =>
@@ -214,7 +218,11 @@ export type Scene = Base &
         size?: number }
     | { type: "bullets"; heading?: Line[]; items: Item[] }
     | { type: "stat"; value: string; label?: string; sub?: string; countUp?: boolean;
-        style?: "count" | "roll"; ring?: number; icon?: string }
+        style?: "count" | "roll"; ring?: number; icon?: string;
+        /** start the count / roll here instead of 0 — a year arrives from a year */
+        from?: number;
+        /** small label above the number ("open source since") */
+        kicker?: string }
     | { type: "code"; title?: string; lines: string[]; prompt?: string; typing?: boolean }
     | { type: "compare"; left: { label: string; items: string[] };
         right: { label: string; items: string[] } }

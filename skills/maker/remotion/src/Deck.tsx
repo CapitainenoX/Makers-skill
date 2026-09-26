@@ -166,6 +166,7 @@ export const Deck: React.FC<DeckType> = (deck) => {
             ...kit,
             theme: sceneTheme,
             textFx: scene.textFx ?? fxList[(i + seed) % fxList.length],
+            cues: scene.cues,
           };
           return (
             <Sequence key={i} from={place.start} durationInFrames={place.frames + place.outFrames}

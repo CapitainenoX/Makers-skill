@@ -3,7 +3,7 @@ import { Easing, interpolate, useVideoConfig } from "remotion";
 import { Chip } from "../components/Chip";
 import { Stage } from "../components/Stage";
 import { TypeStack } from "../components/Type";
-import { stagger, useAnim } from "../motion";
+import { stagger, useAnim, cueAt } from "../motion";
 import type { SceneProps } from "./types";
 
 /** A hub wired to its nodes. The connectors draw themselves from the hub outward before
@@ -74,7 +74,7 @@ export const Diagram: React.FC<SceneProps<"diagram">> = ({ scene }) => {
         ) : null}
         {pos.map((q, i) => (
           <div key={i} style={{ position: "absolute", left: q.x * W, top: hubGap + q.y * H,
-            ...arrive(9 + stagger(i, fps, 85), base * 0.5, "pop", { centered: true, from: 0.5 }) }}>
+            ...arrive(cueAt(kit.cues, "items", i, fps, 9 + stagger(i, fps, 85)), base * 0.5, "pop", { centered: true, from: 0.5 }) }}>
             <Chip {...nodes[i]} size={size} />
           </div>
         ))}

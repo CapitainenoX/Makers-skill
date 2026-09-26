@@ -3,7 +3,7 @@ import { Easing, interpolate, useVideoConfig } from "remotion";
 import { Stage } from "../components/Stage";
 import { Glyph } from "../components/Glyph";
 import { TypeStack } from "../components/Type";
-import { stagger, useAnim } from "../motion";
+import { stagger, useAnim, cueAt } from "../motion";
 import { WEIGHTS } from "../theme";
 import { alpha } from "../color";
 import type { SceneProps } from "./types";
@@ -17,8 +17,10 @@ export const Flow: React.FC<SceneProps<"flow">> = ({ scene }) => {
   const W = width * 0.8;
   const stepGap = 130;
   const n = scene.steps.length;
-  const active = Math.floor(interpolate(frame, [5, 5 + stagger(n, fps, stepGap)], [0, n], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+  const active = kit.cues?.items
+    ? scene.steps.reduce((acc, _, i) => (frame >= cueAt(kit.cues, "items", i, fps, 0) + 3 ? i + 1 : acc), 0)
+    : Math.floor(interpolate(frame, [5, 5 + stagger(n, fps, stepGap)], [0, n], {
+        extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
 
   return (
     <Stage scene={scene}>
@@ -34,7 +36,7 @@ export const Flow: React.FC<SceneProps<"flow">> = ({ scene }) => {
           </span>
         ) : null}
         {scene.steps.map((st, i) => {
-          const d = 5 + stagger(i, fps, stepGap);
+          const d = cueAt(kit.cues, "items", i, fps, 5 + stagger(i, fps, stepGap));
           const last = i === n - 1;
           const lit = i < active || (last && active >= n);
           const link = interpolate(frame, [d + 2, d + 2 + Math.round(fps * 0.14)], [0, 1], {

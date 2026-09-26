@@ -3,7 +3,7 @@ import { AbsoluteFill } from "remotion";
 import { TypeStack } from "../components/Type";
 import { Glyph } from "../components/Glyph";
 import { RichCaption } from "../components/Stage";
-import { stagger, useAnim } from "../motion";
+import { stagger, useAnim, cueAt } from "../motion";
 import { WEIGHTS } from "../theme";
 import { justify } from "../deck";
 import type { SceneProps } from "./types";
@@ -20,7 +20,7 @@ export const LogoList: React.FC<SceneProps<"logoList">> = ({ scene }) => {
       {scene.heading ? <TypeStack lines={scene.heading} /> : null}
       <div style={{ display: "flex", flexDirection: "column", gap: base * 0.42 }}>
         {scene.items.map((it, i) => (
-          <div key={i} style={{ ...arrive(rowsDelay + stagger(i, fps, 85), base * 0.9, "snap", { dir: "left" }),
+          <div key={i} style={{ ...arrive(cueAt(kit.cues, "items", i, fps, rowsDelay + stagger(i, fps, 85)), base * 0.9, "snap", { dir: "left" }),
             display: "flex", alignItems: "center", gap: base * 0.42 }}>
             <Glyph name={it.icon} size={base * 0.92} color={it.accent ? theme.accent : theme.text}
               surface={theme.bg} tint={it.accent ? "accent" : undefined} />

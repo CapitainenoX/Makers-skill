@@ -2,7 +2,7 @@ import React from "react";
 import { AbsoluteFill, Easing, interpolate } from "remotion";
 import { TypeStack } from "../components/Type";
 import { RichCaption } from "../components/Stage";
-import { stagger, useAnim } from "../motion";
+import { stagger, useAnim, cueAt } from "../motion";
 import { WEIGHTS } from "../theme";
 import { alpha } from "../color";
 import { justify } from "../deck";
@@ -21,7 +21,7 @@ export const Checklist: React.FC<SceneProps<"checklist">> = ({ scene }) => {
       {scene.heading ? <TypeStack lines={scene.heading} /> : null}
       <div style={{ display: "flex", flexDirection: "column", gap: base * 0.6, alignSelf: "center" }}>
         {scene.items.map((it, i) => {
-          const d = d0 + stagger(i, fps, 150);
+          const d = cueAt(kit.cues, "items", i, fps, d0 + stagger(i, fps, 150));
           const tick = interpolate(frame, [d + 6, d + 6 + Math.round(fps * 0.22)], [0, 1], {
             extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) });
           const ok = it.done !== false;

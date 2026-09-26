@@ -3,7 +3,7 @@ import { AbsoluteFill, Easing, interpolate } from "remotion";
 import { TypeStack } from "../components/Type";
 import { Glyph } from "../components/Glyph";
 import { RichCaption } from "../components/Stage";
-import { stagger, useAnim } from "../motion";
+import { stagger, useAnim, cueAt } from "../motion";
 import { WEIGHTS } from "../theme";
 import { alpha } from "../color";
 import { justify } from "../deck";
@@ -17,7 +17,7 @@ export const Steps: React.FC<SceneProps<"steps">> = ({ scene }) => {
   const d0 = scene.heading ? 8 : 2;
   const n = scene.items.length;
   const gap = 150;
-  const rail = interpolate(frame, [d0, d0 + stagger(n - 1, fps, gap) + 6], [0, 1], {
+  const rail = interpolate(frame, [cueAt(kit.cues, "items", 0, fps, d0), cueAt(kit.cues, "items", n - 1, fps, d0 + stagger(n - 1, fps, gap)) + 6], [0, 1], {
     extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.quad) });
   const num = base * 1.4;
   return (
@@ -31,7 +31,7 @@ export const Steps: React.FC<SceneProps<"steps">> = ({ scene }) => {
           <div style={{ width: "100%", height: `${rail * 100}%`, background: theme.accent, borderRadius: 4 }} />
         </div>
         {scene.items.map((it, i) => {
-          const d = d0 + stagger(i, fps, gap);
+          const d = cueAt(kit.cues, "items", i, fps, d0 + stagger(i, fps, gap));
           const lit = frame >= d + 4;
           return (
             <div key={i} style={{ ...arrive(d, base * 0.9, "snap", { dir: "left" }), display: "flex",

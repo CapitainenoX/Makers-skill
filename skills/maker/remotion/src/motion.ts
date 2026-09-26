@@ -221,3 +221,18 @@ export const TEXT_SPRING: Record<TextFx, SpringName> = {
 export const TEXT_CADENCE: Record<TextFx, number> = {
   rise: 55, mask: 70, blur: 60, pop: 60, slide: 55, type: 45,
 };
+
+// ------------------------------------------------------------------ voice cues
+/** The frame an item should land on: its voice cue when the deck was synced to the
+ *  narration (landing a hair before the word, so the eye and the ear agree), otherwise
+ *  the scene's own stagger. */
+export const cueAt = (
+  cues: { items?: number[]; words?: number[]; value?: number } | undefined,
+  key: "items" | "words",
+  i: number,
+  fps: number,
+  fallback: number,
+): number => {
+  const t = cues?.[key]?.[i];
+  return typeof t === "number" ? Math.max(0, Math.round((t - 0.08) * fps)) : fallback;
+};

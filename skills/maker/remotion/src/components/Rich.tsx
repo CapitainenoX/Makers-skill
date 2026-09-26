@@ -26,12 +26,14 @@ export const Rich: React.FC<{
   fx?: TextFx;
   /** light text for captions over footage */
   inverse?: boolean;
+  /** seconds (from the scene start) at which each token is spoken — voice sync */
+  times?: number[];
   /** base font for plain + bold words (defaults to the body face). `serif` sets the
    *  whole sentence in the serif — quotations — with emphasis as italics */
   face?: "body" | "display" | "serif";
 }> = ({
   text, size = 1, delay = 0, reveal = "word", align = "center", cadence,
-  maxWidth = "88%", fx, inverse = false, face = "body",
+  maxWidth = "88%", fx, inverse = false, face = "body", times,
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -66,7 +68,8 @@ export const Rich: React.FC<{
   });
 
   const lastShown = groups.reduce((acc, g, gi) =>
-    frame >= delay + stagger(g.index, fps, gapMs) ? gi : acc, -1);
+    frame >= (typeof times?.[g.index] === "number" ? Math.round(times[g.index] * fps)
+      : delay + stagger(g.index, fps, gapMs)) ? gi : acc, -1);
 
   return (
     <div
@@ -83,7 +86,9 @@ export const Rich: React.FC<{
       }}
     >
       {groups.map((g, gi) => {
-        const d = reveal === "word" ? delay + stagger(g.index, fps, gapMs) : delay;
+        const spoken = times?.[g.index];
+        const d = typeof spoken === "number" ? Math.max(0, Math.round((spoken - 0.06) * fps))
+          : reveal === "word" ? delay + stagger(g.index, fps, gapMs) : delay;
         const p = enter(frame, fps, d, preset);
         const q = enter(frame - 1, fps, d, preset);
         const anim = textFxStyle(effect, p, q, px, blur);

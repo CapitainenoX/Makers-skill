@@ -13,7 +13,7 @@ from __future__ import annotations
 import argparse, json, os, sys, urllib.request
 from pathlib import Path
 
-from _common import die, emit, ffmpeg, run, safe_path, which
+from _common import die, emit, ffmpeg, run, safe_path, which, write_json
 
 ENGINES = ["puter", "elevenlabs", "kokoro", "piper", "edge-tts", "system"]
 EDGE_VOICES = {"fr": "fr-FR-HenriNeural", "fr-f": "fr-FR-DeniseNeural",
@@ -39,6 +39,36 @@ def available() -> list[str]:
     if which("say") or which("espeak-ng"):
         out.append("system")
     return out
+
+
+def say_edge_words(text: str, voice: str, rate: str, raw: Path) -> list[dict] | None:
+    """Synthesise with edge-tts and keep every word's timing.
+
+    The engine already knows when each word is spoken (WordBoundary events); the CLI
+    throws that away. Those timings are what lets `mk remotion sync` cut the video on
+    the voice — each scene starting as its phrase starts, each item landing as it is
+    named. Returns None when the library is not importable."""
+    try:
+        import asyncio
+        import edge_tts
+    except ImportError:
+        return None
+
+    words: list[dict] = []
+
+    async def go():
+        com = edge_tts.Communicate(text, voice, rate=rate, boundary="WordBoundary")
+        with open(raw, "wb") as fh:
+            async for chunk in com.stream():
+                if chunk["type"] == "audio":
+                    fh.write(chunk["data"])
+                elif chunk["type"] == "WordBoundary":
+                    start = chunk["offset"] / 1e7
+                    words.append({"w": chunk["text"], "start": round(start, 3),
+                                  "end": round(start + chunk["duration"] / 1e7, 3)})
+
+    asyncio.run(go())
+    return words
 
 
 def normalise(raw: Path, out: Path, lufs: float = -16.0) -> Path:
@@ -112,6 +142,7 @@ def main():
     out = safe_path(a.output, write=True)
     out.parent.mkdir(parents=True, exist_ok=True)
     raw = out.with_suffix(".raw.mp3")
+    out.with_suffix(".words.json").unlink(missing_ok=True)   # never leave stale timings
 
     chain = [a.engine] if a.engine != "auto" else available()
     if not chain:
@@ -145,8 +176,13 @@ def main():
                     raise RuntimeError(p.stderr or "piper produced nothing")
             elif eng == "edge-tts":
                 voice = a.voice or EDGE_VOICES.get(a.lang, EDGE_VOICES["en"])
-                run(["edge-tts", "--voice", voice, "--rate", a.rate,
-                     "--text", text, "--write-media", str(raw)], timeout=300)
+                words = say_edge_words(text, voice, a.rate, raw)
+                if words is None:      # library unavailable: the CLI still gives audio
+                    run(["edge-tts", "--voice", voice, "--rate", a.rate,
+                         "--text", text, "--write-media", str(raw)], timeout=300)
+                else:
+                    wpath = out.with_suffix(".words.json")
+                    write_json(wpath, {"engine": "edge-tts", "voice": voice, "words": words})
             else:
                 if which("say"):
                     run(["say", "-o", str(raw.with_suffix(".aiff")), text], timeout=300)
@@ -158,7 +194,9 @@ def main():
             if raw.exists() and raw.stat().st_size > 512:
                 normalise(raw, out, a.lufs)
                 raw.unlink(missing_ok=True)
+                wfile = out.with_suffix(".words.json")
                 emit({"ok": True, "output": str(out), "engine": eng,
+                      "words": str(wfile) if wfile.exists() else None,
                       "chars": len(text), "lufs": a.lufs,
                       "tried": errors or None,
                       "warn": "robotic voice — offer the creator a better engine"

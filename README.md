@@ -128,7 +128,8 @@ mk logo check                                   # lesquelles ne se liront pas, e
 mk sound pack                                   # one-shots enregistrés (Freesound, CC0) + crédits
 mk sound music "minimal tech ambient loop"      # un lit musical, licence tracée
 mk sfx gen --all                                # repli synthétisé, aucune clé d'API
-mk tts "<le script>" -o voice/vo.wav
+mk tts "<le script>" -o voice/vo.wav            # + vo.words.json : le timing de chaque mot
+mk remotion sync deck.json --words voice/vo.words.json   # coupes et éléments calés sur la voix
 mk mix out/video.mp4 -o out/final.mp4 --from-deck deck.json --voice voice/vo.wav --music bed.mp3
 ```
 

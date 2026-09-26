@@ -42,5 +42,6 @@ export const RichCaption: React.FC<{ scene: Scene; inverse?: boolean; [legacy: s
       delay={scene.richDelay ?? 6}
       fx={scene.textFx}
       inverse={inverse}
+      times={scene.cues?.words}
     />
   ) : null;

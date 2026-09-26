@@ -432,6 +432,31 @@ def cmd_render(a):
           "next": f"mk qc {out} --target shorts --graphics"})
 
 
+def cmd_sync(a):
+    """Time the deck on the narration: cuts on phrases, items on their words."""
+    import voicesync
+    deck_path = safe_path(a.deck, must_exist=True)
+    deck = read_json(deck_path, None)
+    if not isinstance(deck, dict):
+        die("deck must be a JSON object")
+    wpath = safe_path(a.words, must_exist=True)
+    wdata = read_json(wpath, {}) or {}
+    words = wdata.get("words") if isinstance(wdata, dict) else wdata
+    if not words:
+        die(f"no word timings in {wpath}. `mk tts` writes <voice>.words.json with edge-tts")
+    missing = [i for i, sc in enumerate(deck.get("scenes", [])) if not sc.get("say")]
+    deck, notes = voicesync.sync(deck, words, lead=a.lead, tail=a.tail, fps=deck.get("fps", 30))
+    out = safe_path(a.output, write=True) if a.output else deck_path
+    write_json(out, deck)
+    total = sum(float(sc.get("duration", 0)) for sc in deck.get("scenes", []))
+    emit({"ok": True, "deck": str(out), "duration_s": round(total, 2),
+          "voice_s": words[-1]["end"],
+          "scenes": [{"i": i, "type": sc.get("type"), "duration": sc.get("duration"),
+                      "cues": sc.get("cues")} for i, sc in enumerate(deck.get("scenes", []))],
+          "unsynced": missing or None, "notes": notes or None,
+          "next": f"mk remotion sheet {out}  — then render and mix with the same voice"})
+
+
 def cmd_studio(a):
     d = ensure_project(project_dir(a.dir))
     emit({"ok": True, "run_this_yourself": f"cd {d} && npx remotion studio",
@@ -463,6 +488,14 @@ def main():
     r.add_argument("--preview", action="store_true"); r.add_argument("--transparent", action="store_true")
     r.add_argument("--concurrency", type=int, default=2); r.add_argument("--timeout", type=int, default=3600)
     r.set_defaults(fn=cmd_render)
+
+    sy = sub.add_parser("sync", help="cut the deck on the narration's word timings")
+    sy.add_argument("deck"); sy.add_argument("--words", required=True,
+                                             help="<voice>.words.json written by mk tts")
+    sy.add_argument("-o", "--output", default=None, help="default: rewrite the deck in place")
+    sy.add_argument("--lead", type=float, default=0.12, help="cut this long before each phrase")
+    sy.add_argument("--tail", type=float, default=0.7, help="hold after the last word")
+    sy.set_defaults(fn=cmd_sync)
 
     st = sub.add_parser("studio"); st.set_defaults(fn=cmd_studio)
 

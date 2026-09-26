@@ -57,6 +57,8 @@ full URL. Copy assets into `.maker/remotion/public/` before referencing them.
 | `textFx` | `rise` `mask` `blur` `pop` `slide` `type` — how the words arrive. Omit it and it rotates within the motion language |
 | `invert` | the negative of the deck: black page, white ink. Omitted, `mk remotion` inverts big-type beats on a rhythm in the mono style |
 | `ghost` | the outlined keyword behind the scene, or `false`. Default: the first bold word, else the label / value / title |
+| `say` | the narration this scene covers — `mk remotion sync` times the scene and its items on it |
+| `cues` | written by `sync`: `{ items: [s…], words: [s…], value: s }`, seconds from the scene's start |
 | `captionAt` | `below` (default) or `above` — flips the visual/caption order, a cheap way to change a scene's silhouette |
 | `layers` | complementary elements over the scene — see below |
 
@@ -306,6 +308,12 @@ source with ffprobe and warns you before you spend minutes rendering.
 `code` takes plain strings, not Line objects. Lines starting with `prompt` type
 themselves character by character (`"typing": false` to print them); the rest land as
 dimmed output. The terminal is always a dark slab, whatever the theme.
+
+`stat` with `"style": "roll"` is a real odometer: the units turn and the higher digits
+flip only on the carry. `"from": 1990` starts a year or a big number near its value
+instead of at zero; `"kicker": "open source since"` sets a small label above the number.
+The number only appears once it starts moving — a static start value would read as a
+claim.
 
 `mock` types its `text` with a caret, then presses the send button (`"typing": false`
 to show it static). `stat` takes `"style": "roll"` (odometer digits), `"ring": 0.92`

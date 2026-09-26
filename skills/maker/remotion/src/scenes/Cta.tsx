@@ -2,7 +2,7 @@ import React from "react";
 import { Easing, interpolate, useVideoConfig } from "remotion";
 import { Stage } from "../components/Stage";
 import { Glyph } from "../components/Glyph";
-import { stagger, useAnim } from "../motion";
+import { stagger, useAnim, cueAt } from "../motion";
 import { WEIGHTS } from "../theme";
 import { alpha } from "../color";
 import type { SceneProps } from "./types";
@@ -29,7 +29,7 @@ export const Cta: React.FC<SceneProps<"cta">> = ({ scene }) => {
     <Stage scene={scene}>
       <div style={{ display: "flex", gap: size * 0.34, alignItems: "flex-start" }}>
         {items.map((it, i) => {
-          const delay = stagger(i, fps, 110);
+          const delay = cueAt(kit.cues, "items", i, fps, stagger(i, fps, 110));
           const pressAt = delay + Math.round(fps * 0.55);
           const pulse = interpolate(frame, [pressAt, pressAt + 4, pressAt + 12],
             [1, 0.88, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp",

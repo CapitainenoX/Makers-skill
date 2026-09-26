@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, Easing, interpolate, useVideoConfig } from "remotion";
-import { blurFilter, enter, useAnim } from "../motion";
+import { blurFilter, cueAt, enter, useAnim } from "../motion";
 import { parse, strip } from "../text";
 import { fitSize } from "../fit";
 import type { SceneProps } from "./types";
@@ -25,7 +25,13 @@ export const Kinetic: React.FC<SceneProps<"kinetic">> = ({ scene, durationInFram
   const maxW = width * 0.88;
 
   const renderLine = (line: string, size: number) => {
-    const tokens = parse(line);
+    // consecutive accent words share one reversed block ("one line", not "one" "line")
+    const tokens = parse(line).reduce<ReturnType<typeof parse>>((acc, t) => {
+      const last = acc[acc.length - 1];
+      if (last && last.em === "accent" && t.em === "accent") last.text += ` ${t.text}`;
+      else acc.push({ ...t });
+      return acc;
+    }, []);
     // same rule as a rich caption: once a line has bold words, the plain ones step back
     const hasBold = tokens.some((t) => t.em === "bold");
     return (
@@ -58,9 +64,12 @@ export const Kinetic: React.FC<SceneProps<"kinetic">> = ({ scene, durationInFram
     upper: fonts.displayUpper, floor: 0.3 });
 
   if (style === "punch") {
+    // one line at a time: on its spoken word when synced, else evenly
     const per = Math.max(1, Math.floor(durationInFrames / lines.length));
-    const idx = Math.min(lines.length - 1, Math.floor(frame / per));
-    const local = frame - idx * per;
+    const startOf = (i: number) => cueAt(kit.cues, "items", i, fps, i * per);
+    let idx = 0;
+    lines.forEach((_, i) => { if (frame >= startOf(i)) idx = i; });
+    const local = frame - startOf(idx);
     const p = enter(local, fps, 0, "slam");
     const q = enter(local - 1, fps, 0, "slam");
     const size = sizeFor(lines[idx], base * 3.2);
@@ -83,7 +92,7 @@ export const Kinetic: React.FC<SceneProps<"kinetic">> = ({ scene, durationInFram
       padding: `0 ${width * 0.06}px`, gap: base * 0.08 }}>
       {lines.map((line, i) => {
         const size = sizeFor(line, base * (lines.length <= 2 ? 3.2 : 2.4));
-        const d = 2 + i * Math.round(fps * 0.11);
+        const d = cueAt(kit.cues, "items", i, fps, 2 + i * Math.round(fps * 0.11));
         if (style === "slide") {
           const p = enter(frame, fps, d, "snap");
           const q = enter(frame - 1, fps, d, "snap");

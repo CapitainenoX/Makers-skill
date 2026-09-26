@@ -71,7 +71,7 @@ GLYPHS = {
     "database", "thumbsUp", "bell", "comment", "share", "star", "dot", "circle", "square",
     "triangle", "plus", "bolt", "check", "arrow", "terminal", "heart", "play", "search",
     "user", "clock", "globe", "fire", "cross", "eye", "download", "link", "chart", "mic",
-    "image", "music", "key", "trophy", "flag", "cursor", "warning", "money",
+    "image", "music", "key", "trophy", "flag", "cursor", "warning", "money", "bookmark",
 }
 # Scenes where an item's label IS the name of the mark next to it ("GitHub" under the
 # GitHub logo). Elsewhere a label is a description and may sit beside any icon.

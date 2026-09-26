@@ -213,6 +213,7 @@ const BUILTINS: Record<string, (c: string) => React.ReactNode> = {
       <circle cx="50" cy="74" r="6" fill="#FFFFFF" />
     </g>
   ),
+  bookmark: (c) => <path fill={c} d="M24 8h52a6 6 0 016 6v80L50 72 18 94V14a6 6 0 016-6z" />,
   money: (c) => (
     <g fill="none" stroke={c} strokeWidth="9" strokeLinecap="round">
       <path d="M66 26c-4-6-10-8-16-8-10 0-18 6-18 14 0 20 36 12 36 32 0 8-8 14-18 14-8 0-14-4-18-10M50 8v84" />

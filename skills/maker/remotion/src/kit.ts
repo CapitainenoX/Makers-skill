@@ -26,7 +26,13 @@ export type KitValue = {
   logos: "auto" | "brand" | "mono";
   /** black-and-white style: no colour anywhere, emphasis by weight and inversion */
   mono: boolean;
+  /** voice-synced timings for the current scene, written by `mk remotion sync` */
+  cues?: Cues;
 };
+
+/** Seconds from the scene's start. `items[i]`: when list item i is named; `words[k]`:
+ *  when rich-caption token k is spoken; `value`: when a stat's number is said. */
+export type Cues = { items?: number[]; words?: number[]; value?: number };
 
 export const Kit = React.createContext<KitValue>({
   theme: buildTheme("light"),

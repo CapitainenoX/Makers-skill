@@ -3,7 +3,7 @@ import { AbsoluteFill, Easing, interpolate, useVideoConfig } from "remotion";
 import { TypeStack } from "../components/Type";
 import { Glyph } from "../components/Glyph";
 import { RichCaption } from "../components/Stage";
-import { stagger, useAnim } from "../motion";
+import { stagger, useAnim, cueAt } from "../motion";
 import { WEIGHTS } from "../theme";
 import { alpha } from "../color";
 import { justify } from "../deck";
@@ -29,7 +29,8 @@ export const Chart: React.FC<SceneProps<"chart">> = ({ scene }) => {
   const items = scene.items;
   const max = scene.max ?? Math.max(...items.map((i) => i.value), 1);
   const d0 = scene.heading ? 8 : 2;
-  const grow = (i: number) => interpolate(frame, [d0 + stagger(i, fps, 90), d0 + stagger(i, fps, 90) + Math.round(fps * 0.8)],
+  const at = (i: number) => cueAt(kit.cues, "items", i, fps, d0 + stagger(i, fps, 90));
+  const grow = (i: number) => interpolate(frame, [at(i), at(i) + Math.round(fps * 0.8)],
     [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) });
   const hasAccent = items.some((i) => i.accent);
   const colorOf = (i: number) => items[i].accent || (!hasAccent && i === items.length - 1) ? theme.accent : alpha(theme.text, 0.82);
@@ -105,7 +106,7 @@ export const Chart: React.FC<SceneProps<"chart">> = ({ scene }) => {
         {items.map((it, i) => {
           const g = grow(i);
           return (
-            <div key={i} style={{ ...arrive(d0 + stagger(i, fps, 90), base * 0.3, "snap"),
+            <div key={i} style={{ ...arrive(at(i), base * 0.3, "snap"),
               display: "flex", flexDirection: "column", gap: base * 0.1 }}>
               <div style={{ display: "flex", alignItems: "center", gap: base * 0.2 }}>
                 {it.icon ? <Glyph name={it.icon} size={base * 0.7} color={theme.text} surface={theme.bg} /> : null}

@@ -171,6 +171,28 @@ with no footage, a missing audio bed.
 Read `auto_corrected` like a changelog: if you disagree with a correction, set `tint` or
 `fill` on that chip explicitly.
 
+## 3b. Cut on the voice
+
+A narrated video whose pictures change on a clock is two videos playing at once. Edit on
+the word instead: give each scene the narration it covers (`say`), let `mk tts` keep the
+word timings (edge-tts writes `<voice>.words.json` next to the audio), and sync:
+
+```bash
+"$MK" tts - -o voice/vo.wav --lang en < script.txt      # + voice/vo.words.json
+"$MK" remotion sync deck.json --words voice/vo.words.json
+```
+
+`sync` rewrites every `duration` so each cut lands just before its phrase, and writes
+`cues` per scene: each chip, checklist line, step, kinetic line or CTA lands as its word
+is said; each word of the `rich` caption appears as it is spoken; a `stat` stops counting
+on the number. Paraphrased text still moves with the voice (unmatched items are spread
+across the phrase). Run it again whenever the voice or the deck changes.
+
+**Give the viewer a reason to stay.** A hook that opens a loop ("you used this today and
+never heard of it"), a turn that promises something useful ("one line of it is worth
+saving"), the payoff they can keep, then an ask tied to that payoff ("save this for the
+next time a file is too big to send") — not a generic "subscribe".
+
 ## 4. Sound — not optional
 
 A silent short is the most expensive mistake in this format, and an unrelated music bed

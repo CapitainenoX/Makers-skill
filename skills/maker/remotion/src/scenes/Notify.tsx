@@ -2,7 +2,7 @@ import React from "react";
 import { AbsoluteFill, useVideoConfig } from "remotion";
 import { Glyph } from "../components/Glyph";
 import { RichCaption } from "../components/Stage";
-import { stagger, useAnim } from "../motion";
+import { stagger, useAnim, cueAt } from "../motion";
 import { WEIGHTS } from "../theme";
 import { alpha } from "../color";
 import type { SceneProps } from "./types";
@@ -23,9 +23,9 @@ export const Notify: React.FC<SceneProps<"notify">> = ({ scene }) => {
     <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", gap: base * 0.9 }}>
       <div style={{ position: "relative", width: W, height: items.length * (cardH + gap) }}>
         {items.map((it, i) => {
-          const d = 4 + stagger(i, fps, every);
+          const d = cueAt(kit.cues, "items", i, fps, 4 + stagger(i, fps, every));
           // how many arrived after this one: each pushes it down a slot and back a little
-          const newer = items.reduce((acc, _, k) => acc + (k > i ? at(4 + stagger(k, fps, every), "snap") : 0), 0);
+          const newer = items.reduce((acc, _, k) => acc + (k > i ? at(cueAt(kit.cues, "items", k, fps, 4 + stagger(k, fps, every)), "snap") : 0), 0);
           const y = newer * (cardH + gap);
           const depth = 1 - Math.min(0.1, newer * 0.035);
           return (

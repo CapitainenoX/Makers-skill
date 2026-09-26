@@ -139,7 +139,7 @@ export const Layers: React.FC<{ layers?: Layer[]; sceneFrames: number }> = ({ la
             return (
               <svg key={i} width={w * 2} height={w * 2} viewBox="-50 -50 100 100"
                 style={{ position: "absolute", left: l.x * width, top: l.y * height,
-                  transform: "translate(-50%,-50%)", overflow: "visible", opacity: 1 - b * 0.9 }}>
+                  transform: "translate(-50%,-50%)", overflow: "visible", opacity: (1 - b) * out }}>
                 {Array.from({ length: 10 }).map((_, k) => {
                   const a = (k / 10) * Math.PI * 2 + rot * (Math.PI / 180);
                   const r0 = 14 + b * 22;

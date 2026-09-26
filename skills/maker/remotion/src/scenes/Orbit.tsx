@@ -2,7 +2,7 @@ import React from "react";
 import { useVideoConfig } from "remotion";
 import { Chip } from "../components/Chip";
 import { Stage } from "../components/Stage";
-import { stagger, useAnim } from "../motion";
+import { stagger, useAnim, cueAt } from "../motion";
 import { alpha } from "../color";
 import type { SceneProps } from "./types";
 
@@ -28,7 +28,7 @@ export const Orbit: React.FC<SceneProps<"orbit">> = ({ scene }) => {
       const y = S / 2 + Math.sin(a) * r;
       return (
         <div key={`${r}-${i}`} style={{ position: "absolute", left: x, top: y,
-          ...arrive(6 + stagger(i + (dir < 0 ? inner.length : 0), fps, 70), base * 0.4, "pop",
+          ...arrive(cueAt(kit.cues, "items", i + (dir < 0 ? inner.length : 0), fps, 6 + stagger(i + (dir < 0 ? inner.length : 0), fps, 70)), base * 0.4, "pop",
             { centered: true, from: 0.3 }) }}>
           <Chip {...node} size={chip} label={undefined} />
         </div>

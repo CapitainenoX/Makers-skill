@@ -3,7 +3,7 @@ import { AbsoluteFill } from "remotion";
 import { TypeStack } from "../components/Type";
 import { Glyph } from "../components/Glyph";
 import { RichCaption } from "../components/Stage";
-import { stagger, useAnim } from "../motion";
+import { stagger, useAnim, cueAt } from "../motion";
 import { WEIGHTS } from "../theme";
 import { alpha } from "../color";
 import { justify } from "../deck";
@@ -20,7 +20,7 @@ export const Bullets: React.FC<SceneProps<"bullets">> = ({ scene }) => {
       {scene.heading ? <TypeStack lines={scene.heading} /> : null}
       <div style={{ display: "flex", flexDirection: "column", gap: base * 0.3, width: "100%" }}>
         {scene.items.map((it, i) => (
-          <div key={i} style={{ ...arrive(delay + stagger(i, fps, 80), base * 0.5, "snap"),
+          <div key={i} style={{ ...arrive(cueAt(kit.cues, "items", i, fps, delay + stagger(i, fps, 80)), base * 0.5, "snap"),
             display: "flex", alignItems: "center", gap: base * 0.34, background: theme.surface,
             borderRadius: base * 0.36, padding: `${base * 0.36}px ${base * 0.46}px`,
             boxShadow: theme.shadowSoft }}>

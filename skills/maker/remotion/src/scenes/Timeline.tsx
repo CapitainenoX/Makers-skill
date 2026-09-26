@@ -3,7 +3,7 @@ import { AbsoluteFill, Easing, interpolate } from "remotion";
 import { TypeStack } from "../components/Type";
 import { Glyph } from "../components/Glyph";
 import { RichCaption } from "../components/Stage";
-import { stagger, useAnim } from "../motion";
+import { stagger, useAnim, cueAt } from "../motion";
 import { WEIGHTS } from "../theme";
 import { alpha } from "../color";
 import { justify } from "../deck";
@@ -17,7 +17,7 @@ export const Timeline: React.FC<SceneProps<"timeline">> = ({ scene }) => {
   const d0 = scene.heading ? 8 : 2;
   const n = scene.items.length;
   const gap = 170;
-  const draw = interpolate(frame, [d0, d0 + stagger(n - 1, fps, gap) + 8], [0, 1], {
+  const draw = interpolate(frame, [cueAt(kit.cues, "items", 0, fps, d0), cueAt(kit.cues, "items", n - 1, fps, d0 + stagger(n - 1, fps, gap)) + 8], [0, 1], {
     extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.cubic) });
   const dot = base * 0.62;
   return (
@@ -31,7 +31,7 @@ export const Timeline: React.FC<SceneProps<"timeline">> = ({ scene }) => {
           <div style={{ width: "100%", height: `${draw * 100}%`, background: theme.text }} />
         </div>
         {scene.items.map((it, i) => {
-          const d = d0 + stagger(i, fps, gap);
+          const d = cueAt(kit.cues, "items", i, fps, d0 + stagger(i, fps, gap));
           const hot = it.accent;
           return (
             <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: base * 0.36 }}>
