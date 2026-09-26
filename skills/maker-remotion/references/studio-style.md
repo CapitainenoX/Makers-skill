@@ -127,7 +127,9 @@ is right for a card arriving and wrong for a counter: digits that run 1,240 → 
 
 | | |
 |---|---|
-| Scene length | 1.4–2.4 s. Over 3 s a single card stops earning its place. |
+| Scene length | 2–4 s — long enough to read (~1 s + 0.3 s per word on screen, half that when the voice says the words). Over ~5 s a single card stops earning its place. |
+| Transitions | 0.45–0.85 s: long enough to be seen as a move, not a glitch |
+| Narration | a real pause (~0.4 s) between sentences — `mk tts --pause` |
 | First scene | ≤ 1.5 s, and the biggest type in the video |
 | Transitions | about half cut; the rest from one motion language, never the same twice in a row |
 | Entrance | `pop` spring, 0.18–0.25 s, with overshoot |

@@ -273,7 +273,9 @@ lists, stats, diagrams, anything data-driven or repeated → here.
 ## 8. Timing and motion
 
 Remotion counts in frames; the deck counts in seconds. Keep `maker-motion`'s limits:
-scenes 1.2–2.2 s on vertical, first scene ≤ 1.5 s, entrances 0.18–0.25 s. The spring
+scenes 2–4 s on vertical (a narrated deck is timed by `mk remotion sync`), the first scene
+≤ 2.5 s, transitions 0.45–0.85 s. An early version cut every 1.5 s with 0.3 s transitions:
+viewers could not read it — racing is not the same as rhythm. The spring
 presets (`pop`, `snap`, `smooth`, `heavy`) already encode the easing doctrine — `pop`
 overshoots, and that overshoot is what makes a card feel snappy rather than placed.
 

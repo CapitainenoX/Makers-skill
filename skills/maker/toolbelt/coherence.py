@@ -50,9 +50,9 @@ FAMILY = {
 }
 TRANSITIONS = {"cut", "fade", "slide", "push", "whip", "zoom", "blur", "wipe", "iris",
                "panel", "flash", "blinds"}
-TRANSITION_SECONDS = {"cut": 0, "fade": 0.3, "slide": 0.36, "push": 0.4, "whip": 0.26,
-                      "zoom": 0.34, "blur": 0.32, "wipe": 0.38, "iris": 0.42,
-                      "panel": 0.52, "flash": 0.2, "blinds": 0.44}
+TRANSITION_SECONDS = {"cut": 0, "fade": 0.55, "slide": 0.6, "push": 0.65, "whip": 0.45,
+                      "zoom": 0.6, "blur": 0.55, "wipe": 0.65, "iris": 0.7,
+                      "panel": 0.85, "flash": 0.35, "blinds": 0.7}
 LANGUAGES = ["clean", "punchy", "soft", "graphic"]
 # The palette each motion language draws from, most frequent first.
 PALETTE = {

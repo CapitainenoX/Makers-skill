@@ -66,7 +66,12 @@ export const Kinetic: React.FC<SceneProps<"kinetic">> = ({ scene, durationInFram
   if (style === "punch") {
     // one line at a time: on its spoken word when synced, else evenly
     const per = Math.max(1, Math.floor(durationInFrames / lines.length));
-    const startOf = (i: number) => cueAt(kit.cues, "items", i, fps, i * per);
+    // every line holds at least 0.8 s, even when the voice says the next one sooner —
+    // a line replaced after a third of a second is a line nobody read
+    const hold = Math.round(fps * 0.8);
+    const startOf = (i: number): number =>
+      i === 0 ? cueAt(kit.cues, "items", 0, fps, 0)
+        : Math.max(cueAt(kit.cues, "items", i, fps, i * per), startOf(i - 1) + hold);
     let idx = 0;
     lines.forEach((_, i) => { if (frame >= startOf(i)) idx = i; });
     const local = frame - startOf(idx);

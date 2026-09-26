@@ -44,8 +44,8 @@ This is the single most expensive mistake in this format, and it is worth being 
   −6 to −25 dB. Applying a fixed offset on top of that is how a bed ends up inaudible.
   `mk mix` normalises voice and music to −16 LUFS first, so the gains express a balance.
 - **Mix discipline:** voice at 0 dB, bed at −11 dB under it and sidechain-ducked gently
-  (ratio 4, not 9 — at 9 the bed never comes back between phrases), one-shots −8 to
-  −14 dB, whole mix at −14 LUFS with true peak under −1 dBTP.
+  (ratio 4, not 9 — at 9 the bed never comes back between phrases), one-shots about −18 to −23 dB (felt, not heard — at −8 they fought the
+  voice), whole mix at −14 LUFS with true peak under −1 dBTP.
 - **A bed you cannot hear is the same as no bed.** Measure it: mix once with music and
   once without, subtract, and look at the residual. It should sit about 10–12 dB under
   the programme. Below about −15 dB relative, nobody hears it.

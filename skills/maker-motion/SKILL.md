@@ -21,7 +21,7 @@ Cut on **idea completion**, not on a clock. But measure yourself:
 
 | Format | Avg shot | Longest allowed | Cadence |
 |---|---|---|---|
-| Short / Reel / TikTok | 1.2–2.2 s | 3 s, and only with motion under it | A change every ≤1.5 s: cut, push, layer, or sound |
+| Short / Reel / TikTok | 2–4 s (narrated: the phrase decides) | 5.5 s, with motion under it | Something moves every ~1.5 s — a word, an item, a push — but the *scene* holds long enough to be read |
 | YouTube explainer | 2.5–4.5 s | 7 s on a talking head with b-roll cutaways | Re-hook every 40–60 s |
 | Cinematic / trailer | 0.4–1.2 s in bursts | held wide shots between bursts | Contrast is the point |
 

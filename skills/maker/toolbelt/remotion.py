@@ -210,8 +210,18 @@ def lint(deck: dict) -> tuple[list[str], list[str]]:
         if t not in SCENE_TYPES:
             errors.append(f"scene {i}: unknown type {t!r}; use one of {sorted(SCENE_TYPES)}")
         d = float(s.get("duration", 2))
-        if d > 3.5 and vertical:
-            warns.append(f"scene {i} ({t}) runs {d}s — over ~3s a single card stops earning its place")
+        if d > 5.5 and vertical:
+            warns.append(f"scene {i} ({t}) runs {d}s — over ~5s a single card stops earning its place")
+        # Reading time: ~1 s to take the frame in, ~0.3 s per word on screen (half that when
+        # the narration says the words). Cut sooner and the text is never read.
+        words = on_screen_words(s)
+        spoken = bool(s.get("say"))            # the voice reads it aloud: less time needed
+        need = round((0.8 + 0.15 * words) if spoken else (1.0 + 0.3 * words), 1)
+        if words and d + 0.05 < need:
+            warns.append(f"scene {i} ({t}) shows ~{words} words for {d}s — needs ~{need}s to be "
+                         f"read. Lengthen it, or put fewer words on screen")
+        elif d < 1.4 and t != "kinetic":
+            warns.append(f"scene {i} ({t}) is {d}s — under 1.4s a scene flashes past")
         if t == "tiles":
             n = len(s.get("items") or [])
             if n < 2:
@@ -232,12 +242,15 @@ def lint(deck: dict) -> tuple[list[str], list[str]]:
     if vertical and total > 60:
         warns.append(f"{total:.1f}s exceeds the 60s Shorts limit")
     first = float(scenes[0].get("duration", 2))
-    if first > 2.0:
-        warns.append(f"first scene is {first}s — the hook has to land inside 1.5s")
+    if first > 3.0:
+        warns.append(f"first scene is {first}s — the hook has to land inside ~2.5s")
     avg = total / len(scenes)
-    limit = 2.6 if vertical else 4.5
+    limit = 4.5 if vertical else 6.0
     if avg > limit:
         warns.append(f"average scene {avg:.1f}s exceeds {limit}s — it will feel like a slideshow")
+    if avg < 1.8:
+        warns.append(f"average scene {avg:.1f}s — the edit is racing; viewers get no time to "
+                     f"read. Aim for 2–4s a scene")
     runs, prev, n = [], None, 0
     for s in scenes:
         if s.get("type") == prev:
@@ -278,6 +291,24 @@ def lint(deck: dict) -> tuple[list[str], list[str]]:
                      "`split`, `versus`, `focus` or `chart` so the back half does not feel like "
                      "the front half")
     return errors, warns
+
+
+def on_screen_words(s: dict) -> int:
+    """Rough count of the words a scene puts on screen."""
+    import voicesync
+    n = 0
+    if s.get("rich"):
+        n += sum(1 for t, icon in voicesync.rich_tokens(s["rich"]) if not icon and any(ch.isalnum() for ch in t))
+    for key in ("lines", "heading", "caption", "footer"):
+        for ln in s.get(key) or []:
+            txt = ln.get("t") if isinstance(ln, dict) else ln
+            n += len(str(txt or "").split())
+    for key in ("label", "title", "sub", "text", "kicker"):
+        if isinstance(s.get(key), str):
+            n += len(s[key].split())
+    if s.get("type") != "kinetic":           # kinetic lines are already counted
+        n += sum(len(str(x).split()) for x in voicesync.item_labels(s))
+    return n
 
 
 def full_lint(deck: dict, project: Path | None) -> tuple[list[str], list[str], list[str]]:

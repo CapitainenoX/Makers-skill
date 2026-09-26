@@ -219,7 +219,7 @@ export const TEXT_SPRING: Record<TextFx, SpringName> = {
 
 /** Cadence between words, in ms. Typing is faster and steady; masks read best tight. */
 export const TEXT_CADENCE: Record<TextFx, number> = {
-  rise: 55, mask: 70, blur: 60, pop: 60, slide: 55, type: 45,
+  rise: 85, mask: 100, blur: 90, pop: 90, slide: 85, type: 60,
 };
 
 // ------------------------------------------------------------------ voice cues

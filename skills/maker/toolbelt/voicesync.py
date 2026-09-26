@@ -119,8 +119,25 @@ def spread(n: int, a: float, b: float) -> list[float]:
     return [a + (b - a) * i / (n - 1) for i in range(n)]
 
 
-def sync(deck: dict, words: list[dict], lead: float = 0.12, tail: float = 0.7,
-         fps: int = 30) -> tuple[dict, list[str]]:
+def read_time(s: dict) -> float:
+    """How long a narrated scene must stay up: the voice reads the words aloud, so this is
+    only the time to take the frame in — ~0.8 s plus 0.15 s per word, never under 1.4 s."""
+    n = 0
+    if s.get("rich"):
+        n += sum(1 for t, icon in rich_tokens(s["rich"]) if not icon and any(c.isalnum() for c in t))
+    for key in ("lines", "heading"):
+        for ln in s.get(key) or []:
+            n += len(str(ln.get("t") if isinstance(ln, dict) else ln).split())
+    for key in ("label", "title", "sub", "kicker"):
+        if isinstance(s.get(key), str):
+            n += len(s[key].split())
+    if s.get("type") != "kinetic":
+        n += sum(len(str(x).split()) for x in item_labels(s))
+    return max(1.4, 0.8 + 0.15 * n)
+
+
+def sync(deck: dict, words: list[dict], lead: float = 0.12, tail: float = 0.9,
+         fps: int = 30, hold_after: float = 0.5, max_lag: float = 0.5) -> tuple[dict, list[str]]:
     scenes = deck.get("scenes") or []
     notes: list[str] = []
     spans: list[tuple[int, int] | None] = []
@@ -137,25 +154,35 @@ def sync(deck: dict, words: list[dict], lead: float = 0.12, tail: float = 0.7,
             ptr = sp[1] + 1
         spans.append(sp)
 
-    # scene starts: on the phrase, a hair early; unsynced scenes keep their length
+    # Scene starts: on the phrase, a hair early — but never before the previous scene
+    # has been on screen long enough to be read, and never before its last spoken word
+    # has had a moment to land. When the voice outruns the reading time, the picture
+    # lags the voice slightly and catches up at the next pause.
     starts: list[float] = []
-    t = 0.0
     for i, s in enumerate(scenes):
         sp = spans[i]
         if i == 0:
-            start = 0.0
-        elif sp is not None:
-            start = max(t + 0.5, words[sp[0]]["start"] - lead)   # never a scene under 0.5 s
-        else:
-            start = t
+            starts.append(0.0)
+            continue
+        prev, psp = scenes[i - 1], spans[i - 1]
+        floor = starts[i - 1] + (float(prev.get("duration", 2)) if psp is None
+                                 else read_time(prev))
+        if psp is not None:
+            floor = max(floor, words[psp[1]]["end"] + hold_after)
+        want = words[sp[0]]["start"] - lead if sp is not None else floor
+        # the picture may trail the voice, but by half a second at most: past that the
+        # viewer hears one thing and sees another
+        start = max(want, min(floor, want + max_lag)) if sp is not None else floor
+        if sp is not None and floor - want > max_lag:
+            notes.append(f"scene {i - 1} is short for what it shows ({start - starts[i - 1]:.1f}s) — "
+                         f"put fewer words on it, merge it with scene {i}, or slow the voice")
         starts.append(start)
-        t = start + (float(s.get("duration", 2)) if sp is None else 0.5)
     end_voice = words[-1]["end"] if words else 0.0
     for i, s in enumerate(scenes):
         if i + 1 < len(scenes):
             dur = starts[i + 1] - starts[i]
         else:
-            dur = max(end_voice + tail, starts[i] + float(s.get("duration", 1.5))) - starts[i]
+            dur = max(end_voice + tail, starts[i] + read_time(s)) - starts[i]
         s["duration"] = round(max(0.5, round(dur * fps) / fps), 3)
 
     for i, s in enumerate(scenes):
