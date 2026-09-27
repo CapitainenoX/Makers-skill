@@ -29,11 +29,49 @@ export const Device: React.FC<{
   width: number;
   theme: Theme;
   radius: number;
-}> = ({ kind, media, width, theme, radius }) => {
+  /** drawn inside the screen instead of a source (a terminal, a rebuilt UI) */
+  screen?: React.ReactNode;
+}> = ({ kind, media, width, theme, radius, screen }) => {
   const empty = (aspect: string, r: number) => (
     <div style={{ width: "100%", aspectRatio: aspect, borderRadius: r,
       background: "linear-gradient(160deg,#EDEFF6,#DCE4F2)" }} />
   );
+
+  if (kind === "slab") {
+    // The reference frame: a screen set into a thick, light, bevelled slab, lifted off the
+    // paper by a long soft shadow. It is what makes a flat screenshot read as an object.
+    const rim = Math.max(6, width * 0.03);
+    const r = Math.max(rim * 2, width * 0.06);
+    return (
+      <div
+        style={{
+          width,
+          padding: rim,
+          borderRadius: r,
+          background: "linear-gradient(180deg, #FFFFFF 0%, #F2F2F0 55%, #E4E4E1 100%)",
+          boxShadow: [
+            `0 ${width * 0.06}px ${width * 0.1}px rgba(12,12,14,0.20)`,
+            `0 ${width * 0.018}px ${width * 0.03}px rgba(12,12,14,0.14)`,
+            "inset 0 2px 0 rgba(255,255,255,0.95)",
+            `inset 0 -${Math.max(2, rim * 0.18)}px ${rim * 0.5}px rgba(0,0,0,0.10)`,
+          ].join(", "),
+        }}
+      >
+        <div
+          style={{
+            borderRadius: r - rim * 0.7,
+            overflow: "hidden",
+            maxHeight: width * 1.05,
+            background: "#0E0E12",
+            boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.35)",
+            aspectRatio: media ? undefined : "16 / 10",
+          }}
+        >
+          {screen ?? (media ? <Media media={media} /> : empty("16 / 10", 0))}
+        </div>
+      </div>
+    );
+  }
 
   if (kind === "none" || kind === "card" || kind === "full") {
     const r = radius * (kind === "card" ? 0.5 : 0.25);

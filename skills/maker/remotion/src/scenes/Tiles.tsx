@@ -6,6 +6,7 @@ import { enter, rise, stagger } from "../motion";
 import { WEIGHTS } from "../theme";
 import { RichCaption } from "../components/RichCaption";
 import type { SceneProps } from "./types";
+import { activeLook } from "../look";
 
 /** Two to four sources floating at different depths. Reads as a product shelf rather
  *  than a grid: each tile has its own scale, angle and arrival. */
@@ -53,7 +54,7 @@ export const Tiles: React.FC<SceneProps<"tiles">> = ({ scene, theme, base, font 
             }}
           >
             <Device
-              kind={it.frame ?? "card"}
+              kind={it.frame ?? (activeLook().frame === "phone" ? "card" : activeLook().frame)}
               media={it.media}
               width={w}
               theme={theme}

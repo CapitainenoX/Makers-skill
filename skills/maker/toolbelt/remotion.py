@@ -10,7 +10,7 @@ Subcommands: init · deck · validate · still · sheet · render · studio
 """
 from __future__ import annotations
 
-import argparse, json, os, shutil, sys
+import argparse, datetime as dt, json, os, shutil, sys
 from pathlib import Path
 
 from _common import (die, emit, ffmpeg, ffprobe_json, home, read_json, run,
@@ -19,7 +19,12 @@ from _common import (die, emit, ffmpeg, ffprobe_json, home, read_json, run,
 TEMPLATE = Path(__file__).resolve().parent.parent / "remotion"
 SCENE_TYPES = {"textStack", "pill", "logoList", "card", "bullets", "stat",
                "code", "compare", "outro", "media", "tiles", "annotate",
-               "marquee", "quote", "progress", "chips", "diagram", "flow", "mock", "cta"}
+               "marquee", "quote", "progress", "chips", "diagram", "flow", "mock", "cta",
+               "toast", "pixel"}
+# Motion personalities, mirrored from src/look.ts. Each video gets one; the history below
+# is what stops two uploads in a row from moving the same way.
+LOOKS = ["studio", "spring", "slot", "swipe", "impact", "drift", "flip", "terminal"]
+TRANSITIONS = {"cut", "fade", "whip", "whipUp", "zoom", "zoomOut", "blur", "slide", "spin"}
 # scenes that can carry footage…
 MEDIA_SCENES = {"card", "media", "tiles", "annotate"}
 # …and the subset that is pointless without it. A `card` with an empty device shell is a
@@ -28,7 +33,7 @@ MEDIA_REQUIRED = {"media", "annotate", "tiles"}
 # scenes that actually render the flowing `rich` caption. Setting it elsewhere would do
 # nothing at all, which is worse than an error.
 RICH_SCENES = {"textStack", "chips", "diagram", "flow", "mock", "card", "media",
-               "tiles", "cta"}
+               "tiles", "cta", "toast", "pixel"}
 
 # Chromium lookup: reuse whatever the host already has before downloading 150 MB.
 BROWSER_HINTS = [
@@ -96,6 +101,53 @@ def npx(d: Path, args: list[str], timeout: int = 2400):
     return proc
 
 
+# ------------------------------------------------------------------ look history
+def looks_log() -> Path:
+    d = home() / "memory"
+    d.mkdir(parents=True, exist_ok=True)
+    return d / "looks.jsonl"
+
+
+def look_history() -> list[dict]:
+    p = looks_log()
+    if not p.exists():
+        return []
+    out = []
+    for line in p.read_text(encoding="utf-8").splitlines():
+        try:
+            out.append(json.loads(line))
+        except ValueError:
+            continue
+    return out
+
+
+def look_name(deck: dict) -> str | None:
+    lk = deck.get("look")
+    return lk if isinstance(lk, str) else (lk or {}).get("name") if isinstance(lk, dict) else None
+
+
+def pick_look(avoid: str | None = None) -> str:
+    """The look this channel has gone longest without — never the last one used."""
+    hist = [h.get("look") for h in look_history()]
+    last_seen = {name: -1 for name in LOOKS}
+    for i, name in enumerate(hist):
+        if name in last_seen:
+            last_seen[name] = i
+    ranked = sorted(LOOKS, key=lambda n: (last_seen[n], LOOKS.index(n)))
+    recent = hist[-1] if hist else None
+    for name in ranked:
+        if name != recent and name != avoid:
+            return name
+    return ranked[0]
+
+
+def record_look(deck: dict, deck_path: Path, out: Path):
+    entry = {"date": dt.date.today().isoformat(), "look": look_name(deck) or "auto",
+             "seed": deck.get("seed"), "deck": str(deck_path), "output": str(out)}
+    with looks_log().open("a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+
+
 # ------------------------------------------------------------------------ init
 def cmd_init(a):
     d = project_dir(a.dir)
@@ -135,8 +187,13 @@ def cmd_deck(a):
     deck = read_json(src, {})
     if a.title:
         deck.setdefault("brand", {})["watermark"] = a.title
+    # A new video never inherits the template's choreography: it gets the look the channel
+    # has gone longest without, and a seed of its own for the entrance/decor rotation.
+    deck["look"] = a.look or pick_look()
+    deck["seed"] = f"{slugify(out.parent.name or out.stem)}-{dt.date.today().isoformat()}"
     write_json(out, deck)
     emit({"ok": True, "deck": str(out), "scenes": len(deck.get("scenes", [])),
+          "look": deck["look"], "seed": deck["seed"],
           "next": f"edit it, then: mk remotion sheet {out}"})
 
 
@@ -261,6 +318,9 @@ def lint(deck: dict) -> tuple[list[str], list[str]]:
         d = float(s.get("duration", 2))
         if d > 3.5 and vertical:
             warns.append(f"scene {i} ({t}) runs {d}s — over ~3s a single card stops earning its place")
+        tr = (s.get("transition") or {}).get("type")
+        if tr and tr not in TRANSITIONS:
+            errors.append(f"scene {i}: unknown transition {tr!r}; use one of {sorted(TRANSITIONS)}")
         if s.get("rich") and t not in RICH_SCENES:
             errors.append(f"scene {i} ({t}): `rich` is not rendered by this scene type. "
                           f"Use one of {sorted(RICH_SCENES)}, or put the text in `lines`")
@@ -321,6 +381,21 @@ def lint(deck: dict) -> tuple[list[str], list[str]]:
     if "cta" not in kinds and total > 8:
         warns.append("no `cta` scene — a short that never asks gets watched and forgotten. "
                      "Add one in the last 2s, while the payoff is still warm")
+    name = look_name(deck)
+    if name and name not in LOOKS:
+        errors.append(f"unknown look {name!r}; use one of {LOOKS}")
+    elif not name:
+        warns.append("no `look` — the seed will pick one, and nothing stops it matching the "
+                     f"last video. Set one; `mk remotion deck` picks the least recent: {pick_look()}")
+    else:
+        hist = [h.get("look") for h in look_history()]
+        if hist and hist[-1] == name:
+            warns.append(f"look `{name}` is the one the last video used — viewers feel the same "
+                         f"choreography twice. Try `{pick_look(avoid=name)}`")
+    explicit = [(s.get("transition") or {}).get("type") for s in scenes[1:]]
+    if len(scenes) >= 5 and explicit and all(t == "cut" for t in explicit):
+        warns.append("every hand-over is a hard `cut` — drop the explicit transitions and let "
+                     "the look choose (whip / zoom / blur, cut at peak motion blur)")
     variants = [s.get("variant") for s in scenes]
     if len(scenes) >= 6 and len([v for v in variants if v]) == 0 and len(kinds) < 5:
         warns.append("few scene shapes and no entrance variation — set `variant` on a few "
@@ -446,6 +521,8 @@ def cmd_render(a):
     if a.transparent:
         args += ["--codec=vp8", "--pixel-format=yuva420p"]
     npx(d, args, timeout=a.timeout)
+    if not a.preview:
+        record_look(deck, deck_path, out)
     size = out.stat().st_size / 1e6 if out.exists() else 0
     emit({"ok": True, "output": str(out), "size_mb": round(size, 2),
           "scenes": len(deck.get("scenes", [])),
@@ -470,6 +547,8 @@ def main():
 
     dk = sub.add_parser("deck"); dk.add_argument("output")
     dk.add_argument("--template", default="example"); dk.add_argument("--title", default="")
+    dk.add_argument("--look", choices=LOOKS, default=None,
+                    help="force a motion look (default: the one used least recently)")
     dk.set_defaults(fn=cmd_deck)
 
     v = sub.add_parser("validate"); v.add_argument("deck"); v.set_defaults(fn=cmd_validate)
@@ -487,6 +566,10 @@ def main():
     r.set_defaults(fn=cmd_render)
 
     st = sub.add_parser("studio"); st.set_defaults(fn=cmd_studio)
+
+    lk = sub.add_parser("looks", help="the motion looks, and which one comes next")
+    lk.set_defaults(fn=lambda a: emit({"looks": LOOKS, "history": look_history()[-10:],
+                                        "next": pick_look()}))
 
     a = ap.parse_args(); a.fn(a)
 

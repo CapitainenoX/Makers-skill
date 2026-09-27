@@ -46,6 +46,25 @@ with "Failed to launch the browser process". Point `REMOTION_BROWSER_EXECUTABLE`
 Then rewrite it from the beat sheet. Full schema, every scene type and every field:
 `references/deck-schema.md`. The house look and its rules: `references/studio-style.md`.
 
+## The look: every video moves differently
+
+Before writing a single scene, know which **look** this video uses — the motion
+personality: how words arrive (blur-in, slot, swipe, stomp, flip, track, type-on), which
+camera moves cut the scenes (whip, zoom-through, blur, slide, spin — all with real motion
+blur), the paper, the footage frame, the decor.
+
+```bash
+"$MK" remotion looks          # the eight looks, this channel's history, and the next one
+```
+
+`mk remotion deck` writes the look the channel has gone longest without into the new deck
+and gives it its own `seed`; `render` records it; `validate` warns if the deck reuses the
+previous video's look. **Never copy the `look` or `seed` from an old deck.** Pick against
+the rotation only for a reason (a calm topic → `drift`, a CLI tool → `terminal`).
+
+Leave `transition` unset on most scenes: the look walks its own list of moves and never
+repeats the one before. Leave `decor` unset too, except for the hook and one punchline.
+
 ## The voice: one flowing sentence, emphasis inside it
 
 Before the scene list, the thing that actually defines this look. It is **not** a stack of
@@ -56,8 +75,14 @@ lines with one weight each. It is a sentence that wraps, with words pulled forwa
 ```
 
 Plain words muted and medium; `**bold**` black and slightly larger; `__accent__` in the
-brand colour; `==highlight==` reversed out of a black box, once per video at most. Words
-arrive one at a time.
+brand colour; `==highlight==` reversed out of a black box, once per video at most;
+`*italic*` for the word the voice leans on; `++big++` for the one headline word;
+`~~ghost~~` heavy and pale, the counterweight; `!!under!!` with a brush stroke; `\n` to
+break the line where you want it. Words arrive one at a time.
+
+Mix at least three of these across a deck — scale and weight contrast *inside* a sentence
+is what separates this look from a template. `"Same quality,\n!!Less!! ~~waste~~"` is two
+lines, four treatments, four words.
 
 Read only the bold words — if the sentence still works, it is written right.
 
@@ -70,15 +95,19 @@ The composition is **visual above, sentence below, optically centred**. The top 
 are never dead: `decor` bleeds shapes off the corners, drifting slowly.
 
 ```jsonc
-"decor": { "kind": "rays", "corners": ["top-left", "bottom-right"], "opacity": 0.1 }
+"decor": { "kind": "burst", "corners": ["top-left", "bottom-right"] }
 ```
+
+`burst` (saturated starbursts, the loud one — hook and one other beat), `blueprint` (dashed
+grid, for a "system" beat), `ghost` (one huge pale pictogram behind a punchline), plus the
+quiet `rays` `arcs` `blobs` `grid`.
 
 Set it deck-wide, then override per scene and move it around. Identical wallpaper on every
 scene is the repetition viewers feel without being able to name it.
 
 ## Scene types
 
-Nineteen, each one beat. Bold ones carry footage; starred ones carry logos and structure:
+Twenty-two, each one beat. Bold ones carry footage; starred ones carry logos and structure:
 
 | Type | Beat it serves |
 |---|---|
@@ -88,7 +117,9 @@ Nineteen, each one beat. Bold ones carry footage; starred ones carry logos and s
 | ★ `diagram` | a hub wired to its parts, dashed connectors |
 | ★ `flow` | a pipeline on a white card, numbered and dotted |
 | ★ `mock` | one rebuilt UI control — a prompt bar, not a cropped screenshot |
-| **`card`** | a clip inside a phone or browser shell, on a gradient, drifting |
+| ★ `toast` | notification cards wired by a dashed path — a before/after as UI |
+| ★ `pixel` | a name in pixel type inside a terminal — "developer tool" at a glance |
+| **`card`** | a clip in a `slab`, phone or browser shell, drifting |
 | **`media`** | footage framed, or full-bleed under a scrim and one line |
 | **`tiles`** | two to four sources floating at different scales and angles |
 | **`annotate`** | a capture with a ring, box or arrow popping onto the detail |
@@ -211,6 +242,9 @@ Three moves carry most of the life in this look:
 
 - `"reveal": "word"` on a `textStack` — each word pops in turn, so a written line lands
   like a spoken one. Use it on the hook, not on every card.
+- Motion blur is automatic: fast entrances blur while they move, and scene hand-overs
+  smear along the direction of travel and cut at the blurriest frame. `look.blur` (0–1)
+  turns it down; never to zero on a fast look.
 - `"float": 8, "tilt": 4` on a `card` or `media` — a slow sine drift with perspective.
   Enough to feel alive, not enough to notice.
 - `stat` counts its digits up on a monotonic ramp, never on the spring: a value that
@@ -227,8 +261,9 @@ The display face (Inter) is **bundled with the project**, not fetched. A font pu
 a CDN at render time fails on an offline machine, behind a proxy, or on any host whose CA
 the renderer does not trust — and it took the whole render down when it did.
 
-Scenes cut by default. A `fade` transition overlaps the two scenes into a real
-cross-dissolve; use it at chapter breaks, not between every card.
+Scenes hand over on the look's camera moves by default. A `fade` overlaps the two scenes
+into a real cross-dissolve; use it at chapter breaks, not between every card. `cut` is
+still there when a beat must slam in.
 
 ## 9. Going beyond the deck
 

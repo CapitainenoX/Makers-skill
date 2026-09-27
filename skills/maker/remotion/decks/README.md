@@ -8,6 +8,7 @@ Copy one, replace every `REPLACE`, then `mk remotion validate` before rendering.
 | `tool-short.json` | "here is a tool, here is why" — claim, name, proof, options, number, CTA |
 | `footage-short.json` | **the usual one** — the creator's screen recordings, framed in mockups |
 | `studio-short.json` | the reference grammar: chips, diagram, flow, mock + flowing captions |
+| `reference-short.json` | **the pro grammar** — pixel title, slab card, toasts, mixed-scale captions, loud decor on two beats only |
 | `makers-skill.json` | a finished 11-scene short with real logos, a CTA and per-scene decor |
 
 `footage-short.json` is the template to reach for when rushes exist. Put the clips in
@@ -19,3 +20,7 @@ mk remotion deck .maker/projects/<slug>/deck.json --template tool-short
 mk remotion validate .maker/projects/<slug>/deck.json
 mk remotion sheet .maker/projects/<slug>/deck.json -o out/sheet.png
 ```
+
+Every deck made with `mk remotion deck` gets the look this channel has used least
+recently and a seed of its own — the template's `look` and `seed` are overwritten on
+purpose, so no two videos share a choreography.
