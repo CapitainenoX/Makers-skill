@@ -80,19 +80,27 @@ def say_edge_words(text: str, voice: str, rate: str, raw: Path,
         return [{**w, "start": round(w["start"], 3), "end": round(w["end"], 3)} for w in words]
 
     from _common import ffprobe_json
-    parts, words, t = [], [], 0.0
+    # Each chunk comes back wrapped in ~0.7 s of silence on both sides. Kept, that put two
+    # seconds of dead air after every short sentence ("Chat. Images. Voice.") and the
+    # voice read as slow and monotone. Each chunk is trimmed to its words, so the gap
+    # between two sentences is exactly `pause`.
+    parts, cuts, words, t = [], [], [], 0.0
     for k, sent in enumerate(sentences):
         dest = raw.with_name(f"{raw.stem}.part{k}.mp3")
         ws = asyncio.run(one(sent, dest))
-        dur = float(ffprobe_json(dest)["format"]["duration"])
-        words += [{"w": w["w"], "start": round(t + w["start"], 3), "end": round(t + w["end"], 3)}
+        full = float(ffprobe_json(dest)["format"]["duration"])
+        a0 = max(0.0, ws[0]["start"] - 0.06) if ws else 0.0
+        a1 = min(full, ws[-1]["end"] + 0.14) if ws else full
+        words += [{"w": w["w"], "start": round(t + w["start"] - a0, 3), "end": round(t + w["end"] - a0, 3)}
                   for w in ws]
         parts.append(dest)
-        t += dur + pause
+        cuts.append((a0, a1))
+        t += (a1 - a0) + pause
     inputs: list[str] = []
     for p in parts:
         inputs += ["-i", str(p)]
-    pads = "".join(f"[{i}:a]aresample=48000,apad=pad_dur={pause}[a{i}];" for i in range(len(parts)))
+    pads = "".join(f"[{i}:a]atrim={a0:.3f}:{a1:.3f},asetpts=PTS-STARTPTS,aresample=48000,"
+                   f"apad=pad_dur={pause}[a{i}];" for i, (a0, a1) in enumerate(cuts))
     graph = pads + "".join(f"[a{i}]" for i in range(len(parts))) + f"concat=n={len(parts)}:v=0:a=1[out]"
     ffmpeg([*inputs, "-filter_complex", graph, "-map", "[out]", "-c:a", "libmp3lame", "-b:a", "192k",
             str(raw)], quiet=True)

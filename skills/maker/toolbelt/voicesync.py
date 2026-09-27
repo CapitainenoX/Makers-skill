@@ -140,6 +140,20 @@ def sync(deck: dict, words: list[dict], lead: float = 0.12, tail: float = 0.9,
          fps: int = 30, hold_after: float = 0.5, max_lag: float = 0.5) -> tuple[dict, list[str]]:
     scenes = deck.get("scenes") or []
     notes: list[str] = []
+    # The engine sometimes reports a name as one boundary ("Google Drive"): split it so
+    # the phrase can still be found word by word, sharing the span out by length.
+    split: list[dict] = []
+    for w in words:
+        parts = str(w["w"]).split()
+        if len(parts) < 2:
+            split.append(w)
+            continue
+        span, tot, at = w["end"] - w["start"], sum(len(x) for x in parts), w["start"]
+        for x in parts:
+            d = span * len(x) / tot
+            split.append({"w": x, "start": round(at, 3), "end": round(at + d, 3)})
+            at += d
+    words = split
     spans: list[tuple[int, int] | None] = []
     ptr = 0
     for i, s in enumerate(scenes):
