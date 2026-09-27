@@ -1,0 +1,31 @@
+{
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "look": "studio",
+  "seed": "REPLACE-slug",
+  "brand": { "accent": "#D97757", "watermark": "REPLACE-site.io" },
+  "scenes": [
+    { "type": "textStack", "duration": 1.5,
+      "decor": { "kind": "burst", "corners": ["top-left", "bottom-right"] },
+      "rich": "Here are the\n**5 REPLACE tools**\n==you actually need==" },
+    { "type": "pixel", "duration": 1.8, "text": "REPLACE\nNAME",
+      "decor": { "kind": "blueprint" },
+      "rich": "If you are just **stepping** into" },
+    { "type": "card", "duration": 2.0, "device": "slab",
+      "media": { "src": "shots/REPLACE.mp4", "out": 3 }, "float": 6,
+      "rich": "~~22%~~ **less token**\n*consumption*" },
+    { "type": "textStack", "duration": 1.4, "decor": { "kind": "none" },
+      "rich": "It *forces* **claude**\nto ~~ask~~" },
+    { "type": "toast", "duration": 2.2, "link": { "icon": "bolt", "accent": true },
+      "items": [ { "title": "REPLACE Says", "text": "**8000** credits remaining" },
+                 { "title": "REPLACE Says", "text": "**80000** credits remaining" } ],
+      "rich": "you get up to ++ten++" },
+    { "type": "textStack", "duration": 1.6, "decor": { "kind": "ghost", "glyph": "invader" },
+      "rich": "Same quality,\n!!Less!! ~~waste~~", "richSize": 1.4 },
+    { "type": "stat", "duration": 1.6, "value": "#1", "label": "REPLACE" },
+    { "type": "cta", "duration": 1.8,
+      "actions": [ { "icon": "bell", "label": "Follow", "accent": true } ],
+      "rich": "the next one is ==even better==" }
+  ]
+}

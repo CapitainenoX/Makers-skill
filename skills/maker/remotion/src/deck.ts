@@ -1,6 +1,7 @@
 import type { ThemeName, WeightName } from "./theme";
 import type { SpringName, Variant } from "./motion";
 import type { DecorSpec } from "./components/Decor";
+import type { LookName, LookOverride, Paper, Transition } from "./look";
 
 /** A "deck" is the whole video, described as data. The model writes this JSON;
  *  the components own every pixel decision. Same contract as the ffmpeg EDL:
@@ -40,7 +41,8 @@ export type Media = {
 /** Shorthand: a bare path means an auto-detected, muted, looping source. */
 export type MediaRef = Media | string;
 
-export type Frame = "full" | "card" | "phone" | "browser" | "none";
+/** `slab` is the reference frame: a thick light bevel with a long soft shadow. */
+export type Frame = "full" | "card" | "phone" | "browser" | "slab" | "none";
 
 export type Mark = {
   x: number;
@@ -67,8 +69,10 @@ export type Item = {
 type Base = {
   /** seconds */
   duration: number;
-  /** cut (default) or a short crossfade into this scene */
-  transition?: { type: "cut" | "fade"; duration?: number };
+  /** how this scene takes over from the one before. Left unset, the deck's look picks
+   *  one, rotating so no two consecutive hand-overs are the same move. `fade` overlaps
+   *  the two scenes; every other move cuts at peak motion blur. */
+  transition?: { type: Transition; duration?: number };
   /** override the deck background for this scene */
   bg?: string;
   /** where the block sits. Default `center`: the reference optically centres the whole
@@ -110,7 +114,7 @@ export type Scene = Base &
     | { type: "pill"; label: string; lines?: Line[]; sub?: string }
     | { type: "logoList"; heading?: Line[]; items: Item[]; footer?: Line[] }
     | { type: "card"; lines?: Line[]; media?: MediaRef; src?: string;
-        device?: "phone" | "browser" | "none"; gradient?: [string, string];
+        device?: "phone" | "browser" | "slab" | "none"; gradient?: [string, string];
         caption?: Line[]; float?: number; tilt?: number }
     | { type: "media"; media: MediaRef; frame?: Frame; lines?: Line[];
         position?: "top" | "bottom"; scrim?: boolean; scale?: number;
@@ -133,6 +137,12 @@ export type Scene = Base &
         meta?: string; badge?: string; lines?: Line[]; chip?: ChipSpec }
     | { type: "cta"; actions?: { icon?: string; label?: string; accent?: boolean }[];
         size?: number }
+    | { type: "toast";
+        /** one to three notifications; `text` takes **bold** for the number */
+        items: { title: string; text: string; icon?: string }[];
+        /** a chip on the dashed path between the first two — the thing that changed it */
+        link?: ChipSpec; color?: string }
+    | { type: "pixel"; text: string; frame?: Frame; color?: string }
     | { type: "bullets"; heading?: Line[]; items: Item[] }
     | { type: "stat"; value: string; label?: string; sub?: string; countUp?: boolean }
     | { type: "code"; title?: string; lines: string[]; prompt?: string }
@@ -161,6 +171,13 @@ export type Deck = {
   /** any string — the video's slug works. It shifts the entrance rotation, the push
    *  direction and the decor family, so each video moves differently from the last. */
   seed?: string | number;
+  /** the motion personality: `studio` `spring` `slot` `swipe` `impact` `drift` `flip`
+   *  `terminal`, or `{ "name": "studio", "blur": 0.6, … }` to adjust one. Left unset, the
+   *  seed picks one — and `mk remotion deck` writes the one this channel used least
+   *  recently, so consecutive videos never move the same way. */
+  look?: LookName | LookOverride;
+  /** the surface: `studio` (grey sweep, the reference), `spot`, `warm`, `flat` */
+  paper?: Paper;
   /** default slow push per scene (0.035). Set 0 for a completely static deck. */
   zoom?: number;
   scenes: Scene[];

@@ -9,14 +9,27 @@
  *  Reading only the bold words still gives the sentence — that is the test.
  */
 
-export type Emphasis = "plain" | "bold" | "accent" | "mark";
+export type Emphasis =
+  | "plain" | "bold" | "accent" | "mark"
+  | "italic"   // *word*    — the voice leaning on a word: italic, near-black
+  | "big"      // ++word++  — the one word that is the headline, half again as large
+  | "ghost"    // ~~word~~  — heavy but pale grey, the counterweight ("less **waste**")
+  | "under";   // !!word!!  — black, with a brush stroke drawn underneath
 
 export type Token = { text: string; em: Emphasis };
+
+/** The token a newline in the source becomes. */
+export const BREAK = "\u23CE";
 
 const MARKERS: [RegExp, Emphasis][] = [
   [/\*\*([^*]+)\*\*/g, "bold"],
   [/__([^_]+)__/g, "accent"],
   [/==([^=]+)==/g, "mark"],
+  [/\+\+([^+]+)\+\+/g, "big"],
+  [/~~([^~]+)~~/g, "ghost"],
+  [/!!([^!]+)!!/g, "under"],
+  // single-star italic last, once every **double** marker has been consumed
+  [/\*([^*\s][^*]*?)\*/g, "italic"],
 ];
 
 /** Split a marked-up string into words, each carrying its emphasis. */
@@ -47,7 +60,9 @@ export const parse = (input: string): Token[] => {
 
   const tokens: Token[] = [];
   for (const span of spans) {
-    for (const word of span.text.split(/\s+/)) {
+    // A newline is a deliberate break ("Same quality,\nLess waste") — keep it as a token.
+    for (const word of span.text.replace(/\n/g, " \u23CE ").split(/[ \t\r\f\v]+/)) {
+      if (word === "\u23CE") { tokens.push({ text: BREAK, em: "plain" }); continue; }
       if (word) tokens.push({ text: word, em: span.em });
     }
   }
@@ -55,4 +70,4 @@ export const parse = (input: string): Token[] => {
 };
 
 /** True when the string carries no markers — lets callers keep the old Line API. */
-export const isPlain = (s: string) => !/\*\*|__|==/.test(s);
+export const isPlain = (s: string) => !/\*|__|==|\+\+|~~|!!/.test(s);

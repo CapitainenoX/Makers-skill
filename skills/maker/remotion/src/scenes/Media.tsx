@@ -7,6 +7,7 @@ import { enter, rise } from "../motion";
 import { justify } from "../deck";
 import { RichCaption } from "../components/RichCaption";
 import type { SceneProps } from "./types";
+import { activeLook } from "../look";
 
 /** Footage, presented. Full-bleed with a scrim and a headline, or framed in a shell.
  *  This is how a rush stops looking like a rush. */
@@ -15,7 +16,7 @@ export const MediaScene: React.FC<SceneProps<"media">> = ({ scene, theme, base, 
   const { fps, width } = useVideoConfig();
   const p = enter(frame, fps, scene.lines ? 4 : 0, "snap");
   const drift = useFloat(scene.float ?? 0, scene.tilt ?? 0);
-  const kind = scene.frame ?? "card";
+  const kind = scene.frame ?? activeLook().frame;
   const top = scene.position !== "bottom";
 
   if (kind === "full") {

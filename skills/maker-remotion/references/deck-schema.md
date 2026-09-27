@@ -6,6 +6,8 @@
   "theme": "light",                       // light | dark | ink
   "baseSize": 0.058,                      // type scale as a fraction of width
   "brand": { "accent": "#D97757", "font": "Inter", "watermark": "yourhandle" },
+  "look": "studio",          // the motion personality — see "Looks" below
+  "paper": "studio",         // studio | spot | warm | flat — default comes from the look
   "seed": "my-video-slug",   // shifts entrances, push direction and the border treatment
   "zoom": 0.035,             // slow push on every scene; 0 for a static deck
   "audio": { "src": "bed.mp3", "gain": -19, "fadeIn": 0.4, "fadeOut": 1.2 },
@@ -25,10 +27,44 @@ full URL. Copy assets into `.maker/remotion/public/` before referencing them.
 | `variant` | `up` `down` `left` `right` `scale` `fade` `zoomOut` `tiltLeft` `tiltRight` `riseFar` — how this scene's block arrives. Left unset it rotates by index **and the deck seed** |
 | `zoom` | slow push on this scene as a fraction (deck default `0.035`). `0` holds it still |
 | `bg` | override the deck background for this scene |
-| `transition` | `{ "type": "cut" }` (default) or `{ "type": "fade", "duration": 0.3 }` |
+| `transition` | how this scene takes over: `cut` `whip` `whipUp` `zoom` `zoomOut` `blur` `slide` `spin` `fade`. Left unset, the look picks one and never repeats the previous move |
+
+Every move except `fade` is a **cut at peak motion blur**: the outgoing scene accelerates
+away (0.16 s), the incoming one decelerates in (0.3 s), and both carry real directional
+motion blur, so the hard cut reads as one continuous camera move. Timing is unchanged —
+the mixer's one-shots still land on the cut, and a named move gets a whoosh instead of the
+scene's own sound.
 
 A `fade` overlaps this scene onto the previous one — a true cross-dissolve, not a dip
 through the background. It also shortens the total, which `validate` reports.
+
+## Looks — never the same choreography twice
+
+A look is the motion personality of one video. It decides how words arrive, which camera
+moves cut the scenes, how much motion blur there is, the paper, the default footage
+frame, the decor families and how big the caption sits.
+
+| Look | Words arrive | Cuts with | Feels like |
+|---|---|---|---|
+| `studio` | blur in, pale, then ink over | zoom-through, whip, blur | the reference — soft grey sweep, slab frames |
+| `spring` | spring up; stressed words stomp | cut, slide, zoom | the classic snappy explainer |
+| `slot` | slide up out of an invisible line | whip up, slide | editorial, a title sequence |
+| `swipe` | slide in from the right with a smear | whips | fast, a feed-native reel |
+| `impact` | rise; stressed words drop from 1.7× | zoom, spin | loud, bold starbursts |
+| `drift` | letter-spacing collapses in | blur, zoom out | calm, premium, warm paper |
+| `flip` | rotate up on their baseline | slide, spin, whip up | playful, 3D |
+| `terminal` | type on, character by character | cut, whip | developer tools, CLIs |
+
+```jsonc
+"look": "impact"                                  // one of the eight
+"look": { "name": "studio", "blur": 0.5, "cadence": 90 }   // adjust any field
+```
+
+**Do not pick the look by habit.** `mk remotion deck` writes the look this channel has gone
+longest without, `mk remotion render` records it in `.maker/memory/looks.jsonl`, and
+`validate` warns when a deck reuses the look of the previous video. `mk remotion looks`
+shows the history and what comes next. Change it only for a reason (a calm topic → `drift`,
+a CLI → `terminal`), never back to the last one.
 
 ## Line objects (used by `textStack`, `pill`, `logoList`, `card`, `bullets`, `outro`)
 
@@ -59,19 +95,33 @@ the format; `lines` is for the beats that really are a list.
 | `**word**` | black, near-black, slightly larger — the words that carry the sentence |
 | `__word__` | the accent colour |
 | `==word==` | the words land, then a marker strokes across and the ink flips — one per video |
+| `*word*` | italic, bold, near-black — the voice leaning on a word ("It *forces* claude") |
+| `++word++` | half again as large — the one word that is the headline ("up to ++ten++") |
+| `~~word~~` | heavy but pale grey with a soft falloff — the counterweight ("Less ~~waste~~") |
+| `!!word!!` | black, with a brush stroke drawn under it once it has landed |
+| `\n` | a deliberate line break — "Same quality,\n!!Less!! ~~waste~~" |
 | plain | medium weight, muted |
 
-Words arrive one at a time. Supported on `textStack`, `chips`, `diagram`, `flow`, `mock`,
-`card`, `media` and `tiles`; `validate` errors if you put it anywhere else rather than
+Words arrive one at a time, in the look's entrance. Emphasised words use the look's
+`strong` entrance, so the stress lands harder than the words around it. The caption is set
+big (`textScale` per look, 1.15–1.5×): on half the scenes the type *is* the visual. Supported on `textStack`, `chips`, `diagram`, `flow`, `mock`,
+`card`, `media`, `tiles`, `cta`, `toast` and `pixel`; `validate` errors if you put it anywhere else rather than
 letting it silently do nothing.
 
 ## `decor` — filling the top and bottom
 
 ```jsonc
-"decor": { "kind": "rays",              // rays | arcs | blobs | grid | none
+"decor": { "kind": "burst",             // burst | blueprint | ghost | rays | arcs | blobs | grid | none
            "corners": ["top-left", "bottom-right"],
            "opacity": 0.1, "scale": 0.8 }
 ```
+
+| Kind | What it is |
+|---|---|
+| `burst` | chunky, saturated starbursts in the accent, cropped off the corners, spinning in — the loud one. Needs `brand.accent`; a mono deck gets a faint one |
+| `blueprint` | a dashed construction grid with dots on the crossings, fading out to the edges |
+| `ghost` | one huge pale pictogram behind the type — `"glyph": "invader" \| "asterisk" \| "ring" \| "hash" \| "bolt"` |
+| `rays` `arcs` `blobs` `grid` | the quiet ones, low contrast |
 
 Set it on the deck for a default and override it per scene. **Leave it out entirely and
 the seed picks** the family and the corners per scene, so the border treatment differs
@@ -123,14 +173,14 @@ source with ffprobe and warns you before you spend minutes rendering.
 
 { "type": "card", "duration": 2.4,
   "lines": [ … ], "caption": [ … ],
-  "device": "phone",                       // phone | browser | none
+  "device": "phone",                       // phone | browser | slab | none — unset: the look decides
   "media": { "src": "shots/app.mp4", "out": 3 },   // video or image
   "gradient": ["#A9A6D8", "#8FB4DE"],
   "float": 8, "tilt": 4 }                  // slow drift + perspective, in px and degrees
 
 { "type": "media", "duration": 2.2,        // footage, framed or full-bleed
   "media": { "src": "shots/demo.mp4", "out": 2.6 },
-  "frame": "browser",                      // full | card | phone | browser | none
+  "frame": "browser",                      // full | card | phone | browser | slab | none — unset: the look decides
   "lines": [ … ], "position": "top",       // top | bottom (where the text sits)
   "scrim": true,                           // dark gradient under the text on `full`
   "scale": 0.84, "float": 6, "tilt": 0 }
@@ -193,6 +243,17 @@ source with ffprobe and warns you before you spend minutes rendering.
 { "type": "cta", "duration": 1.8,        // the ask — one action, animated
   "actions": [ { "icon": "bell", "label": "Subscribe", "accent": true } ],
   "rich": "if this saved you an hour, ==say so==" }
+
+{ "type": "toast", "duration": 2.2,      // system notifications — a before/after told as UI
+  "items": [ { "title": "Claude Says", "text": "**8000** credits remaining" },
+             { "title": "Claude Says", "text": "**80000** credits remaining" } ],
+  "link": { "icon": "bolt", "accent": true },  // a chip on the dashed path between them
+  "rich": "you get up to ++ten++" }
+
+{ "type": "pixel", "duration": 1.8,      // a name in 5×7 pixels inside a terminal
+  "text": "CLAUDE\nCODE",                // A–Z 0–9 - . ! ?, up to three lines
+  "frame": "slab", "color": "#D97757",
+  "rich": "If you are just **stepping** into" }
 
 { "type": "mock", "duration": 1.8,       // one rebuilt UI control
   "kind": "prompt", "text": "Build me a landing page for a hair salon.",

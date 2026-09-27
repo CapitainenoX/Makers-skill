@@ -6,6 +6,7 @@ import { Device, useFloat } from "../components/Device";
 import { justify } from "../deck";
 import { RichCaption } from "../components/RichCaption";
 import type { SceneProps } from "./types";
+import { activeLook } from "../look";
 
 /** A raised card holding a screenshot or a device mockup, with text above and
  *  below. The gradient inside the card is what stops a flat screenshot from
@@ -18,13 +19,17 @@ export const Card: React.FC<SceneProps<"card">> = ({ scene, theme, base, font })
   const drift = useFloat(scene.float ?? 0, scene.tilt ?? 0);
   const media = scene.media ?? scene.src;
   const cardW = width * 0.72;
-  const device = scene.device ?? "phone";
+  const look = activeLook();
+  // Without a named device the look chooses the frame; "card" means the phone-on-gradient.
+  const device = scene.device ??
+    (look.frame === "slab" || look.frame === "browser" ? look.frame : "phone");
+  const bare = device === "slab";
 
   const inner = (
     <Device
       kind={device}
       media={media}
-      width={device === "phone" ? cardW * 0.46 : cardW * 0.9}
+      width={device === "phone" ? cardW * 0.46 : bare ? width * 0.82 : cardW * 0.9}
       theme={theme}
       radius={base}
     />
@@ -43,7 +48,9 @@ export const Card: React.FC<SceneProps<"card">> = ({ scene, theme, base, font })
         <TypeStack lines={scene.lines} theme={theme} base={base} font={font} />
       ) : null}
 
-      <div
+      {bare ? (
+        <div style={{ ...rise(p, base * 0.55), ...drift }}>{inner}</div>
+      ) : <div
         style={{
           ...rise(p, base * 0.55),
           ...drift,
@@ -58,7 +65,7 @@ export const Card: React.FC<SceneProps<"card">> = ({ scene, theme, base, font })
         }}
       >
         {inner}
-      </div>
+      </div>}
 
       {scene.caption ? (
         <TypeStack lines={scene.caption} theme={theme} base={base} font={font} delay={11} />

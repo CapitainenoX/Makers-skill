@@ -10,16 +10,40 @@ recordings sit inside phone and browser shells, on a gradient, with a real shado
 drifting a few pixels. The clip is doing the explaining; the frame is what makes it look
 designed. A deck that is nothing but type carries about 10 seconds — not 30.
 
+## What makes it read as *pro* rather than as a template
+
+Studied frame by frame from reference shorts. Each of these is implemented in the renderer;
+the deck only has to not fight them.
+
+1. **Motion blur on everything that moves fast.** A word that arrives sharp looks pasted;
+   one that arrives soft and sharpens looks *filmed*. Scene hand-overs carry directional
+   blur along the move and cut at the blurriest frame, so two scenes read as one camera
+   move. This single thing separates a pro edit from a PowerPoint export.
+2. **Words ink in.** In the `studio` look a word lands pale grey, blurred and ~20 % large,
+   then settles to its size and darkens. The eye follows whichever word is still settling —
+   the reveal *is* the reading order.
+3. **Scale contrast inside one sentence.** "Here are the **5 Claude code plugins** ==you
+   actually need==": three sizes, three weights, one reversed box, in one line. "Same
+   quality,\n!!Less!! ~~waste~~": a black word with a brush stroke against a heavy pale
+   one. Uniform type is the tell of a template.
+4. **The type is big.** The caption sits at 1.4× the old size — about 9 % of the frame
+   width. On a phone, small type is a subtitle; big type is the design.
+5. **Objects are slabs.** Screens sit in a thick light bevel with a long soft shadow
+   (`slab`), not in a hairline border. A notification is a dark card with an accent rim and
+   a serif title (`toast`). A tool name is pixel type inside a terminal (`pixel`).
+6. **Loud decor, used rarely.** A saturated starburst cropped off two corners (`burst`) on
+   the hook and one other beat; a dashed blueprint grid behind a "system" beat; a huge
+   pale pictogram behind a punchline (`ghost`). Nothing on most scenes.
+7. **The choreography changes every video.** See *Looks* in `deck-schema.md`. The same
+   entrance on every upload is what makes a channel feel automated by video four.
+
 ## The rules that make it work
 
-**Black on white.** That is the default and it is deliberate: `#FFFFFF` background,
-near-black type, one accent that a deck opts into with `brand.accent`. White cards on a
-white page separate through elevation — a strong shadow and a hairline — not a tinted
-background. The restraint is the style; colour is what you add for one word, one icon,
-one number.
-
-A warmer paper (`#F4F3F1`) is a legitimate variation, but set it per deck rather than
-making it the house default.
+**Grey studio paper, white objects.** The surface is a soft grey sweep (`paper: "studio"`,
+`#F1F1F0`) — darker along the top edge, lit in the middle — never flat `#FFFFFF`. White
+objects separate from it by elevation; on pure white they have nothing to separate from
+and the frame reads as a slide. Type is near-black, colour arrives through one accent
+that a deck opts into with `brand.accent`.
 
 **The sentence flows; the emphasis is inside it.** This is the single most-copied and
 most-misunderstood part of the look. It is *not* a stack of lines with one weight each.
@@ -58,9 +82,9 @@ is the point — do not recolour them unless a logo must deliberately recede (`-
 **Every scene arrives differently.** `variant` rotates by index. Same-entrance repetition
 is what a viewer feels at scene six without being able to name it.
 
-**Elevation is the only decoration.** Two shadows on every raised object — a wide soft
-one for depth (`0 28px 70px rgba(18,18,15,0.14)`) and a tight one for contact. No borders,
-no gradients on text, no glow.
+**Elevation is the main decoration.** Two shadows on every raised object — a wide soft
+one for depth and a tight one for contact. No glow, no outlines. The only gradient on text
+is the pale falloff of a `~~ghost~~` word.
 
 **Italic for narration.** Lines that are the voice talking ("then you pick any model you
 want") go italic and muted. Lines that are the claim stay upright and black.
@@ -78,8 +102,8 @@ able to name.
 alternating in and out across the deck. A perfectly static frame reads as a slide; three
 or four percent of drift over two seconds reads as a camera.
 
-**Nothing holds still and nothing is busy.** One element enters per beat, springs into
-place, and stays. No particles, no background video. The one exception is the slow drift
+**Nothing holds still and nothing is busy.** One element enters per beat, lands, and
+stays. No particles, no background video. The one exception is the slow drift
 on a framed object (`float: 8`, `tilt: 4`) — a few pixels of movement makes a card read
 as an object in a space rather than a rectangle on a slide.
 
@@ -93,8 +117,8 @@ is right for a card arriving and wrong for a counter: digits that run 1,240 → 
 |---|---|
 | Scene length | 1.4–2.4 s. Over 3 s a single card stops earning its place. |
 | First scene | ≤ 1.5 s, and the biggest type in the video |
-| Transitions | cuts, except a `fade` at a genuine chapter break |
-| Entrance | `pop` spring, 0.18–0.25 s, with overshoot |
+| Transitions | a camera move cut at peak blur (whip / zoom / blur), chosen by the look; `fade` only at a chapter break |
+| Entrance | per look — blur-in 0.46 s, slot 0.36 s, spring 0.18–0.25 s with overshoot |
 | List stagger | 75–85 ms per row |
 | Total | 15–40 s |
 
@@ -142,7 +166,8 @@ zoom the OS to 125-150% *before recording*, or the UI will not read at phone siz
 - More than five lines on screen at once.
 - Three of the same scene type in a row — it stops being an edit.
 - A display line over ~26 characters: it wraps and the rhythm dies.
-- Stock photography. This look has no photographs in it, only screenshots in device shells.
+- Stock photography used as wallpaper. A real photo of a person at work, set in a `slab`
+  like a screenshot, is fine for one beat; a full-bleed stock image is not.
 - A logo intro. There is no intro; the first frame is the claim.
 - A system font. The display face is bundled with the project (`@fontsource-variable/inter`),
   never fetched from a CDN at render time — a font that fails to load takes the render

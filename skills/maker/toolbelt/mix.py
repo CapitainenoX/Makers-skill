@@ -27,7 +27,11 @@ SCENE_SFX = {
     "stat": ("impact", -8), "compare": ("swoosh", -12), "bullets": ("click", -14),
     "code": ("click", -14), "pill": ("pop", -11), "logoList": ("pop", -12),
     "outro": ("impact", -9), "cta": ("impact", -8),
+    "toast": ("pop", -11), "pixel": ("click", -13),
 }
+# A named camera move sounds like the move, whatever the scene is.
+MOVE_SFX = {"whip": ("whoosh", -10), "whipUp": ("whoosh", -10), "zoom": ("swoosh", -11),
+            "zoomOut": ("swoosh", -12), "slide": ("swipe", -12), "spin": ("whoosh", -11)}
 
 
 def loudnorm_2pass(src: Path, dst: Path, target_lufs: float) -> dict:
@@ -111,7 +115,8 @@ def scene_starts(deck: dict) -> list[tuple[float, str]]:
             if i and tr.get("type") == "fade" else 0
         start = max(0, at - ov)
         at = start + f
-        out.append((start / fps, str(s.get("type", ""))))
+        move = str(tr.get("type", "")) if i else ""
+        out.append((start / fps, move if move in MOVE_SFX else str(s.get("type", ""))))
     return out
 
 
@@ -134,7 +139,7 @@ def auto_sfx(deck: dict, sfx_dir: Path, lead: float = 0.06) -> list[dict]:
     """One one-shot per cut, landing `lead` seconds early — the ear leads the eye."""
     tracks = []
     for i, (t, kind) in enumerate(scene_starts(deck)):
-        name, gain = SCENE_SFX.get(kind, ("swoosh", -13))
+        name, gain = MOVE_SFX.get(kind) or SCENE_SFX.get(kind, ("swoosh", -13))
         src, origin = resolve_sfx(name, sfx_dir)
         tracks.append({"type": "sfx", "src": str(src), "origin": origin,
                        "start": max(0.0, t - (lead if i else 0.0)), "gain": gain})
