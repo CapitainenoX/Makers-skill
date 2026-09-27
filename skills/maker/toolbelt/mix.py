@@ -13,20 +13,35 @@ from __future__ import annotations
 import argparse, json, shutil
 from pathlib import Path
 
+import coherence
 import edl
 from _common import (die, emit, ffmpeg, ffprobe_json, home, read_json, run,
                      safe_path, slugify, which, write_json)
 from sfx import PACK, render as render_sfx
 
-# Which one-shot suits which scene type, and how loud it sits.
+# Which one-shot suits which scene type, and how loud it sits. One-shots are felt, not
+# heard: at -8 to -14 dB they competed with the narration, so everything sits ~10 dB
+# lower and `--sfx-gain` moves the whole layer.
 SCENE_SFX = {
-    "textStack": ("swoosh", -13), "chips": ("pop", -12), "diagram": ("swipe", -12),
-    "flow": ("click", -14), "mock": ("pop", -12), "card": ("whoosh", -10),
-    "media": ("whoosh", -10), "tiles": ("pop", -11), "annotate": ("click", -13),
-    "marquee": ("swoosh", -13), "quote": ("swipe", -14), "progress": ("click", -14),
-    "stat": ("impact", -8), "compare": ("swoosh", -12), "bullets": ("click", -14),
-    "code": ("click", -14), "pill": ("pop", -11), "logoList": ("pop", -12),
-    "outro": ("impact", -9), "cta": ("impact", -8),
+    "textStack": ("swoosh", -23), "chips": ("pop", -22), "diagram": ("swipe", -22),
+    "flow": ("click", -24), "mock": ("pop", -22), "card": ("whoosh", -20),
+    "media": ("whoosh", -20), "tiles": ("pop", -21), "annotate": ("click", -23),
+    "marquee": ("swoosh", -23), "quote": ("swipe", -24), "progress": ("click", -24),
+    "stat": ("impact", -18), "compare": ("swoosh", -22), "bullets": ("click", -24),
+    "code": ("click", -24), "pill": ("pop", -21), "logoList": ("pop", -22),
+    "outro": ("impact", -19), "cta": ("impact", -18),
+    "kinetic": ("impact", -19), "chapter": ("impact", -18), "split": ("swipe", -22),
+    "versus": ("impact", -18), "steps": ("click", -23), "timeline": ("swoosh", -23),
+    "checklist": ("click", -23), "chart": ("swoosh", -22), "orbit": ("swoosh", -23),
+    "gallery": ("pop", -21), "focus": ("whoosh", -21), "beforeAfter": ("swipe", -21),
+    "notify": ("pop", -21), "post": ("pop", -22),
+}
+# A moving transition wants the sound of its movement, whatever scene it lands on.
+TRANSITION_SFX = {
+    "whip": ("whoosh", -19), "push": ("swoosh", -22), "slide": ("swoosh", -22),
+    "zoom": ("whoosh", -20), "panel": ("swipe", -20), "wipe": ("swipe", -22),
+    "blinds": ("swipe", -22), "iris": ("swoosh", -23), "flash": ("impact", -18),
+    "blur": ("swoosh", -24), "fade": ("swoosh", -25),
 }
 
 
@@ -64,7 +79,12 @@ def normalise_stem(src: Path, target_lufs: float, cache: Path, tag: str) -> Path
     up around -38 dB and the ducking finished it off. Normalising first means the mix
     gains express a balance instead of a guess."""
     cache.mkdir(parents=True, exist_ok=True)
-    out = cache / f"{tag}-{slugify(src.stem)[:24]}.wav"
+    # The key is the file's identity, not its name: every project names its narration
+    # vo.wav, and a name-keyed cache served one video's voice (in French) under another.
+    import hashlib
+    st = src.stat()
+    key = hashlib.sha1(f"{src.resolve()}|{st.st_size}|{st.st_mtime_ns}|{target_lufs}".encode()).hexdigest()[:12]
+    out = cache / f"{tag}-{slugify(src.stem)[:20]}-{key}.wav"
     if out.exists():
         return out
     exe = which("ffmpeg") or die("ffmpeg required")
@@ -100,19 +120,10 @@ def duration_of(path: Path) -> float:
         return 0.0
 
 
-def scene_starts(deck: dict) -> list[tuple[float, str]]:
-    """(start seconds, scene type) honouring fade overlaps, as the renderer lays them out."""
-    fps = deck.get("fps", 30)
-    at, out = 0, []
-    for i, s in enumerate(deck.get("scenes", [])):
-        f = max(1, round(float(s.get("duration", 2)) * fps))
-        tr = s.get("transition") or {}
-        ov = min(round(float(tr.get("duration", 0.3)) * fps), f - 1, at) \
-            if i and tr.get("type") == "fade" else 0
-        start = max(0, at - ov)
-        at = start + f
-        out.append((start / fps, str(s.get("type", ""))))
-    return out
+def scene_starts(deck: dict) -> list[tuple[float, str, str]]:
+    """(start seconds, scene type, transition) as the renderer lays them out: the deck is
+    resolved first, so an automatic whip gets its whoosh."""
+    return coherence.scene_starts(coherence.resolve(deck))
 
 
 def resolve_sfx(name: str, sfx_dir: Path) -> tuple[Path, str]:
@@ -130,14 +141,14 @@ def resolve_sfx(name: str, sfx_dir: Path) -> tuple[Path, str]:
     return p, "synth"
 
 
-def auto_sfx(deck: dict, sfx_dir: Path, lead: float = 0.06) -> list[dict]:
+def auto_sfx(deck: dict, sfx_dir: Path, lead: float = 0.06, sfx_gain: float = 0.0) -> list[dict]:
     """One one-shot per cut, landing `lead` seconds early — the ear leads the eye."""
     tracks = []
-    for i, (t, kind) in enumerate(scene_starts(deck)):
-        name, gain = SCENE_SFX.get(kind, ("swoosh", -13))
+    for i, (t, kind, move) in enumerate(scene_starts(deck)):
+        name, gain = TRANSITION_SFX.get(move) or SCENE_SFX.get(kind, ("swoosh", -13))
         src, origin = resolve_sfx(name, sfx_dir)
         tracks.append({"type": "sfx", "src": str(src), "origin": origin,
-                       "start": max(0.0, t - (lead if i else 0.0)), "gain": gain})
+                       "start": max(0.0, t - (lead if i else 0.0)), "gain": gain + sfx_gain})
     return tracks
 
 
@@ -157,6 +168,8 @@ def main():
     ap.add_argument("--music-duck", type=float, default=None,
                     help="override how far the bed drops under the voice, in dB")
     ap.add_argument("--sfx-dir", default=None)
+    ap.add_argument("--sfx-gain", type=float, default=0.0,
+                    help="shift every one-shot by this many dB (they default well under the voice)")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
 
@@ -180,7 +193,7 @@ def main():
         deck = read_json(safe_path(a.from_deck, must_exist=True), {}) or {}
         sfx_dir = safe_path(a.sfx_dir, write=True) if a.sfx_dir else safe_path(home() / "sfx", write=True)
         sfx_dir.mkdir(parents=True, exist_ok=True)
-        tracks += auto_sfx(deck, sfx_dir)
+        tracks += auto_sfx(deck, sfx_dir, sfx_gain=a.sfx_gain)
 
     if not tracks:
         die("nothing to mix. Give a spec, or --voice / --music / --from-deck.\n"

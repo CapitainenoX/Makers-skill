@@ -59,6 +59,14 @@ Keep it under ~40 lines total. Memory is a briefing, not an archive.
    - `duplicate` → drop it, or pitch it explicitly as a sequel with a new angle.
    - `adjacent` → keep it, but the hook must not repeat the earlier one.
 4. Pick on **hook sharpness**, not topic size. Record the two rejects in `state.decisions`.
+5. **Not already done — by this channel or by everyone.** List the channel's own uploads
+   (`https://www.youtube.com/oembed?url=…` gives a title; the /videos page gives the list)
+   and drop anything they covered. Then drop the *default picks* of the niche — the
+   projects every "N open-source apps" video shows (for self-hosting/OSS: Immich,
+   Jellyfin, Bitwarden/Vaultwarden, Excalidraw, Ollama, Notion/Figma clones, LocalSend,
+   Stirling PDF, OBS, VLC, GIMP, RustDesk…). A viewer who follows the niche has seen them;
+   a batch built on them reads as recycled. Prefer projects with real traction (stars,
+   recent commits) that the big roundups have not reached yet.
 
 ## 4. Validate the angle in one pass
 

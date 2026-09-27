@@ -34,12 +34,12 @@
   ],
 
   "layers": [
-    { "type": "text", "text": "REPLACE — LE HOOK", "style": "hook", "uppercase": true,
+    { "type": "text", "text": "REPLACE — THE HOOK", "style": "hook", "uppercase": true,
       "start": 0.0, "duration": 1.3, "y": 0.22,
       "in":  { "anim": "popIn", "duration": 0.22, "ease": "easeOutBack" },
       "out": { "anim": "popOut", "duration": 0.14 } },
 
-    { "type": "text", "text": "et ça change tout", "style": "kicker",
+    { "type": "text", "text": "and it changes everything", "style": "kicker",
       "start": 1.05, "duration": 1.1, "y": 0.33,
       "in":  { "anim": "slideUp", "duration": 0.2 },
       "out": { "anim": "fadeOut", "duration": 0.15 } },
@@ -49,7 +49,7 @@
       "in":  { "anim": "slideRight", "duration": 0.18 },
       "out": { "anim": "popOut", "duration": 0.14 } },
 
-    { "type": "text", "text": "lien en description", "style": "caption",
+    { "type": "text", "text": "link in the description", "style": "caption",
       "start": 6.4, "duration": 1.4, "y": 0.8,
       "in":  { "anim": "popIn", "duration": 0.2 },
       "out": { "anim": "fadeOut", "duration": 0.16 } }

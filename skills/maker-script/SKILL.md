@@ -21,14 +21,26 @@ The first 1.5 seconds must do three things at once: **show motion**, **state a s
 
 | Shape | Pattern | Example |
 |---|---|---|
-| Contradiction | "Everyone does X. X is wrong." | "Arrête d'utiliser Notion." |
-| Number | A specific, strange figure | "12 lignes de code. 40 000 étoiles." |
-| Threat | Something the viewer will lose | "Ton repo public fuite ça, là, maintenant." |
-| Result-first | Show the end, then rewind | Final render on frame 1, then "voilà comment" |
-| Impossible | A claim that demands proof | "Ce script monte la vidéo à ma place." |
+| Contradiction | "Everyone does X. X is wrong." | "Stop using Notion for this." |
+| Number | A specific, strange figure | "12 lines of code. 40,000 stars." |
+| Threat | Something the viewer will lose | "Your public repo is leaking this, right now." |
+| Result-first | Show the end, then rewind | Final render on frame 1, then "here's how" |
+| Impossible | A claim that demands proof | "This script edits the video for me." |
+| Hidden in plain sight | Something they use daily and never noticed | "You used this tool today. You've never heard of it." |
 
-Rules: under 9 words. Present tense. No "aujourd'hui on va voir". No greeting. No channel
-name. If the hook needs a sentence of setup, it is not a hook.
+Rules: under 9 words. Present tense. No "today we're going to look at". No greeting. No
+channel name. If the hook needs a sentence of setup, it is not a hook.
+
+**Write in English** unless the creator asks for another language — the house default.
+
+**Give the viewer something to keep.** Open a loop in the hook, promise a payoff mid-way
+("one line of it is worth saving"), deliver it (a command, a setting, a number they can
+use), then tie the ask to it ("save this for the next time…"). A video that only informs
+gets watched; one that equips gets saved and shared.
+
+**Write for the edit.** One idea per sentence, a full stop between ideas — `mk tts`
+pauses on every full stop, and `mk remotion sync` cuts on every phrase. Lists as commas
+("Chrome, VLC, OBS"), not as one-word sentences, or each item gets its own pause.
 
 ## 2. Structure by length
 

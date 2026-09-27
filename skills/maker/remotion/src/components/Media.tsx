@@ -1,5 +1,5 @@
 import React from "react";
-import { Img, Loop, OffthreadVideo, staticFile, useVideoConfig } from "remotion";
+import { Easing, Img, interpolate, Loop, OffthreadVideo, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import type { Media as MediaSpec, MediaRef } from "../deck";
 
 const VIDEO_EXT = /\.(mp4|mov|webm|mkv|m4v|avi)$/i;
@@ -20,12 +20,20 @@ export const Media: React.FC<{
   radius?: number;
   style?: React.CSSProperties;
 }> = ({ media, radius = 0, style }) => {
-  const { fps } = useVideoConfig();
+  const { fps, durationInFrames } = useVideoConfig();
+  const frame = useCurrentFrame();
   const m = normalise(media);
+  // `scroll` pans a tall capture from top to bottom (object-position under cover);
+  // `kenBurns` pushes slowly into a still so it never sits dead on screen.
+  const k = interpolate(frame, [0, Math.max(1, durationInFrames)], [0, 1], {
+    extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.quad),
+  });
   const common: React.CSSProperties = {
     width: "100%",
     height: "100%",
-    objectFit: m.fit ?? "cover",
+    objectFit: m.scroll ? "cover" : m.fit ?? "cover",
+    objectPosition: m.scroll ? `50% ${(k * 100).toFixed(2)}%` : undefined,
+    transform: m.kenBurns ? `scale(${(1 + m.kenBurns * k).toFixed(4)})` : undefined,
     display: "block",
     borderRadius: radius || undefined,
     ...style,

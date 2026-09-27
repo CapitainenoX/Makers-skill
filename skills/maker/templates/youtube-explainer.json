@@ -25,12 +25,12 @@
   ],
 
   "layers": [
-    { "type": "text", "text": "REPLACE — la question", "style": "title",
+    { "type": "text", "text": "REPLACE — the question", "style": "title",
       "start": 0.2, "duration": 2.6, "y": 0.2,
       "in":  { "anim": "popIn", "duration": 0.24, "ease": "easeOutBack" },
       "out": { "anim": "fadeOut", "duration": 0.2 } },
 
-    { "type": "text", "text": "À la fin tu sauras REPLACE", "style": "kicker",
+    { "type": "text", "text": "By the end you'll know REPLACE", "style": "kicker",
       "start": 3.4, "duration": 2.4, "y": 0.84,
       "in":  { "anim": "slideUp", "duration": 0.22 },
       "out": { "anim": "fadeOut", "duration": 0.18 } },

@@ -48,7 +48,7 @@ That is how you watch the rushes without spending the context window on frames.
 "$MK" assemble edl.json --dry-run
 "$MK" assemble edl.json --preview
 "$MK" subs subs/vo.srt -o subs/captions.ass --style shout --width 1080 --height 1920
-"$MK" tts "Ce projet a 40 000 étoiles." -o voice/vo.wav --lang fr
+"$MK" tts "This project has 40,000 stars." -o voice/vo.wav      # English default; --lang fr on request
 "$MK" tts --list -o /dev/null                 # which engines exist here
 "$MK" bgremove rushes/cam.mp4 out/cam.webm --mode auto
 ```
